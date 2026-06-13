@@ -10,11 +10,15 @@
   --secondary:    #B85A30;
   --highlight:    #A47C2F;
   --fg:           #2A2A2A;
-  --fg-muted:     #6B6B6B;
-  --fg-subtle:    #9A9A9A;
+  --fg-muted:     #5A6B60;
+  --fg-subtle:    #8A9E94;
   --border:       rgba(42, 42, 42, 0.10);
   --border-strong:rgba(42, 42, 42, 0.20);
   --radius:       8px;
+
+  /* ── Typography semantic aliases ──
+     --font-geist-sans is injected by the geist package; map display/heading role to it */
+  --font-display: var(--font-geist-sans);
 }
 
 .dark {
@@ -24,10 +28,48 @@
   --secondary:    #D06D43;
   --highlight:    #E2BE6D;
   --fg:           #F8F4EB;
-  --fg-muted:     #A8B8A1;
-  --fg-subtle:    #637A6B;
-  --border:       rgba(248, 244, 235, 0.07);
-  --border-strong:rgba(248, 244, 235, 0.14);
+  --fg-muted:     #A8B09E;
+  --fg-subtle:    #6A7D70;
+  --border:       rgba(248, 244, 235, 0.08);
+  --border-strong:rgba(248, 244, 235, 0.16);
+}
+
+/* ─── Smooth theme transition ("light switch" feel) ───── */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    color 0.22s ease,
+    fill 0.22s ease,
+    stroke 0.22s ease !important;
+}
+
+/* ─── AN Logo — white-bg PNG handling ──────────────────── */
+/* grayscale → invert → brightness pushes lines to white, makes bg black.
+   screen blend: black bg disappears against any dark surface (disc or dark site bg). */
+img.an-logo {
+  mix-blend-mode: screen;
+  display: block;
+}
+/* Light mode: dark disc (matches dark-theme bg) gives the logo a surface to screen against */
+.an-logo-disc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #222B28;
+  flex-shrink: 0;
+  /* soft glow edge */
+  box-shadow: 0 0 0 1px rgba(168, 184, 161, 0.12);
+}
+
+/* Dark mode: no disc — logo screens directly against the dark site bg */
+.dark .an-logo-disc {
+  background: transparent;
+  box-shadow: none;
 }
 
 /* ─── Base ─────────────────────────────────────────────── */
@@ -36,18 +78,20 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  cursor: none;
 }
 
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  cursor: none;
 }
 
-/* Skip-to-content (accessibility) */
+/* ─── Skip link ─────────────────────────────────────────── */
 .skip-link {
   position: absolute;
   top: -100%;
@@ -62,13 +106,78 @@ body {
   text-decoration: none;
   z-index: 9999;
   transition: top 0.2s;
+  cursor: pointer;
 }
 .skip-link:focus { top: 0; }
 
-/* ─── Typography utilities ─────────────────────────────── */
-.font-display  { font-family: var(--font-fraunces), Georgia, serif; }
-.font-heading  { font-family: var(--font-ibm-plex-serif), Georgia, serif; }
+/* ─── Custom cursor ─────────────────────────────────────── */
+.cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 6px; height: 6px;
+  background: var(--fg);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+  will-change: transform;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--fg);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9997;
+  transform: translate(-50%, -50%);
+  opacity: 0.4;
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.2s ease, opacity 0.2s ease;
+  will-change: transform;
+}
+
+.cursor-dot.hover  { width: 8px; height: 8px; background: var(--secondary); }
+.cursor-ring.hover { width: 48px; height: 48px; opacity: 0.2; border-color: var(--secondary); }
+.cursor-dot.hidden, .cursor-ring.hidden { opacity: 0; }
+
+/* Restore normal cursor on touch devices (cursor component hides itself there) */
+@media (pointer: coarse) {
+  html, body, a, button { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* ─── Scroll-reveal animations ──────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.35s; }
+
+/* ─── Hero name color swap ──────────────────────────────── */
+/* Light: "Andrew" is orange, "Nguyen" is default fg */
+.hero-name-first { color: var(--secondary); }
+.hero-name-last  { color: var(--fg); }
+/* Dark: swap — "Andrew" is default fg, "Nguyen" is orange */
+.dark .hero-name-first { color: var(--fg); }
+.dark .hero-name-last  { color: var(--secondary); }
+
+/* ─── Typography ────────────────────────────────────────── */
+.font-display  { font-family: var(--font-display), system-ui, sans-serif; }
 .font-mono     { font-family: var(--font-jetbrains-mono), 'Courier New', monospace; }
+.font-label    { font-family: var(--font-ibm-plex-mono), 'Courier New', monospace; }
+.font-accent   { font-family: var(--font-instrument-serif), Georgia, serif; }
+.font-writing  { font-family: var(--font-newsreader), Georgia, serif; }
+.font-data     { font-family: var(--font-ibm-plex-sans), system-ui, sans-serif; }
 
 /* ─── Selection ────────────────────────────────────────── */
 ::selection {
@@ -76,15 +185,15 @@ body {
   color: var(--bg);
 }
 
-/* ─── Scrollbar (webkit) ───────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 3px;
 }
 
-/* ─── Reduced motion ───────────────────────────────────── */
+/* ─── Reduced motion ────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -92,16 +201,18 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  /* Show loader final state immediately */
   #loader { display: none !important; }
+  .reveal { opacity: 1; transform: none; }
 }
 
-/* ─── Loader ───────────────────────────────────────────── */
+/* ─── Loader ────────────────────────────────────────────── */
 #loader {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 1000;
-  background: #222B28;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,7 +221,7 @@ body {
 
 #loader.done {
   pointer-events: none;
-  animation: loader-exit 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  animation: loader-exit 0.75s cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 
 @keyframes loader-exit {
@@ -118,15 +229,14 @@ body {
   100% { transform: translateY(-100%); opacity: 0; }
 }
 
-/* Vinyl spin — applied by JS after phase 2 */
 .vinyl-spinning {
-  animation: vinyl-spin 4s linear infinite;
+  animation: vinyl-spin 3s linear infinite;
   transform-origin: center;
   transform-box: fill-box;
 }
 
 .label-counter-spin {
-  animation: counter-spin 4s linear infinite;
+  animation: counter-spin 3s linear infinite;
   transform-origin: center;
   transform-box: fill-box;
 }
@@ -134,28 +244,31 @@ body {
 @keyframes vinyl-spin    { to { transform: rotate(360deg);  } }
 @keyframes counter-spin  { to { transform: rotate(-360deg); } }
 
-/* ─── Nav ──────────────────────────────────────────────── */
+/* ─── Nav ───────────────────────────────────────────────── */
 #nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 18px 32px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: transform 0.3s ease, background 0.3s ease;
+  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  /* Isolate the logo's blend-mode so it composites against the nav bg only,
+     not the scrolled page content behind the backdrop-filter */
+  isolation: isolate;
 }
 
 #nav.hidden { transform: translateY(-100%); }
 
 #nav.scrolled {
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
 }
 
-/* ─── Menu overlay ─────────────────────────────────────── */
+/* ─── Menu overlay ──────────────────────────────────────── */
 #menu-overlay {
   position: fixed;
   inset: 0;
@@ -163,30 +276,46 @@ body {
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  padding: 80px 48px 48px;
+  padding: 80px 52px 52px;
   transform: translateY(-100%);
-  transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.58s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 #menu-overlay.open { transform: translateY(0); }
 
-/* ─── Sections ─────────────────────────────────────────── */
+/* ─── Sections ──────────────────────────────────────────── */
 .section {
-  padding: 120px 48px;
-  max-width: 1200px;
+  padding: 120px 52px;
+  max-width: 1240px;
   margin: 0 auto;
   width: 100%;
 }
 
 @media (max-width: 768px) {
   .section { padding: 80px 24px; }
-  #nav { padding: 16px 24px; }
+  #nav { padding: 10px 16px; }
+  #menu-overlay { padding: 72px 24px 32px; }
 }
 
-/* ─── Project card hover ───────────────────────────────── */
+/* ─── Section numbers ───────────────────────────────────── */
+.section-num {
+  position: absolute;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(6rem, 16vw, 14rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--fg);
+  opacity: 0.03;
+  pointer-events: none;
+  user-select: none;
+  right: 0;
+  top: 60px;
+  letter-spacing: -0.04em;
+}
+
+/* ─── Project cards ─────────────────────────────────────── */
 .project-card {
   perspective: 1000px;
-  cursor: pointer;
 }
 
 .project-card-inner {
@@ -195,13 +324,36 @@ body {
 }
 
 .project-card:hover .project-card-inner {
-  transform: rotateX(-2deg) rotateY(3deg) translateY(-4px);
-  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.3);
+  transform: rotateX(-2deg) rotateY(3deg) translateY(-6px);
+  box-shadow: 0 28px 56px -12px rgba(0,0,0,0.28);
 }
 
-/* ─── Focus styles ─────────────────────────────────────── */
+/* ─── Scroll progress ───────────────────────────────────── */
+#scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--primary);
+  z-index: 999;
+  transform-origin: left;
+  transition: transform 0.05s linear;
+}
+
+/* ─── Focus ─────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
   border-radius: 3px;
+}
+
+/* ─── Stat card ─────────────────────────────────────────── */
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+  transition: border-color 0.2s ease;
+}
+.stat-card:hover {
+  border-color: var(--primary);
 }
