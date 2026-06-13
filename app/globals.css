@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme tokens ─────────────────────────────────────── */
+:root {
+  --bg:           #F8F4EB;
+  --surface:      #E6D9C7;
+  --primary:      #506354;
+  --secondary:    #B85A30;
+  --highlight:    #A47C2F;
+  --fg:           #2A2A2A;
+  --fg-muted:     #6B6B6B;
+  --fg-subtle:    #9A9A9A;
+  --border:       rgba(42, 42, 42, 0.10);
+  --border-strong:rgba(42, 42, 42, 0.20);
+  --radius:       8px;
+}
+
+.dark {
+  --bg:           #222B28;
+  --surface:      #313833;
+  --primary:      #A8B8A1;
+  --secondary:    #D06D43;
+  --highlight:    #E2BE6D;
+  --fg:           #F8F4EB;
+  --fg-muted:     #A8B8A1;
+  --fg-subtle:    #637A6B;
+  --border:       rgba(248, 244, 235, 0.07);
+  --border-strong:rgba(248, 244, 235, 0.14);
+}
+
+/* ─── Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Skip-to-content (accessibility) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: 0 0 8px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 0; }
+
+/* ─── Typography utilities ─────────────────────────────── */
+.font-display  { font-family: var(--font-fraunces), Georgia, serif; }
+.font-heading  { font-family: var(--font-ibm-plex-serif), Georgia, serif; }
+.font-mono     { font-family: var(--font-jetbrains-mono), 'Courier New', monospace; }
+
+/* ─── Selection ────────────────────────────────────────── */
+::selection {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+/* ─── Scrollbar (webkit) ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+/* ─── Reduced motion ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Show loader final state immediately */
+  #loader { display: none !important; }
+}
+
+/* ─── Loader ───────────────────────────────────────────── */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #222B28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#loader.done {
+  pointer-events: none;
+  animation: loader-exit 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes loader-exit {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+/* Vinyl spin — applied by JS after phase 2 */
+.vinyl-spinning {
+  animation: vinyl-spin 4s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.label-counter-spin {
+  animation: counter-spin 4s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes vinyl-spin    { to { transform: rotate(360deg);  } }
+@keyframes counter-spin  { to { transform: rotate(-360deg); } }
+
+/* ─── Nav ──────────────────────────────────────────────── */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+#nav.hidden { transform: translateY(-100%); }
+
+#nav.scrolled {
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── Menu overlay ─────────────────────────────────────── */
+#menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 80px 48px 48px;
+  transform: translateY(-100%);
+  transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+#menu-overlay.open { transform: translateY(0); }
+
+/* ─── Sections ─────────────────────────────────────────── */
+.section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .section { padding: 80px 24px; }
+  #nav { padding: 16px 24px; }
+}
+
+/* ─── Project card hover ───────────────────────────────── */
+.project-card {
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.project-card-inner {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.project-card:hover .project-card-inner {
+  transform: rotateX(-2deg) rotateY(3deg) translateY(-4px);
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.3);
+}
+
+/* ─── Focus styles ─────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
