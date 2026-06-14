@@ -4,7 +4,7 @@ interface ANLogoProps {
 }
 
 export function ANLogo({ size = 44, className }: ANLogoProps) {
-  const pad = Math.round(size * 0.18);
+  const pad = Math.round(size * 0.12);
   const total = size + pad * 2;
   return (
     <span
