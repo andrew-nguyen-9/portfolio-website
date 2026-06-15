@@ -3,35 +3,63 @@
 @tailwind utilities;
 
 /* ─── Theme tokens ─────────────────────────────────────── */
+/* Color theory: split-complementary harmony anchored on the logo's dark
+   forest green (#222B28). Primary = deep green · Secondary = warm orange
+   (complementary) · Highlight = gold (split-complement). 60-30-10 rule:
+   parchment bg / sage surface / green+orange accents.                    */
 :root {
-  --bg:           #F8F4EB;
-  --surface:      #E6D9C7;
-  --primary:      #506354;
-  --secondary:    #B85A30;
-  --highlight:    #A47C2F;
-  --fg:           #2A2A2A;
-  --fg-muted:     #5A6B60;
-  --fg-subtle:    #8A9E94;
-  --border:       rgba(42, 42, 42, 0.10);
-  --border-strong:rgba(42, 42, 42, 0.20);
+  --bg:           #F8F4EB;  /* warm parchment */
+  --surface:      #EDE5D3;  /* sage-kissed sand */
+  --primary:      #3E5248;  /* deep forest green — logo DNA */
+  --secondary:    #B85A30;  /* complementary warm orange */
+  --highlight:    #7EA898;  /* teal pulled from logo lines */
+  --fg:           #1C2620;  /* near-black with green undertone */
+  --fg-muted:     #4E6559;
+  --fg-subtle:    #7D9A8A;
+  --border:       rgba(28, 38, 32, 0.10);
+  --border-strong:rgba(28, 38, 32, 0.18);
+  --card-border:  #C7C3B3;  /* border-strong composited onto surface */
   --radius:       8px;
-
-  /* ── Typography semantic aliases ──
-     --font-geist-sans is injected by the geist package; map display/heading role to it */
   --font-display: var(--font-geist-sans);
 }
 
 .dark {
+  /* Bg = logo disc color so logo blends into the page in dark mode.
+     Surface is slightly lighter, creating subtle depth.               */
   --bg:           #222B28;
-  --surface:      #313833;
-  --primary:      #A8B8A1;
-  --secondary:    #D06D43;
-  --highlight:    #E2BE6D;
-  --fg:           #F8F4EB;
-  --fg-muted:     #A8B09E;
-  --fg-subtle:    #6A7D70;
-  --border:       rgba(248, 244, 235, 0.08);
-  --border-strong:rgba(248, 244, 235, 0.16);
+  --surface:      #2D3632;
+  --primary:      #8AB4A0;  /* sage green, readable on dark */
+  --secondary:    #E07840;  /* vibrant orange */
+  --highlight:    #D4A84E;  /* warm gold */
+  --fg:           #EDE8DE;
+  --fg-muted:     #9DB5A5;
+  --fg-subtle:    #5C7A6A;
+  --border:       rgba(237, 232, 222, 0.08);
+  --border-strong:rgba(237, 232, 222, 0.16);
+  --card-border:  #4C524E;  /* border-strong composited onto surface */
+}
+
+/* ─── High-contrast mode (via A11y panel) ───────────────── */
+.high-contrast {
+  --bg:           #000;
+  --surface:      #111;
+  --primary:      #fff;
+  --secondary:    #fc0;
+  --highlight:    #0cf;
+  --fg:           #fff;
+  --fg-muted:     #ccc;
+  --fg-subtle:    #999;
+  --border:       rgba(255,255,255,0.30);
+  --border-strong:rgba(255,255,255,0.55);
+}
+
+/* ─── Reduce-motion (via A11y panel class, supplements media query) ── */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration:       0.01ms !important;
+  animation-iteration-count:1      !important;
+  transition-duration:      0.01ms !important;
 }
 
 /* ─── Smooth theme transition ("light switch" feel) ───── */
@@ -164,12 +192,28 @@ body {
 .reveal-delay-3 { transition-delay: 0.35s; }
 
 /* ─── Hero name color swap ──────────────────────────────── */
-/* Light: "Andrew" is orange, "Nguyen" is default fg */
+/* Light: "AndReW" is orange, "nGuyen" is default fg */
 .hero-name-first { color: var(--secondary); }
 .hero-name-last  { color: var(--fg); }
-/* Dark: swap — "Andrew" is default fg, "Nguyen" is orange */
+/* Dark: swap — "AndReW" is default fg, "nGuyen" is orange */
 .dark .hero-name-first { color: var(--fg); }
 .dark .hero-name-last  { color: var(--secondary); }
+
+/* ─── Typing cursor ─────────────────────────────────────── */
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.typing-cursor {
+  display: inline-block;
+  width: 3px;
+  height: 0.72em;
+  background: currentColor;
+  margin-left: 4px;
+  vertical-align: baseline;
+  border-radius: 1px;
+  animation: cursor-blink 0.82s step-end infinite;
+}
 
 /* ─── Typography ────────────────────────────────────────── */
 .font-display  { font-family: var(--font-display), system-ui, sans-serif; }
@@ -295,6 +339,21 @@ body {
   .section { padding: 80px 24px; }
   #nav { padding: 10px 16px; }
   #menu-overlay { padding: 72px 24px 32px; }
+
+  /* Shrink nav logo on mobile so the bar stays compact */
+  #nav .an-logo-disc { width: 68px !important; height: 68px !important; }
+  #nav .an-logo      { width: 52px !important; height: 52px !important; }
+
+  /* Flip cards: slightly shorter on small screens */
+  .project-card { height: 300px; }
+
+  /* Eyebrow items can wrap on very narrow screens */
+  #hero .eyebrow { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 480px) {
+  .project-card { height: 270px; }
+  #hero .hero-ctas { flex-direction: column; align-items: flex-start; }
 }
 
 /* ─── Section numbers ───────────────────────────────────── */
@@ -304,28 +363,58 @@ body {
   font-size: clamp(6rem, 16vw, 14rem);
   font-weight: 800;
   line-height: 1;
-  color: var(--fg);
-  opacity: 0.03;
+  color: var(--primary);
+  opacity: 0.08;
   pointer-events: none;
   user-select: none;
   right: 0;
   top: 60px;
   letter-spacing: -0.04em;
+  z-index: 2;
 }
 
-/* ─── Project cards ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .section-num { display: none; }
+}
+
+/* ─── Project cards — flip ──────────────────────────────── */
 .project-card {
-  perspective: 1000px;
+  perspective: 1200px;
+  height: 340px;
+  cursor: pointer;
 }
 
 .project-card-inner {
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
 }
 
-.project-card:hover .project-card-inner {
-  transform: rotateX(-2deg) rotateY(3deg) translateY(-6px);
-  box-shadow: 0 28px 56px -12px rgba(0,0,0,0.28);
+/* Desktop: hover flips the card */
+@media (hover: hover) {
+  .project-card:hover .project-card-inner { transform: rotateY(180deg); }
+}
+/* Touch: tap toggles .flipped class (set via JS) */
+.project-card.flipped .project-card-inner { transform: rotateY(180deg); }
+
+.project-card-front,
+.project-card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+}
+.project-card-back {
+  transform: rotateY(180deg);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─── Scroll progress ───────────────────────────────────── */
@@ -352,8 +441,93 @@ body {
   border-radius: 16px;
   padding: 20px 24px;
   background: var(--surface);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .stat-card:hover {
   border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* ─── Tooltip ───────────────────────────────────────────── */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.65rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 600;
+}
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--fg);
+}
+.tooltip-wrapper:hover .tooltip,
+.tooltip-wrapper:focus-within .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ─── Background image masks (fades on image only, never on text) ── */
+/* Hero: right-bottom anchored, strong fades toward top-left */
+.hero-bg-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 26%, black 66%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 26%, black 66%, transparent 100%);
+  -webkit-mask-composite: source-in;
+}
+/* Sections: centered image, softer edge fades */
+.section-bg-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-composite: source-in;
+}
+
+/* ─── hCaptcha wrapper ──────────────────────────────────── */
+.hcaptcha-wrapper {
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  padding: 4px;
 }

@@ -7,6 +7,7 @@ import {
   Newsreader,
   IBM_Plex_Sans,
   IBM_Plex_Mono,
+  Major_Mono_Display,
 } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
@@ -72,6 +73,14 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["300", "400", "500", "600"],
 });
 
+// hero name — typing animation
+const majorMonoDisplay = Major_Mono_Display({
+  subsets: ["latin"],
+  variable: "--font-major-mono",
+  display: "swap",
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Andrew Nguyen — Data Engineer & Builder",
@@ -128,6 +137,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           newsreader.variable,
           ibmPlexSans.variable,
           ibmPlexMono.variable,
+          majorMonoDisplay.variable,
         ].join(" ")}
       >
         <a href="#main-content" className="skip-link">Skip to content</a>

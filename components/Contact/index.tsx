@@ -11,8 +11,16 @@ function ContactForm() {
   const [state,   setState]   = useState<State>("idle");
   const [errMsg,  setErrMsg]  = useState("");
   const [mounted, setMounted] = useState(false);
+  const [isDark,  setIsDark]  = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    const check = () => setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -95,7 +103,14 @@ function ContactForm() {
       </div>
 
       {mounted && HCAPTCHA_SITE_KEY && (
-        <div className="h-captcha" data-sitekey={HCAPTCHA_SITE_KEY} data-theme="dark" />
+        <div className="hcaptcha-wrapper">
+          <div
+            key={isDark ? "dark" : "light"}
+            className="h-captcha"
+            data-sitekey={HCAPTCHA_SITE_KEY}
+            data-theme={isDark ? "dark" : "light"}
+          />
+        </div>
       )}
 
       {errMsg && (
@@ -129,7 +144,7 @@ export default function Contact() {
   const revealRef = useReveal();
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="section relative overflow-hidden">
+    <section id="contact" aria-labelledby="contact-heading" className="section relative">
       <span className="section-num" aria-hidden="true">03</span>
       <div ref={revealRef} className="reveal max-w-2xl">
         <p

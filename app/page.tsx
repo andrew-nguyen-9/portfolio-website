@@ -10,17 +10,18 @@ import Contact      from "@/components/Contact";
 import Footer       from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 
-const Loader = dynamic(() => import("@/components/Loader"), { ssr: false });
-const Cursor = dynamic(() => import("@/components/Cursor"), { ssr: false });
+const Loader    = dynamic(() => import("@/components/Loader"),    { ssr: false });
+const Cursor    = dynamic(() => import("@/components/Cursor"),    { ssr: false });
+const A11yPanel = dynamic(() => import("@/components/A11yPanel"), { ssr: false });
 
 export default function Home() {
   const [loaderDone, setLoaderDone] = useState(false);
-
   const handleLoaderComplete = useCallback(() => setLoaderDone(true), []);
 
   return (
     <>
       <Cursor />
+      <A11yPanel />
       <ScrollProgress />
 
       {!loaderDone && <Loader onComplete={handleLoaderComplete} />}

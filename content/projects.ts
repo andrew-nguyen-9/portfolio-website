@@ -5,6 +5,7 @@ export interface Project {
   name: string;
   tagline: string;
   description: string;
+  imageUrl?: string;
   subdomain: string;
   repoUrl?: string;
   status: ProjectStatus;
@@ -21,6 +22,7 @@ export const projects: Project[] = [
     tagline: "Artist intelligence for major US music festivals",
     description:
       "Autonomous data pipeline surfacing lineup analytics, artist metadata, streaming stats, and AI-generated insights for Lollapalooza and beyond.",
+    imageUrl: "https://images.unsplash.com/photo-1565035010268-a3816f98589a?q=80&w=988&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "festival.an9.dev",
     repoUrl: "https://github.com/andrew-nguyen-9/music-festival-analyzer",
     status: "building",
@@ -35,6 +37,7 @@ export const projects: Project[] = [
     tagline: "Live and offline fantasy football draft intelligence",
     description:
       "Pipeline-driven web app for NFL fantasy: player intelligence, live draft assistance, trade optimizer, and waiver wire analysis.",
+    imageUrl: "https://images.unsplash.com/photo-1719518701287-72bb9b3366ee?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "draft.an9.dev",
     repoUrl: "https://github.com/andrew-nguyen-9/fantasy-football-tool",
     status: "building",
@@ -49,6 +52,7 @@ export const projects: Project[] = [
     tagline: "An after-dark house of trivia games",
     description:
       "Four trivia rooms over one daily question bank — The Board, The Clock, The Wedges, The Streak — forged from Wikipedia, Deezer, TMDB, and Sleeper.",
+    imageUrl: "https://images.unsplash.com/photo-1758818127034-84adef35c239?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjB8fHZpY3RvcmlhbiUyMGludGVyaW9yfGVufDB8fDB8fHww",
     subdomain: "parlor.an9.dev",
     repoUrl: "https://github.com/andrew-nguyen-9/trivia-generator",
     status: "building",
@@ -63,6 +67,7 @@ export const projects: Project[] = [
     tagline: "Election analytics: PAC funding, polls, and economics",
     description:
       "Five-tab analytics tool covering Super PAC/PAC funding flows, rolling poll averages, district-level historical results, issue polling, and economic indicators.",
+    imageUrl: "https://images.unsplash.com/photo-1605126511476-3284bef5af50?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "midterms.an9.dev",
     status: "planned",
     year: 2026,
@@ -76,6 +81,7 @@ export const projects: Project[] = [
     tagline: "Data storyboard for every race, driver, and team",
     description:
       "Live telemetry, historical results, car design analysis, rivalry graphs, and budget-vs-performance correlation across the 2026 season.",
+    imageUrl: "https://images.unsplash.com/photo-1772309498395-2d954563f764?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "f1.an9.dev",
     status: "planned",
     year: 2026,
@@ -89,6 +95,7 @@ export const projects: Project[] = [
     tagline: "Chicago transit data, staffing, and route design",
     description:
       "GTFS-powered analysis of CTA bus and rail coverage gaps, staffing shortages, funding efficiency, and proposed route optimizations.",
+    imageUrl: "https://images.unsplash.com/photo-1714357294111-66d9b58b5cfb?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "cta.an9.dev",
     status: "planned",
     year: 2026,
@@ -102,6 +109,7 @@ export const projects: Project[] = [
     tagline: "Shrinkflation, price inflation, and recipe discovery",
     description:
       "Data journalism on food: supply chain origins, shrinkflation tracking, CPI food categories, and recipe discovery with real-time cost estimates.",
+    imageUrl: "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "grocery.an9.dev",
     status: "planned",
     year: 2026,
@@ -111,10 +119,11 @@ export const projects: Project[] = [
   },
   {
     id: "cooking-music-game",
-    name: "Kitchen",
+    name: "House Special",
     tagline: "Ingredients as instruments; flavor profiles as motifs",
     description:
       "Interactive music looper where each ingredient has a unique sound. Pair ingredients by flavor profile to build harmonic compositions.",
+    imageUrl: "https://images.unsplash.com/photo-1701510453951-425c888e3407?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     subdomain: "kitchen.an9.dev",
     status: "planned",
     year: 2026,

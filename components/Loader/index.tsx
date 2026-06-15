@@ -18,9 +18,10 @@ const OUTER_R   = 130;
 const INNER_R   = 50;
 
 export default function Loader({ onComplete }: { onComplete: () => void }) {
-  const svgRef  = useRef<SVGSVGElement>(null);
-  const rafRef  = useRef<number>(0);
-  const t0Ref   = useRef<number | null>(null);
+  const svgRef       = useRef<SVGSVGElement>(null);
+  const rafRef       = useRef<number>(0);
+  const t0Ref        = useRef<number | null>(null);
+  const speedMultRef = useRef(1);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -66,32 +67,49 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
     const mono       = svg.querySelector<SVGGElement>("#mono");
     const counter    = svg.querySelector<SVGTextElement>("#counter");
 
+    // ── Page-load speed tracking ─────────────────────────────
+    // When the page loads, scale up the animation speed so the
+    // loader exits proportionally faster on fast connections.
+    const MIN_ANIM_MS = 2800; // minimum duration to preserve visual quality
+    const onLoad = () => {
+      const t0 = t0Ref.current ?? performance.now();
+      const loadElapsed = performance.now() - t0;
+      const targetFinish = Math.max(MIN_ANIM_MS, loadElapsed + 450);
+      speedMultRef.current = TOTAL_MS / targetFinish;
+    };
+    if (document.readyState === "complete") {
+      speedMultRef.current = TOTAL_MS / MIN_ANIM_MS;
+    } else {
+      window.addEventListener("load", onLoad, { once: true });
+    }
+
     let spinning = false;
 
     function frame(ts: number) {
       if (!t0Ref.current) t0Ref.current = ts;
-      const e = ts - t0Ref.current;
+      const e  = ts - t0Ref.current;
+      const ve = e * speedMultRef.current; // virtual elapsed — compresses with load speed
 
       if (counter) {
-        const pct = Math.min(100, Math.round((e / TOTAL_MS) * 100));
+        const pct = Math.min(100, Math.round((ve / TOTAL_MS) * 100));
         counter.textContent = String(pct).padStart(2, "0");
       }
 
       // ── Phase 1: Waveform draws in (0–800ms) ──────────────────
       if (wave) {
-        const p1 = prog(e, 0, 800);
+        const p1 = prog(ve, 0, 800);
         const len = parseFloat(wave.style.strokeDasharray || "420");
         wave.setAttribute("opacity", String(clamp01(p1 * 3)));
         wave.style.strokeDashoffset = String(len * (1 - easeIO(p1)));
 
-        const p1f = prog(e, 680, 1100);
+        const p1f = prog(ve, 680, 1100);
         if (p1f > 0) wave.setAttribute("opacity", String(clamp01(1 - easeOut3(p1f))));
       }
 
       // ── Phase 2: Grooves stagger in (800–1700ms) ──────────────
       for (let i = 0; i < GROOVE_N; i++) {
         const gs = 800 + (i / GROOVE_N) * 550;
-        const gp = prog(e, gs, gs + 320);
+        const gp = prog(ve, gs, gs + 320);
         const g  = svgEl.querySelector<SVGCircleElement>(`#groove-${i}`);
         if (g) {
           const max = i % 5 === 0 ? 0.7 : i % 2 === 0 ? 0.5 : 0.3;
@@ -101,27 +119,28 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
 
       // ── Phase 2–3: Record scales in (800–2400ms) ──────────────
       if (record) {
-        const p2 = prog(e, 800, 2400);
+        const p2 = prog(ve, 800, 2400);
         const sc = lerp(0.15, 1, easeOut3(p2));
         record.setAttribute("opacity",   String(clamp01(p2 * 2.2)));
         record.setAttribute("transform", `scale(${sc.toFixed(4)})`);
       }
 
       // Start spinning clockwise at SPIN_START_MS
-      if (!spinning && e > SPIN_START_MS && recordBody) {
+      if (!spinning && ve > SPIN_START_MS && recordBody) {
         recordBody.classList.add("vinyl-spinning");
         if (label) label.classList.add("label-counter-spin");
+        if (mono) mono.classList.add("vinyl-spinning"); // logo also spins clockwise
         spinning = true;
       }
 
       // ── Phase 4: Monogram fades in (2600–3200ms) ──────────────
       if (mono) {
-        const p4 = prog(e, 2600, 3200);
+        const p4 = prog(ve, 2600, 3200);
         mono.setAttribute("opacity", String(easeOut3(p4).toFixed(4)));
       }
 
-      // Exit after exactly 2 full clockwise rotations
-      if (e < TOTAL_MS + 300) {
+      // Exit when virtual time passes end of animation
+      if (ve < TOTAL_MS + 300) {
         rafRef.current = requestAnimationFrame(frame);
       } else {
         sessionStorage.setItem("loader-seen", "1");
@@ -139,6 +158,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("load", onLoad);
     };
   }, [onComplete]);
 
@@ -175,16 +195,15 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
             <circle r="26" fill="none" stroke="#363E3A" strokeWidth="0.5" opacity="0.4" />
             <circle r="6"  fill="#222B28" />
             <circle r="5.2" fill="none" stroke="#181E1C" strokeWidth="0.8" />
+          </g>
 
-            {/* ── AN Monogram (phase 4) ── */}
-            <g id="mono" opacity="0">
-              <image
-                href="/an-logo.png"
-                x="-35" y="-35"
-                width="70" height="70"
-                style={{ filter: "grayscale(1) invert(1)" }}
-              />
-            </g>
+          {/* ── AN Monogram (phase 4) — sits above label, spins with record ── */}
+          <g id="mono" opacity="0" style={{ transformOrigin: "center" }}>
+            <image
+              href="/an-logo.png"
+              x="-35" y="-35"
+              width="70" height="70"
+            />
           </g>
         </g>
 

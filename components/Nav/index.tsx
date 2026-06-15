@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import FocusTrap from "focus-trap-react";
 import { ANLogo } from "@/components/Logo";
+import Tooltip from "@/components/Tooltip";
 
 function ChicagoClock() {
   const [time, setTime] = useState("");
@@ -106,38 +107,42 @@ export default function Nav() {
           <ChicagoClock />
 
           {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface)]"
-          >
-            {darkMode ? (
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" strokeWidth="1.8" strokeLinecap="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-              </svg>
-            ) : (
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-            )}
-          </button>
+          <Tooltip content={darkMode ? "Light mode" : "Dark mode"}>
+            <button
+              onClick={toggleTheme}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface)]"
+            >
+              {darkMode ? (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" strokeWidth="1.8" strokeLinecap="round">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+          </Tooltip>
 
           {/* Menu pill */}
-          <button
-            onClick={() => setOpen(true)}
-            aria-expanded={open}
-            aria-controls="menu-overlay"
-            aria-label="Open menu"
-            className="flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-medium tracking-wide border border-[var(--border-strong)] hover:border-[var(--primary)] transition-colors"
-            style={{ fontFamily: "var(--font-display), sans-serif" }}
-          >
-            <span aria-hidden="true" className="flex flex-col gap-[4.5px] w-[13px]">
-              <span className="block h-[1.5px] bg-current rounded" />
-              <span className="block h-[1.5px] bg-current rounded w-[9px]" />
-            </span>
-            Menu
-          </button>
+          <Tooltip content="Navigation">
+            <button
+              onClick={() => setOpen(true)}
+              aria-expanded={open}
+              aria-controls="menu-overlay"
+              aria-label="Open menu"
+              className="flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-medium tracking-wide border border-[var(--border-strong)] hover:border-[var(--primary)] transition-colors"
+              style={{ fontFamily: "var(--font-display), sans-serif" }}
+            >
+              <span aria-hidden="true" className="flex flex-col gap-[4.5px] w-[13px]">
+                <span className="block h-[1.5px] bg-current rounded" />
+                <span className="block h-[1.5px] bg-current rounded w-[9px]" />
+              </span>
+              Menu
+            </button>
+          </Tooltip>
         </div>
       </nav>
 

@@ -1,8 +1,9 @@
 import { ANLogo } from "@/components/Logo";
 
 const SOCIAL = [
-  { label: "GitHub",   href: "https://github.com/andrew-nguyen-9" },
-  { label: "LinkedIn", href: "https://linkedin.com/in/andrewnguyen9" },
+  { label: "GitHub",   href: "https://github.com/andrew-nguyen-9",           external: true  },
+  { label: "LinkedIn", href: "https://linkedin.com/in/andrewnguyen9",         external: true  },
+  { label: "Email",    href: "mailto:andrewng9999@gmail.com",                 external: false },
 ];
 
 const NAV = [
@@ -17,13 +18,14 @@ export default function Footer() {
       className="section pt-0"
       style={{ borderTop: "1px solid var(--border)", paddingLeft: "20px", paddingRight: "20px" }}
     >
-      <div className="flex flex-wrap gap-12 pt-14 pb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-10 pt-14 pb-10">
         {/* Monogram + tagline */}
-        <div className="flex-1 min-w-[180px]">
+        <div className="col-span-2 sm:col-span-1">
           <ANLogo size={96} className="mb-4" />
-          <p className="text-sm" style={{ color: "var(--fg-muted)" }}>
-            Data engineer.
-            <br />Product builder. Chicago.
+          <p className="text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>
+            Forensic data analyst.
+            <br />Pipeline architect.
+            <br />Chicago builder.
           </p>
         </div>
 
@@ -59,19 +61,20 @@ export default function Footer() {
             Find me
           </p>
           <ul className="list-none p-0 m-0 flex flex-col gap-2">
-            {SOCIAL.map(({ label, href }) => (
+            {SOCIAL.map(({ label, href, external }) => (
               <li key={href}>
                 <a
                   href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="inline-flex items-center gap-1.5 text-sm hover:text-[var(--primary)] transition-colors"
                   style={{ color: "var(--fg-muted)" }}
                 >
                   {label}
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-                    <path d="M1 9L9 1M6 1h3v3" />
-                  </svg>
+                  {external && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                      <path d="M1 9L9 1M6 1h3v3" />
+                    </svg>
+                  )}
                 </a>
               </li>
             ))}
@@ -80,7 +83,7 @@ export default function Footer() {
       </div>
 
       <div
-        className="flex flex-wrap items-center justify-between gap-4 pt-6"
+        className="flex flex-wrap items-center justify-between gap-3 pt-6"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <span
