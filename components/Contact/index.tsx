@@ -102,13 +102,13 @@ function ContactForm() {
         <textarea id="message" name="message" required rows={5} placeholder="Tell me more…" className={`${inputClass} resize-y min-h-[120px]`} />
       </div>
 
-      {mounted && HCAPTCHA_SITE_KEY && (
+      {HCAPTCHA_SITE_KEY && (
         <div className="hcaptcha-wrapper">
           <div
-            key={isDark ? "dark" : "light"}
+            key={mounted ? (isDark ? "dark" : "light") : "light"}
             className="h-captcha"
             data-sitekey={HCAPTCHA_SITE_KEY}
-            data-theme={isDark ? "dark" : "light"}
+            data-theme={mounted && isDark ? "dark" : "light"}
           />
         </div>
       )}
