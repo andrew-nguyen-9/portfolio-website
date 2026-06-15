@@ -83,8 +83,8 @@ const majorMonoDisplay = Major_Mono_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Andrew Nguyen — Data Engineer & Builder",
-    template: "%s | Andrew Nguyen",
+    default: "an9.dev",
+    template: "%s | an9.dev",
   },
   description:
     "Chicago-based data engineer building products at the intersection of data systems and thoughtful design. Music, sports, politics, civic tech.",
