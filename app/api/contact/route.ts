@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const to = process.env.CONTACT_EMAIL ?? "hello@andrewnguyen.dev";
+    const to = process.env.CONTACT_EMAIL ?? "hh5zvph54s@privaterelay.appleid.com";
 
     await resend.emails.send({
       from:     "Portfolio Contact <onboarding@resend.dev>",
