@@ -45,14 +45,29 @@ const NAV_LINKS = [
 ];
 
 export default function Nav() {
-  const [open,     setOpen]     = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden,   setHidden]   = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [open,      setOpen]      = useState(false);
+  const [scrolled,  setScrolled]  = useState(false);
+  const [hidden,    setHidden]    = useState(false);
+  const [darkMode,  setDarkMode]  = useState(false);
+  const [logoScale, setLogoScale] = useState(1);
   const lastScrollY = useRef(0);
+  const heroBotRef  = useRef(0);   // cached bottom-y of #hero
 
   useEffect(() => {
     setDarkMode(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  // Cache the hero's bottom position so the scroll handler never touches the DOM.
+  useEffect(() => {
+    const measure = () => {
+      const hero = document.getElementById("hero");
+      heroBotRef.current = hero
+        ? hero.offsetTop + hero.offsetHeight
+        : window.innerHeight;
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
   }, []);
 
   useEffect(() => {
@@ -61,6 +76,11 @@ export default function Nav() {
       setScrolled(y > 20);
       setHidden(y > lastScrollY.current && y > 80);
       lastScrollY.current = y;
+
+      // Shrink logo by 40% as user scrolls through the hero; hold at 60% below it.
+      const bot      = heroBotRef.current || window.innerHeight;
+      const progress = Math.min(1, Math.max(0, y / bot));
+      setLogoScale(1 - 0.4 * progress);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -98,9 +118,13 @@ export default function Nav() {
         id="nav"
         className={[scrolled ? "scrolled" : "", hidden ? "hidden" : ""].join(" ")}
         aria-label="Main navigation"
+        style={{
+          paddingTop:    `${Math.round(12 * logoScale)}px`,
+          paddingBottom: `${Math.round(12 * logoScale)}px`,
+        }}
       >
         <a href="/" aria-label="Andrew Nguyen — home" style={{ lineHeight: 0 }}>
-          <ANLogo size={96} />
+          <ANLogo size={Math.round(96 * logoScale)} />
         </a>
 
         <div className="flex items-center gap-5">
@@ -177,7 +201,7 @@ export default function Nav() {
                     className="font-display text-left w-full hover:text-[var(--secondary)] transition-colors"
                     style={{
                       fontFamily: "var(--font-display), sans-serif",
-                      fontSize: "clamp(3rem,9vw,7rem)",
+                      fontSize: "min(clamp(3rem,9vw,7rem), 13dvh)",
                       fontWeight: 800,
                       lineHeight: 1.0,
                       letterSpacing: "-0.03em",

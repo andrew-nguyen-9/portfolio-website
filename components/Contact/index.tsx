@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import { useReveal } from "@/hooks/useReveal";
 
 type State = "idle" | "submitting" | "success" | "error";
+// "loading" until we know whether hCaptcha loaded; "hcaptcha" when ready;
+// "fallback" when blocked/unavailable (NoScript, Privacy Badger, ad blockers…)
+type CaptchaMode = "loading" | "hcaptcha" | "fallback";
 const HCAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? "";
+
+declare global {
+  interface Window { hcaptcha?: unknown }
+}
 
 function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -13,13 +21,32 @@ function ContactForm() {
   const [mounted, setMounted] = useState(false);
   const [isDark,  setIsDark]  = useState(false);
 
+  // Captcha resilience
+  const [captchaMode, setCaptchaMode] = useState<CaptchaMode>(
+    HCAPTCHA_SITE_KEY ? "loading" : "fallback"
+  );
+  const [math, setMath] = useState({ a: 0, b: 0 });
+  const [mathAnswer, setMathAnswer] = useState("");
+  const startRef = useRef(0);
+
   useEffect(() => {
     setMounted(true);
+    startRef.current = Date.now();
+    setMath({ a: Math.floor(Math.random() * 9), b: Math.floor(Math.random() * 9) });
+
     const check = () => setIsDark(document.documentElement.classList.contains("dark"));
     check();
     const obs = new MutationObserver(check);
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => obs.disconnect();
+
+    // If hCaptcha hasn't initialized shortly after mount, assume it's blocked.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (HCAPTCHA_SITE_KEY) {
+      timer = setTimeout(() => {
+        setCaptchaMode((m) => (m === "loading" && !window.hcaptcha ? "fallback" : m));
+      }, 2800);
+    }
+    return () => { obs.disconnect(); if (timer) clearTimeout(timer); };
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -29,10 +56,37 @@ function ContactForm() {
     const form = formRef.current;
     if (!form) return;
 
-    const hToken = (form.querySelector('[name="h-captcha-response"]') as HTMLInputElement | null)?.value;
-    if (HCAPTCHA_SITE_KEY && !hToken) {
-      setErrMsg("Please complete the captcha.");
-      return;
+    const fd = new FormData(form);
+    const base = {
+      name:    String(fd.get("name") ?? ""),
+      email:   String(fd.get("email") ?? ""),
+      subject: String(fd.get("subject") ?? ""),
+      message: String(fd.get("message") ?? ""),
+    };
+
+    let payload: Record<string, unknown>;
+    if (captchaMode === "hcaptcha") {
+      const hToken = (form.querySelector('[name="h-captcha-response"]') as HTMLInputElement | null)?.value;
+      if (!hToken) {
+        setErrMsg("Please complete the captcha.");
+        return;
+      }
+      payload = { ...base, hCaptchaToken: hToken };
+    } else {
+      if (mathAnswer.trim() === "") {
+        setErrMsg("Please answer the verification question.");
+        return;
+      }
+      payload = {
+        ...base,
+        fallback: {
+          honeypot: String(fd.get("company") ?? ""),
+          answer:   Number(mathAnswer),
+          a: math.a,
+          b: math.b,
+          elapsedMs: Date.now() - startRef.current,
+        },
+      };
     }
 
     setState("submitting");
@@ -42,7 +96,7 @@ function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...Object.fromEntries(new FormData(form)), hCaptchaToken: hToken }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({})) as { error?: string };
@@ -50,6 +104,7 @@ function ContactForm() {
       }
       setState("success");
       form.reset();
+      setMathAnswer("");
     } catch (err) {
       setState("error");
       setErrMsg(err instanceof Error ? err.message : "Something went wrong.");
@@ -102,13 +157,51 @@ function ContactForm() {
         <textarea id="message" name="message" required rows={5} placeholder="Tell me more…" className={`${inputClass} resize-y min-h-[120px]`} />
       </div>
 
+      {/* Honeypot — hidden from humans; bots that fill it are rejected */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+        <label htmlFor="company">Company (leave blank)</label>
+        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
+      {/* Load hCaptcha; if a blocker stops it, onError → self-hosted fallback */}
       {HCAPTCHA_SITE_KEY && (
+        <Script
+          src="https://js.hcaptcha.com/1/api.js"
+          strategy="afterInteractive"
+          onLoad={() => setCaptchaMode((m) => (m === "loading" ? "hcaptcha" : m))}
+          onError={() => setCaptchaMode("fallback")}
+        />
+      )}
+
+      {/* hCaptcha widget (auto-rendered by api.js) */}
+      {captchaMode === "hcaptcha" && (
         <div className="hcaptcha-wrapper">
           <div
             key={mounted ? (isDark ? "dark" : "light") : "light"}
             className="h-captcha"
             data-sitekey={HCAPTCHA_SITE_KEY}
             data-theme={mounted && isDark ? "dark" : "light"}
+          />
+        </div>
+      )}
+
+      {/* Self-hosted fallback challenge — works with any blocker */}
+      {captchaMode === "fallback" && mounted && (
+        <div className="flex flex-col gap-2">
+          <label htmlFor="math" className={labelClass} style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+            Verify you&apos;re human — what is {math.a} + {math.b}?
+          </label>
+          <input
+            id="math"
+            name="math"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            required
+            value={mathAnswer}
+            onChange={(e) => setMathAnswer(e.target.value)}
+            placeholder="Answer"
+            className={`${inputClass} max-w-[160px]`}
           />
         </div>
       )}

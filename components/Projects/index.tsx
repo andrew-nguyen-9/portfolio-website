@@ -48,9 +48,12 @@ function StatusBadge({ status }: { status: Project["status"] }) {
 }
 
 /* ── Flip card (grid view) ─────────────────────────────── */
-function FlipCard({ project }: { project: Project }) {
+function FlipCard({ project, index = 0 }: { project: Project; index?: number }) {
   const [flipped, setFlipped] = useState(false);
+  // dir = +1 spins left→right (rotateY +180), -1 spins right→left (-180)
+  const [dir, setDir] = useState(1);
   const [isTouch, setIsTouch] = useState(false);
+  const cardRef = useRef<HTMLElement>(null);
   const catColor = CATEGORY_COLORS[project.category] ?? "#7D9A8A";
   const gradient = CARD_GRADIENTS[project.category] ?? CARD_GRADIENTS.Sports;
   const imgPosition = project.id === "cooking-music-game" ? "top" : "center";
@@ -62,13 +65,42 @@ function FlipCard({ project }: { project: Project }) {
     setIsTouch(window.matchMedia("(hover: none)").matches);
   }, []);
 
+  // Left half of the card → flip rightward (+1); right half → flip leftward (-1)
+  const sideDir = (clientX: number) => {
+    const el = cardRef.current;
+    if (!el) return 1;
+    const rect = el.getBoundingClientRect();
+    return clientX < rect.left + rect.width / 2 ? 1 : -1;
+  };
+
+  const handleEnter = (e: React.MouseEvent) => {
+    if (isTouch) return;
+    setDir(sideDir(e.clientX));
+    setFlipped(true);
+  };
+  const handleLeave = () => {
+    if (isTouch) return;
+    setFlipped(false);
+  };
+  const handleClick = (e: React.MouseEvent) => {
+    if (!isTouch) return;
+    setDir(sideDir(e.clientX));
+    setFlipped((f) => !f);
+  };
+
   return (
     <article
-      className={`project-card${flipped ? " flipped" : ""}`}
+      ref={cardRef}
+      className="project-card"
       aria-label={project.name}
-      onClick={isTouch ? () => setFlipped((f) => !f) : undefined}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onClick={isTouch ? handleClick : undefined}
     >
-      <div className="project-card-inner">
+      <div
+        className="project-card-inner"
+        style={{ transform: flipped ? `rotateY(${dir * 180}deg)` : "rotateY(0deg)" }}
+      >
         {/* ── FRONT ── */}
         <div className="project-card-front" style={frontStyle}>
           {/* Vignette — blurred dark edges over the photo */}
@@ -286,6 +318,7 @@ function ProjectsContent() {
   const [filter, setFilter] = useState<Filter>("all");
   const revealRef    = useReveal();
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const gridRef      = useRef<HTMLDivElement>(null);
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
   const visible = filter === "featured" ? projects.filter((p) => p.featured) : projects;
 
@@ -377,8 +410,13 @@ function ProjectsContent() {
       </div>
 
       {view === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-          {visible.map((p) => <FlipCard key={p.id} project={p} />)}
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start"
+        >
+          {visible.map((p, i) => (
+            <FlipCard key={p.id} project={p} index={i} />
+          ))}
         </div>
       ) : (
         <div className="flex flex-col gap-4">

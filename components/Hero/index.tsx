@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReveal } from "@/hooks/useReveal";
 
-/* ── Roles — clean fade cycle, no typos ─────────────────── */
+/* ── Roles — clean fade cycle ────────────────────────────── */
 const ROLES = [
   "Analytics & Data Strategy",
   "Pipeline Architect",
@@ -12,50 +12,33 @@ const ROLES = [
   "Chicago Local",
 ];
 
-/* ── Name typing script ──────────────────────────────────── */
-// flash ops cycle through opts[] on each loop, typing fast and deleting fast.
-// Three insertion points: after "A", after "And", after "nG".
-type Op =
-  | { t: "add";   ch: string; delay: number }
-  | { t: "del";   delay: number }
-  | { t: "wait";  ms: number }
-  | { t: "erase"; delay: number }
-  | { t: "loop" }
-  | { t: "flash"; opts: string[]; typeMs: number; holdMs: number; delMs: number };
+/* ── Name & typo pools ──────────────────────────────────── */
+const NAME = { line1: "AndReW", line2: "nGuyen" };
 
-const SCRIPT: Op[] = [
-  { t: "wait",  ms: 800 },
-  { t: "add",   ch: "A",  delay: 0   },
-  // ── compliment after "A" ──────────────────────────────────
-  { t: "flash",
-    opts:   ["mazing", "wesome", "mbitious", "rtisan", "daptable", "stute"],
-    typeMs: 28, holdMs: 360, delMs: 24 },
-  { t: "add",   ch: "n",  delay: 260 },
-  { t: "add",   ch: "d",  delay: 180 },
-  // ── compliment after "And" ────────────────────────────────
-  { t: "flash",
-    opts:   [" Driven", " Brilliant", " Gifted", " Bold", " Tenacious", " Relentless", " the GOAT"],
-    typeMs: 28, holdMs: 400, delMs: 24 },
-  { t: "wait",  ms: 68  },
-  { t: "add",   ch: "R",  delay: 235 },
-  { t: "add",   ch: "e",  delay: 145 },
-  { t: "add",   ch: "W",  delay: 425 },
-  { t: "add",   ch: "\n", delay: 550 },
-  { t: "add",   ch: "n",  delay: 310 },
-  { t: "add",   ch: "G",  delay: 235 },
-  // ── compliment after "nG" ─────────────────────────────────
-  { t: "flash",
-    opts:   ["enius", "oat", "reat", "ifted", "uru", "old"],
-    typeMs: 28, holdMs: 390, delMs: 24 },
-  { t: "wait",  ms: 65  },
-  { t: "add",   ch: "u",  delay: 195 },
-  { t: "add",   ch: "y",  delay: 178 },
-  { t: "add",   ch: "e",  delay: 215 },
-  { t: "add",   ch: "n",  delay: 135 },
-  { t: "wait",  ms: 3800 },
-  { t: "erase", delay: 90 },
-  { t: "wait",  ms: 700 },
-  { t: "loop" },
+// Line-1 typos — all share "A" prefix with "AndReW", so the correction
+// looks like someone hit the wrong key right after the first letter.
+const LINE1 = [
+  "Able",      "AGile",     "AleRt",     "AWARe",
+  "ActiVe",    "AVid",      "AMbitious", "AdAptAble",
+  "AutHentic", "AccuRAte",  "AdVAnced",  "AudAcious",
+  "Astute",    "ARtistic",  "AutonoMous","Absolute",
+];
+
+// Line-2 typos — several share "n" prefix with "nGuyen".
+const LINE2 = [
+  "tHe GReAt", "nuAnced",    "tHe ApeX",   "nAtuRAl",
+  "tHe sWift", "neWsWoRtHy", "tHe MAkeR",  "neXtGen",
+  "tHe codeR", "notAble",
+];
+
+// Full 2-line typo combos — no correction, just held as-is.
+const BOTH = [
+  { line1: "And", line2: "ARcHitect"  },
+  { line1: "And", line2: "stRAteGist" },
+  { line1: "And", line2: "Relentless" },
+  { line1: "And", line2: "unMAtcHed"  },
+  { line1: "And", line2: "tHe GoAt"   },
+  { line1: "And", line2: "innoVAtiVe" },
 ];
 
 const HERO_IMG =
@@ -68,13 +51,18 @@ export default function Hero() {
   });
   const [roleIdx, setRoleIdx] = useState(0);
   const [roleIn,  setRoleIn]  = useState(false);
-  const strRef   = useRef("");
-  const loopRef  = useRef(0);
-  const revealRef = useReveal();
+  const strRef     = useRef("");
+  const cycleRef   = useRef(0);  // 0-4 → cycle through 5 types
+  const l1Ref      = useRef(0);  // index into LINE1
+  const l2Ref      = useRef(0);  // index into LINE2
+  const bothRef    = useRef(0);  // index into BOTH
+  const line1Ref   = useRef<HTMLSpanElement>(null);
+  const line2Ref   = useRef<HTMLSpanElement>(null);
+  const revealRef  = useReveal();
 
   useEffect(() => { setMounted(true); }, []);
 
-  /* ── Name script player ──────────────────────────────── */
+  /* ── Name typing loop ──────────────────────────────────── */
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
@@ -90,79 +78,127 @@ export default function Hero() {
       });
     };
 
-    let i = 0;
+    // Type str char-by-char at `delay` ms per char.
+    const typeStr = (str: string, delay: number, cb: () => void) => {
+      let i = 0;
+      const tick = () => {
+        if (cancelled) return;
+        if (i >= str.length) { cb(); return; }
+        strRef.current += str[i++];
+        sync();
+        setTimeout(tick, delay);
+      };
+      setTimeout(tick, delay);
+    };
 
-    const step = () => {
-      if (cancelled) return;
-      if (i >= SCRIPT.length) i = 0;
-      const op = SCRIPT[i++];
+    // Erase everything at the end of strRef, char-by-char.
+    const eraseAll = (delay: number, cb: () => void) => {
+      const tick = () => {
+        if (cancelled) return;
+        if (strRef.current.length === 0) { cb(); return; }
+        strRef.current = strRef.current.slice(0, -1);
+        sync();
+        setTimeout(tick, delay);
+      };
+      tick();
+    };
 
-      if (op.t === "add") {
-        setTimeout(() => {
+    // Longest common prefix length between a and b.
+    const lcpLen = (a: string, b: string) => {
+      let i = 0;
+      while (i < a.length && i < b.length && a[i] === b[i]) i++;
+      return i;
+    };
+
+    // After `typo` was just typed at the end of strRef, correct it to
+    // `target`. A short "oh wait" pause fires first, then we erase back
+    // to the shared prefix and retype from there — looks like a real mistake.
+    const correctTo = (typo: string, target: string, cb: () => void) => {
+      const prefix  = lcpLen(typo, target);
+      const toErase = typo.length - prefix;
+      const toType  = target.slice(prefix);
+
+      setTimeout(() => {           // "oh wait, that's wrong"
+        if (cancelled) return;
+        let n = 0;
+        const doErase = () => {
           if (cancelled) return;
-          strRef.current += op.ch;
-          sync();
-          step();
-        }, op.delay);
-
-      } else if (op.t === "del") {
-        setTimeout(() => {
-          if (cancelled) return;
-          strRef.current = strRef.current.slice(0, -1);
-          sync();
-          step();
-        }, op.delay);
-
-      } else if (op.t === "wait") {
-        setTimeout(() => { if (!cancelled) step(); }, op.ms);
-
-      } else if (op.t === "erase") {
-        const eraseNext = () => {
-          if (cancelled) return;
-          if (strRef.current.length === 0) { step(); return; }
-          strRef.current = strRef.current.slice(0, -1);
-          sync();
-          setTimeout(eraseNext, op.delay);
-        };
-        eraseNext();
-
-      } else if (op.t === "flash") {
-        const word = op.opts[loopRef.current % op.opts.length];
-        let ci = 0;
-        const typeNext = () => {
-          if (cancelled) return;
-          if (ci >= word.length) {
-            setTimeout(() => {
-              if (cancelled) return;
-              let di = word.length;
-              const delNext = () => {
-                if (cancelled) return;
-                if (di === 0) { step(); return; }
-                strRef.current = strRef.current.slice(0, -1);
-                sync();
-                di--;
-                setTimeout(delNext, op.delMs);
-              };
-              delNext();
-            }, op.holdMs);
+          if (n >= toErase) {
+            toType.length > 0 ? typeStr(toType, 50, cb) : cb();
             return;
           }
-          strRef.current += word[ci++];
+          strRef.current = strRef.current.slice(0, -1);
           sync();
-          setTimeout(typeNext, op.typeMs);
+          n++;
+          setTimeout(doErase, 46);
         };
-        setTimeout(typeNext, op.typeMs);
+        doErase();
+      }, 400);
+    };
 
+    // Hold for `ms` then erase everything, then call cb.
+    const hold = (ms: number, cb: () => void) =>
+      setTimeout(() => { if (!cancelled) eraseAll(44, cb); }, ms);
+
+    const next = () => setTimeout(run, 380);
+
+    const run = () => {
+      if (cancelled) return;
+      const type = cycleRef.current % 5;
+      cycleRef.current++;
+
+      /* ── 1: pure name ──────────────────────────────────── */
+      if (type === 0) {
+        typeStr(NAME.line1, 62, () => {
+          strRef.current += "\n"; sync();
+          typeStr(NAME.line2, 58, () => hold(3400, next));
+        });
+
+      /* ── 2: typoL1 → AndReW  +  nGuyen ─────────────────── */
+      } else if (type === 1) {
+        const t1 = LINE1[l1Ref.current++ % LINE1.length];
+        typeStr(t1, 62, () =>
+          correctTo(t1, NAME.line1, () => {
+            strRef.current += "\n"; sync();
+            typeStr(NAME.line2, 58, () => hold(3200, next));
+          })
+        );
+
+      /* ── 3: AndReW  +  typoL2 → nGuyen ─────────────────── */
+      } else if (type === 2) {
+        const t2 = LINE2[l2Ref.current++ % LINE2.length];
+        typeStr(NAME.line1, 62, () => {
+          strRef.current += "\n"; sync();
+          typeStr(t2, 62, () =>
+            correctTo(t2, NAME.line2, () => hold(3200, next))
+          );
+        });
+
+      /* ── 4: typoL1 → AndReW  +  typoL2 → nGuyen ───────── */
+      } else if (type === 3) {
+        const t1 = LINE1[l1Ref.current++ % LINE1.length];
+        const t2 = LINE2[l2Ref.current++ % LINE2.length];
+        typeStr(t1, 62, () =>
+          correctTo(t1, NAME.line1, () => {
+            strRef.current += "\n"; sync();
+            typeStr(t2, 62, () =>
+              correctTo(t2, NAME.line2, () => hold(3000, next))
+            );
+          })
+        );
+
+      /* ── 5: 2-line typo, no correction ─────────────────── */
       } else {
-        // loop — increment counter, restart
-        loopRef.current++;
-        i = 0;
-        step();
+        const b = BOTH[bothRef.current++ % BOTH.length];
+        typeStr(b.line1, 62, () => {
+          strRef.current += "\n"; sync();
+          typeStr(b.line2, 58, () => hold(2800, next));
+        });
       }
     };
 
-    step();
-    return () => { cancelled = true; };
+    const t = setTimeout(run, 600);
+    return () => { cancelled = true; clearTimeout(t); };
   }, [mounted]);
 
   /* ── Role fade cycle ─────────────────────────────────── */
@@ -175,7 +211,6 @@ export default function Hero() {
       if (cancelled) return;
       setRoleIdx(idx);
       setRoleIn(true);
-
       setTimeout(() => {
         if (cancelled) return;
         setRoleIn(false);
@@ -197,7 +232,7 @@ export default function Hero() {
     <section
       id="hero"
       aria-label="Introduction"
-      className="relative flex flex-col justify-center min-h-screen px-8 md:px-14 lg:px-24 overflow-hidden"
+      className="relative flex flex-col justify-center min-h-[100svh] px-8 md:px-14 lg:px-24 py-24 overflow-hidden"
     >
       {/* Background image */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -215,16 +250,22 @@ export default function Hero() {
           </span>
           <span
             className="inline-flex items-center gap-1.5 text-xs tracking-[0.2em] uppercase px-2.5 py-1 rounded-full border border-[var(--border-strong)]"
-            style={{ color: "var(--primary)", fontFamily: "var(--font-jetbrains-mono), monospace" }}
+            style={{
+              color: "var(--primary)",
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              background: "color-mix(in srgb, var(--surface) 82%, transparent)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }}
           >
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--primary)" }} aria-hidden="true" />
             Available
           </span>
         </div>
 
-        {/* Name — both lines always occupy space, preserving 2-line height */}
+        {/* Name — both lines always reserve their height */}
         <h1
-          className="leading-[1.0]"
+          className="hero-name leading-[1.0]"
           style={{
             fontFamily: "var(--font-major-mono), monospace",
             fontSize: "clamp(3rem, 8.5vw, 7.5rem)",
@@ -234,21 +275,19 @@ export default function Hero() {
           }}
           aria-label="Andrew Nguyen"
         >
-          {/* Line 1 — always rendered; space holds height when empty */}
-          <span className="hero-name-first block">
+          <span ref={line1Ref} className="hero-name-first block">
             {line1 || " "}
             {mounted && !onLine2 && <span className="typing-cursor" aria-hidden="true" />}
           </span>
-          {/* Line 2 — always rendered; space holds height before typing reaches it */}
-          <span className="hero-name-last block">
-            {onLine2 ? line2 : " "}
+          <span ref={line2Ref} className="hero-name-last block">
+            {onLine2 ? (line2 || " ") : " "}
             {onLine2 && <span className="typing-cursor" aria-hidden="true" />}
           </span>
         </h1>
 
-        {/* Subtitle — clean fade in/out, no typos */}
+        {/* Subtitle — clean fade in/out */}
         <div
-          className="mb-10"
+          className="hero-subtitle mb-10"
           style={{
             fontFamily: "var(--font-display), sans-serif",
             fontSize: "clamp(1.05rem, 2.3vw, 1.65rem)",
@@ -303,7 +342,12 @@ export default function Hero() {
           <a
             href="#contact"
             className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium tracking-wide border border-[var(--border-strong)] hover:border-[var(--primary)] transition-colors"
-            style={{ fontFamily: "var(--font-display), sans-serif" }}
+            style={{
+              fontFamily: "var(--font-display), sans-serif",
+              background: "color-mix(in srgb, var(--surface) 82%, transparent)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }}
           >
             Say Hello
           </a>
@@ -313,7 +357,7 @@ export default function Hero() {
       {/* Scroll cue */}
       <div
         aria-hidden="true"
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 opacity-25"
+        className="hero-scroll-cue absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 opacity-25"
         style={{ animation: "fade-up 1.8s ease infinite alternate" }}
       >
         <svg width="18" height="26" viewBox="0 0 18 26" fill="none" stroke="var(--fg)" strokeWidth="1.4" strokeLinecap="round">

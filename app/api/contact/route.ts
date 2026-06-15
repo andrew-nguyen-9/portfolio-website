@@ -3,6 +3,8 @@ import { Resend } from "resend";
 
 export const runtime = "edge";
 
+type Fallback = { honeypot?: string; answer?: number; a?: number; b?: number; elapsedMs?: number };
+
 async function verifyHCaptcha(token: string): Promise<boolean> {
   const secret = process.env.HCAPTCHA_SECRET;
   if (!secret) return true; // Skip verification when secret not configured
@@ -17,6 +19,19 @@ async function verifyHCaptcha(token: string): Promise<boolean> {
   return data.success;
 }
 
+// Self-hosted check used when hCaptcha's script is blocked (NoScript, Privacy
+// Badger, ad blockers, etc.). Honeypot must be empty, the form must have been
+// open long enough to be human, and the arithmetic answer must be correct.
+function verifyFallback(fb: Fallback | undefined): boolean {
+  if (!fb) return false;
+  const { honeypot, answer, a, b, elapsedMs } = fb;
+  if (honeypot && honeypot.trim() !== "") return false;
+  if (typeof elapsedMs !== "number" || elapsedMs < 2000) return false;
+  if (typeof a !== "number" || typeof b !== "number" || typeof answer !== "number") return false;
+  if (a < 0 || a > 9 || b < 0 || b > 9) return false;
+  return answer === a + b;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
@@ -25,9 +40,10 @@ export async function POST(req: NextRequest) {
       subject?: string;
       message?: string;
       hCaptchaToken?: string;
+      fallback?: Fallback;
     };
 
-    const { name, email, subject, message, hCaptchaToken } = body;
+    const { name, email, subject, message, hCaptchaToken, fallback } = body;
 
     // Basic validation
     if (!name?.trim() || !email?.trim() || !message?.trim()) {
@@ -39,19 +55,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
     }
 
-    // hCaptcha verification
+    // Human verification — hCaptcha if available, else the self-hosted fallback
+    const captchaConfigured = !!process.env.HCAPTCHA_SECRET;
     if (hCaptchaToken) {
-      const valid = await verifyHCaptcha(hCaptchaToken);
-      if (!valid) {
+      if (!(await verifyHCaptcha(hCaptchaToken))) {
         return NextResponse.json({ error: "Captcha verification failed." }, { status: 400 });
       }
+    } else if (fallback) {
+      if (!verifyFallback(fallback)) {
+        return NextResponse.json({ error: "Verification failed. Please try again." }, { status: 400 });
+      }
+    } else if (captchaConfigured) {
+      return NextResponse.json({ error: "Human verification required." }, { status: 400 });
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const to = process.env.CONTACT_EMAIL ?? "hh5zvph54s@privaterelay.appleid.com";
+    // Resend test sender (onboarding@resend.dev) needs no domain verification,
+    // but only delivers to the Resend account owner's email — set CONTACT_EMAIL.
+    const to = process.env.CONTACT_EMAIL ?? "andrewng9999@gmail.com";
 
-    await resend.emails.send({
-      from:     "Portfolio Contact <hh5zvph54s@privaterelay.appleid.com>",
+    const { error } = await resend.emails.send({
+      from:     "Portfolio <onboarding@resend.dev>",
       to:       [to],
       replyTo:  email,
       subject:  `[Portfolio] ${subject?.trim() || "New message"} — from ${name}`,
@@ -64,6 +88,11 @@ export async function POST(req: NextRequest) {
         <p style="white-space:pre-wrap">${message}</p>
       `,
     });
+
+    if (error) {
+      console.error("[contact] resend error", error);
+      return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

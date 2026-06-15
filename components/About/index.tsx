@@ -44,6 +44,76 @@ const INTERESTS = [
   "AMC A-Lister", "Dog Volunteering",
 ];
 
+/* ─── Typo cycler — types / deletes / retypes a rotating word ─── */
+const CURIOSITY_WORDS = [
+  "insight", "intelligence", "decisions", "discovery",
+  "clarity", "truth", "knowledge", "action", "impact",
+  "growth", "efficiency", "performance", "people",
+  "collaboration", "learning", "creativity", "curiosity",
+  "expertise", "trust", "transparency", "empowerment",
+  "complexity", "simplicity", "uncertainty", "excellence",
+];
+
+function TypoCycler() {
+  const [text, setText] = useState("insight");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Respect reduced motion — keep the static word
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.classList.contains("reduce-motion")
+    ) return;
+    setMounted(true);
+
+    let cancelled = false;
+    let wi = 0;          // word index
+    const buf = { s: "insight" };
+
+    const type = (full: string, done: () => void) => {
+      let i = buf.s.length;
+      const tick = () => {
+        if (cancelled) return;
+        if (i >= full.length) { done(); return; }
+        buf.s = full.slice(0, i + 1);
+        setText(buf.s);
+        i++;
+        setTimeout(tick, 32);
+      };
+      tick();
+    };
+    const del = (done: () => void) => {
+      const tick = () => {
+        if (cancelled) return;
+        if (buf.s.length === 0) { done(); return; }
+        buf.s = buf.s.slice(0, -1);
+        setText(buf.s);
+        setTimeout(tick, 26);
+      };
+      tick();
+    };
+    const loop = () => {
+      if (cancelled) return;
+      setTimeout(() => {
+        del(() => {
+          wi = (wi + 1) % CURIOSITY_WORDS.length;
+          type(CURIOSITY_WORDS[wi], loop);
+        });
+      }, 2200);
+    };
+
+    loop();
+    return () => { cancelled = true; };
+  }, []);
+
+  return (
+    <em style={{ color: "var(--secondary)", fontStyle: "italic" }}>
+      around {text}
+      {mounted && <span className="typing-cursor" aria-hidden="true" />}
+    </em>
+  );
+}
+
 /* ─── Animated counter ──────────────────────────────────── */
 function CountUp({ target, prefix = "", suffix = "" }: { target: number; prefix?: string; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -155,7 +225,7 @@ function AboutContent() {
             style={{ fontFamily: "var(--font-display), sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
             Building data tools
             <br />
-            <em style={{ color: "var(--secondary)", fontStyle: "italic" }}>around curiosity</em>
+            <TypoCycler />
           </h2>
         </div>
 

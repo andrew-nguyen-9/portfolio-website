@@ -10,14 +10,14 @@
 :root {
   --bg:           #F8F4EB;  /* warm parchment */
   --surface:      #EDE5D3;  /* sage-kissed sand */
-  --primary:      #3E5248;  /* deep forest green — logo DNA */
-  --secondary:    #B85A30;  /* complementary warm orange */
-  --highlight:    #7EA898;  /* teal pulled from logo lines */
-  --fg:           #1C2620;  /* near-black with green undertone */
-  --fg-muted:     #4E6559;
-  --fg-subtle:    #7D9A8A;
-  --border:       rgba(28, 38, 32, 0.10);
-  --border-strong:rgba(28, 38, 32, 0.18);
+  --primary:      #2D6A4F;  /* richer forest green — logo DNA */
+  --secondary:    #C8491C;  /* punchier warm orange */
+  --highlight:    #3F9E7C;  /* vivid teal pulled from logo lines */
+  --fg:           #16201A;  /* near-black with green undertone */
+  --fg-muted:     #3F5C4E;
+  --fg-subtle:    #6F9685;
+  --border:       rgba(22, 32, 26, 0.10);
+  --border-strong:rgba(22, 32, 26, 0.18);
   --card-border:  #C7C3B3;  /* border-strong composited onto surface */
   --radius:       8px;
   --font-display: var(--font-geist-sans);
@@ -28,11 +28,11 @@
      Surface is slightly lighter, creating subtle depth.               */
   --bg:           #222B28;
   --surface:      #2D3632;
-  --primary:      #8AB4A0;  /* sage green, readable on dark */
-  --secondary:    #E07840;  /* vibrant orange */
-  --highlight:    #D4A84E;  /* warm gold */
+  --primary:      #7FC9A6;  /* vivid sage green, readable on dark */
+  --secondary:    #FF7A33;  /* vibrant orange */
+  --highlight:    #E8B43E;  /* warm gold */
   --fg:           #EDE8DE;
-  --fg-muted:     #9DB5A5;
+  --fg-muted:     #A9C6B6;
   --fg-subtle:    #5C7A6A;
   --border:       rgba(237, 232, 222, 0.08);
   --border-strong:rgba(237, 232, 222, 0.16);
@@ -40,7 +40,23 @@
 }
 
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
+/* Light high-contrast: white bg, black text, saturated accents */
 .high-contrast {
+  --bg:           #fff;
+  --surface:      #f2f2f2;
+  --primary:      #0a5c3a;
+  --secondary:    #b23800;
+  --highlight:    #005f99;
+  --fg:           #000;
+  --fg-muted:     #1a1a1a;
+  --fg-subtle:    #333;
+  --border:       rgba(0,0,0,0.30);
+  --border-strong:rgba(0,0,0,0.55);
+  --card-border:  #000;
+}
+
+/* Dark high-contrast: black bg, white text, bright accents */
+.dark.high-contrast {
   --bg:           #000;
   --surface:      #111;
   --primary:      #fff;
@@ -51,6 +67,7 @@
   --fg-subtle:    #999;
   --border:       rgba(255,255,255,0.30);
   --border-strong:rgba(255,255,255,0.55);
+  --card-border:  #fff;
 }
 
 /* ─── Reduce-motion (via A11y panel class, supplements media query) ── */
@@ -192,12 +209,20 @@ body {
 .reveal-delay-3 { transition-delay: 0.35s; }
 
 /* ─── Hero name color swap ──────────────────────────────── */
-/* Light: "AndReW" is orange, "nGuyen" is default fg */
+/* Both lines always reserve a full line of height so layout
+   never shifts as the typing animation runs. */
+.hero-name-first,
+.hero-name-last  { min-height: 1em; }
+/* Light: line 1 is orange, line 2 is default fg */
 .hero-name-first { color: var(--secondary); }
 .hero-name-last  { color: var(--fg); }
 /* Dark: swap — "AndReW" is default fg, "nGuyen" is orange */
 .dark .hero-name-first { color: var(--fg); }
 .dark .hero-name-last  { color: var(--secondary); }
+
+/* When a compliment "typo" wraps onto a 2nd visual line, color it like line 2 */
+.hero-flash-wrapped       { color: var(--fg); }
+.dark .hero-flash-wrapped { color: var(--secondary); }
 
 /* ─── Typing cursor ─────────────────────────────────────── */
 @keyframes cursor-blink {
@@ -255,6 +280,7 @@ body {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 1000;
   background: var(--bg);
   display: flex;
@@ -304,6 +330,10 @@ body {
 }
 
 #nav.hidden { transform: translateY(-100%); }
+
+/* Smooth logo + bar resize on scroll */
+#nav .an-logo-disc { transition: width 0.06s linear, height 0.06s linear; }
+#nav .an-logo      { transition: width 0.06s linear, height 0.06s linear; }
 
 #nav.scrolled {
   background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -356,6 +386,45 @@ body {
   #hero .hero-ctas { flex-direction: column; align-items: flex-start; }
 }
 
+/* ─── Very small phones (down to 320px) ─────────────────── */
+@media (max-width: 380px) {
+  .section { padding: 64px 16px; }
+  #nav { padding: 8px 12px; }
+  #menu-overlay { padding: 64px 16px 24px; }
+  #nav .an-logo-disc { width: 58px !important; height: 58px !important; }
+  #nav .an-logo      { width: 44px !important; height: 44px !important; }
+  .project-card { height: 256px; }
+  /* Keep the menu pill compact so the nav never overflows */
+  #nav .flex.items-center.gap-5 { gap: 10px; }
+}
+
+@media (max-width: 340px) {
+  .section { padding: 56px 14px; }
+  #nav { padding: 8px 10px; }
+}
+
+/* ─── Short viewports — menu overflow fix ──────────────── */
+@media (max-height: 680px) {
+  #menu-overlay {
+    overflow-y: auto;
+    padding-top: 56px;
+    padding-bottom: 24px;
+  }
+}
+
+/* ─── Short viewports — treat height like we treat width ─── */
+@media (max-height: 720px) {
+  #hero { min-height: 0 !important; padding-top: 84px; padding-bottom: 56px; }
+  #hero .hero-name { font-size: clamp(2.6rem, 7vw, 5rem) !important; }
+  #hero .hero-scroll-cue { display: none; }
+}
+
+@media (max-height: 560px) {
+  #hero { padding-top: 72px; padding-bottom: 40px; }
+  #hero .hero-name { font-size: clamp(2.2rem, 6vw, 3.6rem) !important; }
+  #hero .hero-subtitle { min-height: 0 !important; }
+}
+
 /* ─── Section numbers ───────────────────────────────────── */
 .section-num {
   position: absolute;
@@ -393,12 +462,8 @@ body {
   border-radius: 16px;
 }
 
-/* Desktop: hover flips the card */
-@media (hover: hover) {
-  .project-card:hover .project-card-inner { transform: rotateY(180deg); }
-}
-/* Touch: tap toggles .flipped class (set via JS) */
-.project-card.flipped .project-card-inner { transform: rotateY(180deg); }
+/* Flip is JS-driven (directional): the inner's transform is set inline based on
+   which side was hovered/tapped, so the card spins toward the pointer. */
 
 .project-card-front,
 .project-card-back {

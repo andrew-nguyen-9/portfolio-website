@@ -123,9 +123,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
           }}
         />
-        {process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY && (
-          <script src="https://js.hcaptcha.com/1/api.js" async defer />
-        )}
+        {/* hCaptcha script is loaded inside the Contact component via next/script
+            so we can detect when an ad/script blocker prevents it and fall back. */}
       </head>
       <body
         className={[
