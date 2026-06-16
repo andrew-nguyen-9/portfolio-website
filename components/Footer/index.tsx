@@ -2,7 +2,7 @@ import { ANLogo } from "@/components/Logo";
 
 const SOCIAL = [
   { label: "GitHub",   href: "https://github.com/andrew-nguyen-9",           external: true  },
-  { label: "LinkedIn", href: "https://linkedin.com/in/andrewnguyen9",         external: true  },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/andrew-t-nguyen/",         external: true  },
   { label: "Email",    href: "mailto:andrewng9999@gmail.com",                 external: false },
 ];
 
