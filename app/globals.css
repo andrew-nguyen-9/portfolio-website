@@ -553,9 +553,62 @@ body::after {
   color: var(--fg-subtle);
 }
 
-/* Inline detail region (preview now; description/links land in v2.3.4). */
+/* Inline detail region — expands in place beneath the row. */
 .project-row-detail { padding: 0 8px; }
-.project-row-wrap.is-selected .project-row-detail { padding: 14px 8px 22px; }
+.project-row-wrap.is-selected .project-row-detail { padding: 14px 8px 24px; }
+.project-detail-inner {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  max-width: 760px;
+}
+.project-detail-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.project-detail-desc {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+.project-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.project-detail-tags li {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.project-detail-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+.project-detail-links a {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+  transition: color 0.2s ease;
+}
+.project-detail-links a:hover { color: var(--primary); }
+.project-detail-note {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+}
+@media (max-width: 640px) {
+  .project-detail-inner { flex-direction: column; gap: 16px; }
+}
 
 /* Abstract category plate — shared by floating + inline variants. */
 .project-plate-art {

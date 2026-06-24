@@ -117,9 +117,44 @@ function ProjectRow({
         </span>
       </button>
 
-      {/* Inline preview — primary reveal on touch; v2.3.4 will add detail here. */}
+      {/* Inline detail — expands in place, no card chrome. */}
       <div id={detailId} className="project-row-detail" hidden={!selected}>
-        {selected && <CategoryPlate category={project.category} className="is-inline" />}
+        {selected && (
+          <div className="project-detail-inner">
+            <CategoryPlate category={project.category} className="is-inline" />
+            <div className="project-detail-body">
+              <p className="project-detail-desc">{project.description}</p>
+              <ul className="project-detail-tags">
+                {project.tags.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <div className="project-detail-links">
+                {project.status !== "planned" && (
+                  <a
+                    href={`https://${project.subdomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit ${project.name}`}
+                  >
+                    Visit ↗
+                  </a>
+                )}
+                {project.repoUrl && (
+                  <a
+                    href={project.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${project.name} source on GitHub`}
+                  >
+                    Repo ↗
+                  </a>
+                )}
+                {project.status === "planned" && !project.repoUrl && (
+                  <span className="project-detail-note">In planning — no public link yet</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
