@@ -32,7 +32,7 @@ export default function Footer() {
         {/* Nav links */}
         <div>
           <p
-            className="text-[0.6rem] tracking-[0.2em] uppercase mb-4 opacity-50"
+            className="text-[0.6rem] tracking-[0.2em] uppercase mb-4 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
           >
             Pages
@@ -55,7 +55,7 @@ export default function Footer() {
         {/* Social links */}
         <div>
           <p
-            className="text-[0.6rem] tracking-[0.2em] uppercase mb-4 opacity-50"
+            className="text-[0.6rem] tracking-[0.2em] uppercase mb-4 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
           >
             Find me
@@ -87,13 +87,13 @@ export default function Footer() {
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <span
-          className="text-xs opacity-35"
+          className="text-xs eyebrow"
           style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
         >
           © {new Date().getFullYear()} Andrew Nguyen
         </span>
         <span
-          className="text-xs opacity-35"
+          className="text-xs eyebrow"
           style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
         >
           an9.dev

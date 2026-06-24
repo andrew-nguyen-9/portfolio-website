@@ -269,7 +269,7 @@ function ProjectsContent() {
       <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
         <div>
           <p
-            className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
+            className="text-xs tracking-[0.25em] uppercase mb-4 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
           >
             02 / Projects

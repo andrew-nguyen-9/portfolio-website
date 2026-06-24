@@ -28,7 +28,7 @@ function ChicagoClock() {
   if (!time) return null;
   return (
     <span
-      className="font-mono text-xs tracking-widest opacity-40"
+      className="font-mono text-xs tracking-widest eyebrow"
       aria-label={`Chicago time: ${time}`}
       style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
     >

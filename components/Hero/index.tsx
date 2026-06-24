@@ -73,7 +73,7 @@ export default function Hero() {
         {/* Eyebrow */}
         <div className="eyebrow flex items-center gap-3 mb-8">
           <span
-            className="text-xs tracking-[0.28em] uppercase opacity-50"
+            className="text-xs tracking-[0.28em] uppercase"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
           >
             Chicago, IL

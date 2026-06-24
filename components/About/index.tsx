@@ -157,7 +157,7 @@ function StatCard({ stat }: { stat: typeof STATS[number] }) {
         <CountUp target={stat.target} prefix={stat.prefix} suffix={stat.suffix} />
       </p>
       <p className="text-sm font-semibold tracking-tight" style={{ color: "var(--fg)" }}>{stat.label}</p>
-      <p className="text-[0.62rem] leading-snug opacity-45" style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+      <p className="text-[0.62rem] leading-snug eyebrow" style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
         {stat.sub}
       </p>
     </div>
@@ -222,7 +222,7 @@ function AboutContent() {
       {/* ── Bio ──────────────────────────────────────────────── */}
       <div ref={revealTop} className="reveal grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-14">
         <div>
-          <p className="text-xs tracking-[0.25em] uppercase mb-5 opacity-50"
+          <p className="text-xs tracking-[0.25em] uppercase mb-5 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
             01 / About
           </p>
@@ -261,7 +261,7 @@ function AboutContent() {
 
       {/* ── Throughlines ─────────────────────────────────────── */}
       <div ref={revealDomains} className="reveal mb-14">
-        <p className="text-xs tracking-[0.25em] uppercase mb-5 opacity-50"
+        <p className="text-xs tracking-[0.25em] uppercase mb-5 eyebrow"
           style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
           What I keep coming back to
         </p>
@@ -275,7 +275,7 @@ function AboutContent() {
         {/* Skills */}
         <div>
           <div className="flex items-center justify-between gap-4 mb-5">
-            <p className="text-xs tracking-[0.25em] uppercase opacity-50"
+            <p className="text-xs tracking-[0.25em] uppercase eyebrow"
               style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
               What I build with
             </p>
@@ -297,7 +297,7 @@ function AboutContent() {
           <div className="flex flex-col gap-5">
             {shownGroups.map(group => (
               <div key={group.id}>
-                <p className="text-[0.62rem] tracking-[0.18em] uppercase mb-2.5 opacity-40"
+                <p className="text-[0.62rem] tracking-[0.18em] uppercase mb-2.5 eyebrow"
                   style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
                   {group.label}
                 </p>
@@ -311,7 +311,7 @@ function AboutContent() {
 
         {/* Interests */}
         <div>
-          <p className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
+          <p className="text-xs tracking-[0.25em] uppercase mb-4 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
             Outside the projects
           </p>

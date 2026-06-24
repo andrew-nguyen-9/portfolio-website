@@ -89,14 +89,24 @@ lives · alternatives considered.
   build; run Google's Rich Results Test + a security-headers.com scan against the live
   prod URL post-deploy to confirm headers survive the edge. Done against localhost here.
 
-### Found during v2.5 validation (to sweep in the closeout a11y QA)
+### Found during v2.5 validation — RESOLVED in phase closeout QA (step a)
 
-- **Low-opacity label contrast** — Lighthouse (prod build) flagged one color-contrast
-  failure: decorative mono labels rendered at `opacity-50` / `opacity-35` and the giant
-  `.section-num` watermark fall below WCAG AA. These are **pre-existing** (v2.1 theme
-  era), site-wide (About / Projects / Contact section labels), and out of v2.5's
-  SEO/security scope — so not touched here. Addressed in phase closeout step (a)
-  full-site a11y QA. Lighthouse otherwise: **SEO 100, Best Practices 100, A11y 97** on
-  the production build (`next start`). Note: running Lighthouse against `next dev`
-  falsely reports "no meta description" because dev places Next's generated `<meta>` in
-  `<body>`; the production build correctly hoists all 31 tags into `<head>` — verified.
+- **Low-opacity label contrast** — Lighthouse flagged eyebrow/meta labels faded with
+  `opacity-35/40/45/50` (section kickers, stat sub-labels, footer, nav clock) as below
+  WCAG AA — worst in light mode (3.26:1 / 2.18:1). **Fixed** by adding a `.eyebrow`
+  utility (`color: var(--fg-subtle); opacity: 1`) in `app/globals.css` and swapping the
+  opacity-fade for it across About / Hero / Nav / Footer / Contact / Projects. Verified
+  ≥4.99:1 in light, ≥5.2:1 in dark, ≥9.98:1 in both high-contrast palettes — AA
+  everywhere, AAA in HC. Final Lighthouse (prod): **SEO 100, Best Practices 100, A11y 97**.
+
+- **`.section-num` watermark still flagged (intentional)** — the giant `aria-hidden`
+  ghost numerals (224px, opacity ~.08) are the only remaining color-contrast miss, which
+  caps Lighthouse a11y at 97. They are **pure decoration** and exempt under WCAG 1.4.3;
+  making them pass would mean rendering a dark, prominent number and destroying the
+  design intent. Left as-is by choice. (Lighthouse doesn't honor the decorative
+  exemption for `aria-hidden` text, hence 97 not 100.)
+
+- **Dev-server Lighthouse caveat** — running Lighthouse against `next dev` falsely reports
+  "no meta description" because dev places Next's generated `<meta>` in `<body>`; the
+  production build (`next start`) correctly hoists all 31 tags into `<head>` — verified.
+  Always validate SEO against a production build.

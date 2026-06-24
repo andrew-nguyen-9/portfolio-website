@@ -847,6 +847,14 @@ body::after {
   -webkit-mask-composite: source-in;
 }
 
+/* ─── Eyebrow / meta labels ─────────────────────────────────
+   Muted-but-legible section kickers and metadata labels. Use this instead of
+   fading text with opacity-* — opacity blends the text toward the background and
+   drops contrast below WCAG AA (worst in light mode). --fg-subtle is AA-verified
+   on both --bg and --surface (~5.5:1) and goes further in the high-contrast
+   palettes, so these labels stay legible in every theme. */
+.eyebrow { color: var(--fg-subtle); opacity: 1; }
+
 /* ─── Skills filter dropdown (About) ────────────────────── */
 .skill-filter {
   appearance: none;

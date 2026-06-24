@@ -126,7 +126,7 @@ function ContactForm() {
         <p className="text-sm" style={{ color: "var(--fg-muted)" }}>I&apos;ll be in touch soon.</p>
         <button
           onClick={() => setState("idle")}
-          className="mt-6 text-sm underline opacity-50 hover:opacity-90 transition-opacity"
+          className="mt-6 text-sm underline eyebrow hover:text-[var(--primary)] transition-colors"
         >
           Send another
         </button>
@@ -241,7 +241,7 @@ export default function Contact() {
       <span className="section-num" aria-hidden="true">03</span>
       <div ref={revealRef} className="reveal max-w-2xl">
         <p
-          className="text-xs tracking-[0.25em] uppercase mb-5 opacity-50"
+          className="text-xs tracking-[0.25em] uppercase mb-5 eyebrow"
           style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
         >
           03 / Contact
