@@ -8,19 +8,19 @@
 // high-contrast option pushes each further (pure #000/#fff, max saturation).
 
 export const tokens = {
-  // Light — serious / editorial (rebuilt in v2.1.3)
+  // Light — serious / editorial (v2.1.3)
   light: {
-    bg:            "#F8F4EB",
-    surface:       "#EDE5D3",
-    primary:       "#2D6A4F",
-    secondary:     "#C8491C",
-    highlight:     "#3F9E7C",
-    fg:            "#16201A",
-    fgMuted:       "#3F5C4E",
-    fgSubtle:      "#6F9685",
-    border:        "rgba(22, 32, 26, 0.10)",
-    borderStrong:  "rgba(22, 32, 26, 0.18)",
-    cardBorder:    "#C7C3B3",
+    bg:            "#F6F5F1",
+    surface:       "#ECEAE3",
+    primary:       "#1E5C42",
+    secondary:     "#B23C12",
+    highlight:     "#8A6A1E",
+    fg:            "#181A1B",
+    fgMuted:       "#45504A",
+    fgSubtle:      "#596660",
+    border:        "rgba(20, 24, 26, 0.12)",
+    borderStrong:  "rgba(20, 24, 26, 0.22)",
+    cardBorder:    "#D7D4CB",
   },
   // Dark — bold high-contrast default (v2.1.1)
   dark: {
