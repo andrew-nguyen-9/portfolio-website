@@ -24,19 +24,20 @@
 }
 
 .dark {
-  /* Bg = logo disc color so logo blends into the page in dark mode.
-     Surface is slightly lighter, creating subtle depth.               */
-  --bg:           #222B28;
-  --surface:      #2D3632;
-  --primary:      #7FC9A6;  /* vivid sage green, readable on dark */
-  --secondary:    #FF7A33;  /* vibrant orange */
-  --highlight:    #E8B43E;  /* warm gold */
-  --fg:           #EDE8DE;
-  --fg-muted:     #A9C6B6;
-  --fg-subtle:    #5C7A6A;
-  --border:       rgba(237, 232, 222, 0.08);
-  --border-strong:rgba(237, 232, 222, 0.16);
-  --card-border:  #4C524E;  /* border-strong composited onto surface */
+  /* v2 default dark = the bold high-contrast look (Andrew's preference).
+     Near-black green-tinted bg keeps the logo's forest DNA while the logo
+     screen-blends crisply against it; vivid saturated accents.          */
+  --bg:           #0B0F0D;  /* near-black, faint forest undertone */
+  --surface:      #141A17;  /* a step lighter for depth */
+  --primary:      #5BE3A7;  /* vivid sage-green, pushed bright */
+  --secondary:    #FF8A47;  /* vibrant orange */
+  --highlight:    #FFC94D;  /* bright gold */
+  --fg:           #F2F5F1;  /* bright near-white, faint warm */
+  --fg-muted:     #B7C5BD;
+  --fg-subtle:    #7C9085;
+  --border:       rgba(242, 245, 241, 0.12);
+  --border-strong:rgba(242, 245, 241, 0.24);
+  --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
