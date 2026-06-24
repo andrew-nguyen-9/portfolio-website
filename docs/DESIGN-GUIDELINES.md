@@ -64,8 +64,8 @@ Adding a color means adding a token in all palettes, not a hex in a component.
 ### v2 final token values (segment v2.1)
 
 The shipped palettes. `app/globals.css` is the source of truth; `lib/theme.ts`
-mirrors it for reference. All pairs are WCAG-verified (AA body / AAA on fg·bg in
-high-contrast) — see the contrast checker noted in the v2.1.5 QA.
+mirrors it for reference. All pairs are WCAG-verified — text/accents on both
+`--bg` and `--surface` clear AA, and `fg`·`bg` clear AAA in high-contrast.
 
 | Token | Light (`:root`) | Dark default (`.dark`) | Light HC | Dark HC |
 |-------|-----------------|------------------------|----------|---------|
@@ -73,7 +73,7 @@ high-contrast) — see the contrast checker noted in the v2.1.5 QA.
 | `--surface`       | `#ECEAE3` | `#141A17` | `#f4f4f4` | `#0a0a0a` |
 | `--primary`       | `#1E5C42` | `#5BE3A7` | `#00563a` | `#3DFFAE` |
 | `--secondary`     | `#B23C12` | `#FF8A47` | `#a82c00` | `#FF8A1F` |
-| `--highlight`     | `#8A6A1E` | `#FFC94D` | `#00567a` | `#FFD21F` |
+| `--highlight`     | `#7C5D12` | `#FFC94D` | `#00567a` | `#FFD21F` |
 | `--fg`            | `#181A1B` | `#F2F5F1` | `#000` | `#fff` |
 | `--fg-muted`      | `#45504A` | `#B7C5BD` | `#141414` | `#E6E6E6` |
 | `--fg-subtle`     | `#596660` | `#7C9085` | `#2b2b2b` | `#B8B8B8` |

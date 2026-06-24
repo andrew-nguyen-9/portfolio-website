@@ -14,7 +14,7 @@ export const tokens = {
     surface:       "#ECEAE3",
     primary:       "#1E5C42",
     secondary:     "#B23C12",
-    highlight:     "#8A6A1E",
+    highlight:     "#7C5D12",
     fg:            "#181A1B",
     fgMuted:       "#45504A",
     fgSubtle:      "#596660",
