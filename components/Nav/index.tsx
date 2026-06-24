@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
 import FocusTrap from "focus-trap-react";
 import { ANLogo } from "@/components/Logo";
 import Tooltip from "@/components/Tooltip";
@@ -27,7 +28,7 @@ function ChicagoClock() {
   if (!time) return null;
   return (
     <span
-      className="font-mono text-xs tracking-widest opacity-40"
+      className="font-mono text-xs tracking-widest eyebrow"
       aria-label={`Chicago time: ${time}`}
       style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
     >
@@ -123,9 +124,9 @@ export default function Nav() {
           paddingBottom: `${Math.round(12 * logoScale)}px`,
         }}
       >
-        <a href="/" aria-label="Andrew Nguyen — home" style={{ lineHeight: 0 }}>
+        <Link href="/" aria-label="Andrew Nguyen — home" style={{ lineHeight: 0 }}>
           <ANLogo size={Math.round(96 * logoScale)} />
-        </a>
+        </Link>
 
         <div className="flex items-center gap-5">
           <ChicagoClock />

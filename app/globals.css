@@ -3,70 +3,77 @@
 @tailwind utilities;
 
 /* ─── Theme tokens ─────────────────────────────────────── */
-/* Color theory: split-complementary harmony anchored on the logo's dark
-   forest green (#222B28). Primary = deep green · Secondary = warm orange
-   (complementary) · Highlight = gold (split-complement). 60-30-10 rule:
-   parchment bg / sage surface / green+orange accents.                    */
+/* v2 palette philosophy (see docs/DESIGN-GUIDELINES.md):
+   · light  = serious / editorial — ink on paper, disciplined neutrals,
+              accents (forest green / burnt orange / brass) as punctuation.
+   · dark   = bold high-contrast by default (near-black + vivid accents).
+   · .high-contrast = the A11y option, pushed further than either default.
+   Accents stay anchored on the logo's forest green; light deepens them for
+   contrast on paper, dark brightens them for contrast on near-black.       */
 :root {
-  --bg:           #F8F4EB;  /* warm parchment */
-  --surface:      #EDE5D3;  /* sage-kissed sand */
-  --primary:      #2D6A4F;  /* richer forest green — logo DNA */
-  --secondary:    #C8491C;  /* punchier warm orange */
-  --highlight:    #3F9E7C;  /* vivid teal pulled from logo lines */
-  --fg:           #16201A;  /* near-black with green undertone */
-  --fg-muted:     #3F5C4E;
-  --fg-subtle:    #6F9685;
-  --border:       rgba(22, 32, 26, 0.10);
-  --border-strong:rgba(22, 32, 26, 0.18);
-  --card-border:  #C7C3B3;  /* border-strong composited onto surface */
+  --bg:           #F6F5F1;  /* clean off-white paper (cooler than v1 parchment) */
+  --surface:      #ECEAE3;  /* restrained light sand */
+  --primary:      #1E5C42;  /* deep forest green — logo DNA, serious */
+  --secondary:    #B23C12;  /* burnt orange — sparing punctuation */
+  --highlight:    #7C5D12;  /* antique brass/gold — AA on bg AND surface */
+  --fg:           #181A1B;  /* near-black ink, neutral */
+  --fg-muted:     #45504A;
+  --fg-subtle:    #596660;
+  --border:       rgba(20, 24, 26, 0.12);
+  --border-strong:rgba(20, 24, 26, 0.22);
+  --card-border:  #D7D4CB;  /* border-strong composited onto surface */
   --radius:       8px;
   --font-display: var(--font-geist-sans);
 }
 
 .dark {
-  /* Bg = logo disc color so logo blends into the page in dark mode.
-     Surface is slightly lighter, creating subtle depth.               */
-  --bg:           #222B28;
-  --surface:      #2D3632;
-  --primary:      #7FC9A6;  /* vivid sage green, readable on dark */
-  --secondary:    #FF7A33;  /* vibrant orange */
-  --highlight:    #E8B43E;  /* warm gold */
-  --fg:           #EDE8DE;
-  --fg-muted:     #A9C6B6;
-  --fg-subtle:    #5C7A6A;
-  --border:       rgba(237, 232, 222, 0.08);
-  --border-strong:rgba(237, 232, 222, 0.16);
-  --card-border:  #4C524E;  /* border-strong composited onto surface */
+  /* v2 default dark = the bold high-contrast look (Andrew's preference).
+     Near-black green-tinted bg keeps the logo's forest DNA while the logo
+     screen-blends crisply against it; vivid saturated accents.          */
+  --bg:           #0B0F0D;  /* near-black, faint forest undertone */
+  --surface:      #141A17;  /* a step lighter for depth */
+  --primary:      #5BE3A7;  /* vivid sage-green, pushed bright */
+  --secondary:    #FF8A47;  /* vibrant orange */
+  --highlight:    #FFC94D;  /* bright gold */
+  --fg:           #F2F5F1;  /* bright near-white, faint warm */
+  --fg-muted:     #B7C5BD;
+  --fg-subtle:    #7C9085;
+  --border:       rgba(242, 245, 241, 0.12);
+  --border-strong:rgba(242, 245, 241, 0.24);
+  --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
-/* Light high-contrast: white bg, black text, saturated accents */
+/* The A11y "high contrast" option pushes *further* than the default themes:
+   pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */
+
+/* Light high-contrast: pure white bg, pure black text */
 .high-contrast {
   --bg:           #fff;
-  --surface:      #f2f2f2;
-  --primary:      #0a5c3a;
-  --secondary:    #b23800;
-  --highlight:    #005f99;
+  --surface:      #f4f4f4;
+  --primary:      #00563a;  /* deep saturated green, AAA on white */
+  --secondary:    #a82c00;  /* deep saturated burnt orange */
+  --highlight:    #00567a;  /* deep teal-blue (gold can't hit AAA on white) */
   --fg:           #000;
-  --fg-muted:     #1a1a1a;
-  --fg-subtle:    #333;
-  --border:       rgba(0,0,0,0.30);
-  --border-strong:rgba(0,0,0,0.55);
+  --fg-muted:     #141414;
+  --fg-subtle:    #2b2b2b;
+  --border:       rgba(0,0,0,0.45);
+  --border-strong:rgba(0,0,0,0.75);
   --card-border:  #000;
 }
 
-/* Dark high-contrast: black bg, white text, bright accents */
+/* Dark high-contrast: pure black bg, pure white text, brand accents at max */
 .dark.high-contrast {
   --bg:           #000;
-  --surface:      #111;
-  --primary:      #fff;
-  --secondary:    #fc0;
-  --highlight:    #0cf;
+  --surface:      #0a0a0a;
+  --primary:      #3DFFAE;  /* max-bright green */
+  --secondary:    #FF8A1F;  /* max-saturation orange */
+  --highlight:    #FFD21F;  /* max-bright gold */
   --fg:           #fff;
-  --fg-muted:     #ccc;
-  --fg-subtle:    #999;
-  --border:       rgba(255,255,255,0.30);
-  --border-strong:rgba(255,255,255,0.55);
+  --fg-muted:     #E6E6E6;
+  --fg-subtle:    #B8B8B8;
+  --border:       rgba(255,255,255,0.45);
+  --border-strong:rgba(255,255,255,0.78);
   --card-border:  #fff;
 }
 
@@ -135,6 +142,28 @@ body {
   overflow-x: hidden;
   cursor: none;
 }
+
+/* ─── Grain / paper texture ─────────────────────────────── */
+/* Shared subtle tactile layer (decided v2; deferred from v2.1 to v2.2.4).
+   ponytail: one fixed pseudo-element + an inline desaturated SVG-noise tile
+   — no JS, no dependency, no extra DOM node. Static, so reduced-motion-safe;
+   pointer-events:none so it never blocks input; desaturated so it adds no
+   colour cast that could shift a token. Kept faint to preserve token
+   contrast, and disabled in max-high-contrast where crispness wins. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.07;
+}
+/* Slightly stronger on the dark bg, where faint light grain reads as paper. */
+.dark body::after { opacity: 0.085; }
+/* Max-high-contrast: no texture — these users want maximal clarity. */
+.high-contrast body::after { display: none; }
 
 /* ─── Skip link ─────────────────────────────────────────── */
 .skip-link {
@@ -219,10 +248,6 @@ body {
 /* Dark: swap — "AndReW" is default fg, "nGuyen" is orange */
 .dark .hero-name-first { color: var(--fg); }
 .dark .hero-name-last  { color: var(--secondary); }
-
-/* When a compliment "typo" wraps onto a 2nd visual line, color it like line 2 */
-.hero-flash-wrapped       { color: var(--fg); }
-.dark .hero-flash-wrapped { color: var(--secondary); }
 
 /* ─── Typing cursor ─────────────────────────────────────── */
 @keyframes cursor-blink {
@@ -374,15 +399,11 @@ body {
   #nav .an-logo-disc { width: 68px !important; height: 68px !important; }
   #nav .an-logo      { width: 52px !important; height: 52px !important; }
 
-  /* Flip cards: slightly shorter on small screens */
-  .project-card { height: 300px; }
-
   /* Eyebrow items can wrap on very narrow screens */
   #hero .eyebrow { flex-wrap: wrap; gap: 8px; }
 }
 
 @media (max-width: 480px) {
-  .project-card { height: 270px; }
   #hero .hero-ctas { flex-direction: column; align-items: flex-start; }
 }
 
@@ -393,7 +414,6 @@ body {
   #menu-overlay { padding: 64px 16px 24px; }
   #nav .an-logo-disc { width: 58px !important; height: 58px !important; }
   #nav .an-logo      { width: 44px !important; height: 44px !important; }
-  .project-card { height: 256px; }
   /* Keep the menu pill compact so the nav never overflows */
   #nav .flex.items-center.gap-5 { gap: 10px; }
 }
@@ -422,7 +442,6 @@ body {
 @media (max-height: 560px) {
   #hero { padding-top: 72px; padding-bottom: 40px; }
   #hero .hero-name { font-size: clamp(2.2rem, 6vw, 3.6rem) !important; }
-  #hero .hero-subtitle { min-height: 0 !important; }
 }
 
 /* ─── Section numbers ───────────────────────────────────── */
@@ -446,40 +465,281 @@ body {
   .section-num { display: none; }
 }
 
-/* ─── Project cards — flip ──────────────────────────────── */
-.project-card {
-  perspective: 1200px;
-  height: 340px;
-  cursor: pointer;
-}
+/* ─── Project editorial index (v2.3) ────────────────────── */
+/* Large serif names against monospace metadata — the signature pairing.
+   Replaces the v1 flip cards (the project list must not be cards in v2). */
+.project-group { margin-bottom: 48px; }
 
-.project-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px;
-}
-
-/* Flip is JS-driven (directional): the inner's transform is set inline based on
-   which side was hovered/tapped, so the card spins toward the pointer. */
-
-.project-card-front,
-.project-card-back {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-}
-.project-card-back {
-  transform: rotateY(180deg);
-  background: var(--surface);
+.project-group-head {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-strong);
+}
+.project-group-name {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+.project-group-count {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  color: var(--fg-subtle);
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr auto;
+  align-items: baseline;
+  gap: 18px;
+  width: 100%;
+  padding: 18px 8px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, padding-left 0.2s ease;
+}
+.project-row:hover,
+.project-row-wrap.is-selected .project-row {
+  background: var(--surface);
+  padding-left: 14px;
+}
+
+.project-row-idx {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.72rem;
+  color: var(--fg-subtle);
+}
+
+.project-row-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.project-row-name {
+  font-family: var(--font-newsreader), serif;
+  font-size: clamp(1.7rem, 3.6vw, 2.7rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+}
+.project-row-tagline {
+  font-family: var(--font-newsreader), serif;
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--fg-muted);
+}
+
+.project-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--font-jetbrains-mono), monospace;
+}
+.project-row-status {
+  width: 5.5rem;
+  text-align: right;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.project-row-year {
+  width: 3rem;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--fg-subtle);
+}
+
+/* Inline detail region — expands in place beneath the row. */
+.project-row-detail { padding: 0 8px; }
+.project-row-wrap.is-selected .project-row-detail { padding: 14px 8px 24px; }
+.project-detail-inner {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  max-width: 760px;
+}
+.project-detail-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.project-detail-desc {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+.project-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.project-detail-tags li {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.project-detail-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+.project-detail-links a {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+  transition: color 0.2s ease;
+}
+.project-detail-links a:hover { color: var(--primary); }
+.project-detail-note {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+}
+@media (max-width: 640px) {
+  .project-detail-inner { flex-direction: column; gap: 16px; }
+}
+
+/* Abstract category plate — shared by floating + inline variants. */
+.project-plate-art {
+  position: relative;
+  width: 260px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+.project-plate-art.is-inline { width: 100%; max-width: 320px; height: 150px; }
+.project-plate-wash { position: absolute; inset: 0; opacity: 0.22; }
+.project-plate-glyph {
+  position: absolute;
+  right: -14px;
+  bottom: -38px;
+  font-family: var(--font-newsreader), serif;
+  font-size: 8rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  opacity: 0.16;
+}
+.project-plate-label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* Floating preview — follows cursor / anchors beside a focused row. */
+.project-plate-floating {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.28));
+  animation: plate-in 0.18s ease both;
+}
+@keyframes plate-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Segmented monospace control (status filter + view toggle). */
+.project-seg { display: inline-flex; align-items: center; gap: 2px; }
+.project-seg-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 8px 6px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--fg-subtle);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.project-seg-btn:hover { color: var(--fg-muted); }
+.project-seg-btn.is-active { color: var(--fg); border-bottom-color: var(--primary); }
+
+/* Simple list fallback — plainer than the index, no preview/serif drama. */
+.project-list { display: flex; flex-direction: column; }
+.project-list-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 4px 18px;
+  padding: 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.project-list-name {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.project-list-tagline {
+  grid-column: 1;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+}
+.project-list-meta {
+  grid-row: 1;
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+.project-list-links {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+}
+.project-list-links a {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  transition: color 0.2s ease;
+}
+.project-list-links a:hover { color: var(--primary); }
+
+/* Mobile: metadata drops beneath the name, left-aligned. */
+@media (max-width: 640px) {
+  .project-row {
+    grid-template-columns: 2.25rem 1fr;
+    gap: 6px 14px;
+    padding: 16px 4px;
+  }
+  .project-row-meta {
+    grid-column: 2;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+  .project-row-status { width: auto; text-align: left; }
+  .project-row-year   { width: auto; text-align: left; }
+
+  .project-list-row { grid-template-columns: 1fr; }
+  .project-list-meta { grid-row: auto; grid-column: 1; justify-content: flex-start; }
+  .project-list-links { grid-column: 1; grid-row: auto; justify-content: flex-start; margin-top: 6px; }
 }
 
 /* ─── Scroll progress ───────────────────────────────────── */
@@ -586,6 +846,45 @@ body {
     linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
   -webkit-mask-composite: source-in;
 }
+
+/* ─── Eyebrow / meta labels ─────────────────────────────────
+   Muted-but-legible section kickers and metadata labels. Use this instead of
+   fading text with opacity-* — opacity blends the text toward the background and
+   drops contrast below WCAG AA (worst in light mode). --fg-subtle is AA-verified
+   on both --bg and --surface (~5.5:1) and goes further in the high-contrast
+   palettes, so these labels stay legible in every theme. */
+.eyebrow { color: var(--fg-subtle); opacity: 1; }
+
+/* ─── Skills filter dropdown (About) ────────────────────── */
+.skill-filter {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  padding: 0.45rem 2rem 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  /* chevron drawn from currentColor so it follows the token, no hardcoded hex */
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.1rem) center,
+    calc(100% - 0.75rem) center;
+  background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+.skill-filter:hover { border-color: var(--primary); color: var(--fg); }
+.skill-filter:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.skill-filter option { color: var(--fg); background: var(--surface); }
 
 /* ─── hCaptcha wrapper ──────────────────────────────────── */
 .hcaptcha-wrapper {
