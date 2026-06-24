@@ -56,15 +56,22 @@ fit + distinctiveness.
 
 ## Direction: loading screen — segment v2.2
 
-The v1 loader is a spinning vinyl record — well-crafted but replaced in v2.
-**Chosen concept (2026-06-24): architectural plan draw-in.**
+The v1 loader is a spinning vinyl record. A v2 replacement was explored but
+**not adopted — see the reversal below.**
+
+**Status (updated 2026-06-24, segment v2.2): keep the v1 vinyl loader.**
+The architectural plan draw-in was prototyped (three directions — orthographic
+elevation, compass set-out, isometric projection — each resolving into the
+spire monogram) and reviewed with Andrew, who preferred the original vinyl.
+The blueprint concept is shelved; the vinyl loader ships unchanged in v2.
+
+History of the exploration:
 
 1. ~~Departures-board / split-flap~~ — set aside.
-2. **Architectural plan draw-in** — *chosen.* Thin lines draw a blueprint/grid
-   that resolves into the AN monogram, like a plan being drafted. Nods to
-   architecture + Andrew's mechanical-engineering background.
+2. ~~Architectural plan draw-in~~ — prototyped, then **set aside 2026-06-24**
+   (kept vinyl instead). Could be revisited in a later phase if revived.
 3. ~~Data-to-form~~ — set aside.
-4. ~~Evolve the vinyl~~ — set aside.
+4. **Evolve / keep the vinyl** — *this is what ships.*
 
 Constraints (all concepts): once-per-session via `sessionStorage`, full
 `prefers-reduced-motion` bail-out, no layout shift on handoff, sub-second
@@ -84,9 +91,9 @@ perceived to a returning visitor.
 
 ## Decisions (resolved with Andrew, 2026-06-24)
 
-- **Loader concept: blueprint draw-in.** Thin lines draft a plan/grid that
-  resolves into the AN monogram — nods to architecture + his mechanical-
-  engineering background. (Split-flap, data-to-form, and evolved-vinyl set aside.)
+- **Loader concept: blueprint draw-in** — *reversed 2026-06-24 in segment v2.2.*
+  Prototyped (orthographic / compass / isometric) and reviewed; Andrew chose to
+  **keep the v1 vinyl loader**. Blueprint shelved.
 - **Texture: yes — subtle grain.** A light paper/grain layer for tactility,
   not at the expense of contrast or performance.
 - **References: use the research set** above (Awwwards winners + Muzli 2026); no
