@@ -22,7 +22,8 @@ export default function Icon() {
           justifyContent: "center",
         }}
       >
-        <img src={logoSrc} width={50} height={50} />
+        {/* Rendered by satori (next/og), not the browser DOM; alt is decorative. */}
+        <img src={logoSrc} width={50} height={50} alt="" />
       </div>
     ),
     { ...size }

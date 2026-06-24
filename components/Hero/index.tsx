@@ -124,7 +124,8 @@ export default function Hero() {
         const doErase = () => {
           if (cancelled) return;
           if (n >= toErase) {
-            toType.length > 0 ? typeStr(toType, 50, cb) : cb();
+            if (toType.length > 0) typeStr(toType, 50, cb);
+            else cb();
             return;
           }
           strRef.current = strRef.current.slice(0, -1);

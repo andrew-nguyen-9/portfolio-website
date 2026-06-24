@@ -11,6 +11,10 @@ export function ANLogo({ size = 44, className }: ANLogoProps) {
       className={["an-logo-disc", className].filter(Boolean).join(" ")}
       style={{ width: total, height: total }}
     >
+      {/* Raw <img>, not next/image: the logo relies on the .an-logo CSS
+          (grayscale→invert→brightness + mix-blend-mode: screen) and inline
+          width/height that transition on scroll — next/image would fight both. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/an-logo.png"
         alt="AN"
