@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { projects, type Project } from "@/content/projects";
+import { useEffect, useState } from "react";
+import { projects, type Project, type ProjectStatus } from "@/content/projects";
 import { useReveal } from "@/hooks/useReveal";
 
 const STATUS_LABELS: Record<Project["status"], string> = {
@@ -10,417 +10,335 @@ const STATUS_LABELS: Record<Project["status"], string> = {
   planned:  "Planned",
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Music:  "#9E4A24",
-  Sports: "#3F6B52",
-  Games:  "#7A9A88",
-  Civic:  "#C27848",
-  Food:   "#89AD9E",
+/* Each category maps onto a brand accent token (no raw hex — token contract). */
+const CAT_ACCENT: Record<string, string> = {
+  Music:  "var(--secondary)",
+  Sports: "var(--primary)",
+  Civic:  "var(--highlight)",
+  Games:  "var(--primary)",
+  Food:   "var(--secondary)",
 };
 
-/* Rich gradient artwork for each category front face */
-const CARD_GRADIENTS: Record<string, string> = {
-  Music:  "linear-gradient(145deg, #1a0a2e 0%, #3d1a6e 40%, #7a3db8 75%, #b860c8 100%)",
-  Sports: "linear-gradient(145deg, #0a1f10 0%, #1a4828 40%, #2a7845 75%, #3daa60 100%)",
-  Games:  "linear-gradient(145deg, #08102a 0%, #142060 40%, #2040a8 75%, #3868d8 100%)",
-  Civic:  "linear-gradient(145deg, #101820 0%, #1a3050 40%, #245078 75%, #3878a8 100%)",
-  Food:   "linear-gradient(145deg, #200808 0%, #5a1808 40%, #a03818 75%, #d86030 100%)",
-};
+/* Deliberate reading order for the index, not data order. */
+const CATEGORY_ORDER = ["Music", "Sports", "Civic", "Games", "Food"];
+const STATUS_ORDER: ProjectStatus[] = ["live", "building", "planned"];
 
-function StatusBadge({ status }: { status: Project["status"] }) {
-  const color = status === "live" ? "var(--primary)" : status === "building" ? "var(--highlight)" : "var(--fg-subtle)";
+const PLATE_W = 260;
+const PLATE_H = 180;
+
+type StatusFilter = "all" | ProjectStatus;
+type View = "index" | "list";
+
+function groupByCategory(list: Project[]): [string, Project[]][] {
+  const map = new Map<string, Project[]>();
+  for (const p of list) {
+    (map.get(p.category) ?? map.set(p.category, []).get(p.category)!).push(p);
+  }
+  const ordered = CATEGORY_ORDER.filter((c) => map.has(c));
+  const extra = [...map.keys()].filter((c) => !CATEGORY_ORDER.includes(c)).sort();
+  return [...ordered, ...extra].map((c) => [c, map.get(c)!]);
+}
+
+/* Only offer filters for statuses that actually exist in the data. */
+function presentStatuses(): ProjectStatus[] {
+  const set = new Set(projects.map((p) => p.status));
+  return STATUS_ORDER.filter((s) => set.has(s));
+}
+
+function statusColor(s: Project["status"]) {
+  return s === "live" ? "var(--primary)" : s === "building" ? "var(--highlight)" : "var(--fg-subtle)";
+}
+
+/* Abstract category visual — tokenized accent wash + oversized serif initial.
+   Stands in for a real screenshot; per-project art can replace it later. */
+function CategoryPlate({ category, className }: { category: string; className?: string }) {
+  const accent = CAT_ACCENT[category] ?? "var(--primary)";
   return (
-    <span
-      className="inline-flex items-center gap-1.5 text-[0.58rem] tracking-widest uppercase"
-      style={{
-        fontFamily: "var(--font-jetbrains-mono), monospace",
-        color,
-        filter: "brightness(1.2)",
-        background: "rgba(0,0,0,0.75)",
-        padding: "4px 10px",
-        borderRadius: 20,
-      }}
-    >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} aria-hidden="true" />
-      {STATUS_LABELS[status]}
-    </span>
+    <div className={`project-plate-art${className ? ` ${className}` : ""}`}>
+      <span
+        aria-hidden="true"
+        className="project-plate-wash"
+        style={{ background: `radial-gradient(120% 100% at 15% 0%, ${accent} 0%, transparent 55%)` }}
+      />
+      <span aria-hidden="true" className="project-plate-glyph" style={{ color: accent }}>
+        {category.charAt(0)}
+      </span>
+      <span className="project-plate-label">{category}</span>
+    </div>
   );
 }
 
-/* ── Flip card (grid view) ─────────────────────────────── */
-function FlipCard({ project }: { project: Project }) {
-  const [flipped, setFlipped] = useState(false);
-  // dir = +1 spins left→right (rotateY +180), -1 spins right→left (-180)
-  const [dir, setDir] = useState(1);
+/* ── A single index row ────────────────────────────────── */
+function ProjectRow({
+  project,
+  index,
+  isTouch,
+  selected,
+  onSelect,
+  onPreview,
+  onClearPreview,
+}: {
+  project: Project;
+  index: number;
+  isTouch: boolean;
+  selected: boolean;
+  onSelect: () => void;
+  onPreview: (p: Project, rect?: DOMRect) => void;
+  onClearPreview: (p: Project) => void;
+}) {
+  const idx = String(index).padStart(2, "0");
+  const detailId = `project-detail-${project.id}`;
+
+  return (
+    <div className={`project-row-wrap${selected ? " is-selected" : ""}`}>
+      <button
+        type="button"
+        className="project-row"
+        aria-expanded={selected}
+        aria-controls={detailId}
+        onClick={onSelect}
+        onMouseEnter={() => !isTouch && onPreview(project)}
+        onMouseLeave={() => !isTouch && onClearPreview(project)}
+        onFocus={(e) => !isTouch && onPreview(project, e.currentTarget.getBoundingClientRect())}
+        onBlur={() => !isTouch && onClearPreview(project)}
+      >
+        <span className="project-row-idx" aria-hidden="true">{idx}</span>
+
+        <span className="project-row-main">
+          <span className="project-row-name">{project.name}</span>
+          <span className="project-row-tagline">{project.tagline}</span>
+        </span>
+
+        <span className="project-row-meta">
+          <span className="project-row-status" style={{ color: statusColor(project.status) }}>
+            {STATUS_LABELS[project.status]}
+          </span>
+          <span className="project-row-year">{project.year}</span>
+        </span>
+      </button>
+
+      {/* Inline detail — expands in place, no card chrome. */}
+      <div id={detailId} className="project-row-detail" hidden={!selected}>
+        {selected && (
+          <div className="project-detail-inner">
+            <CategoryPlate category={project.category} className="is-inline" />
+            <div className="project-detail-body">
+              <p className="project-detail-desc">{project.description}</p>
+              <ul className="project-detail-tags">
+                {project.tags.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <div className="project-detail-links">
+                {project.status !== "planned" && (
+                  <a
+                    href={`https://${project.subdomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit ${project.name}`}
+                  >
+                    Visit ↗
+                  </a>
+                )}
+                {project.repoUrl && (
+                  <a
+                    href={project.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${project.name} source on GitHub`}
+                  >
+                    Repo ↗
+                  </a>
+                )}
+                {project.status === "planned" && !project.repoUrl && (
+                  <span className="project-detail-note">In planning — no public link yet</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Simple list fallback (the v1 list, plainer) ───────── */
+function ListRow({ project }: { project: Project }) {
+  return (
+    <li className="project-list-row">
+      <span className="project-list-name">{project.name}</span>
+      <span className="project-list-tagline">{project.tagline}</span>
+      <span className="project-list-meta">
+        <span style={{ color: statusColor(project.status) }}>{STATUS_LABELS[project.status]}</span>
+        <span aria-hidden="true">·</span>
+        <span>{project.category}</span>
+        <span aria-hidden="true">·</span>
+        <span>{project.year}</span>
+      </span>
+      <span className="project-list-links">
+        {project.status !== "planned" && (
+          <a href={`https://${project.subdomain}`} target="_blank" rel="noopener noreferrer">
+            Visit
+          </a>
+        )}
+        {project.repoUrl && (
+          <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+            Repo
+          </a>
+        )}
+      </span>
+    </li>
+  );
+}
+
+/* ── Segmented monospace control ───────────────────────── */
+function Segmented<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { id: T; text: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="project-seg" role="group" aria-label={label}>
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          className={`project-seg-btn${value === o.id ? " is-active" : ""}`}
+          aria-pressed={value === o.id}
+          onClick={() => onChange(o.id)}
+        >
+          {o.text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ProjectsContent() {
+  const revealRef = useReveal();
+
   const [isTouch, setIsTouch] = useState(false);
-  const cardRef = useRef<HTMLElement>(null);
-  const catColor = CATEGORY_COLORS[project.category] ?? "#7D9A8A";
-  const gradient = CARD_GRADIENTS[project.category] ?? CARD_GRADIENTS.Sports;
-  const imgPosition = project.id === "cooking-music-game" ? "top" : "center";
-  const frontStyle = project.imageUrl
-    ? { backgroundImage: `url('${project.imageUrl}')`, backgroundSize: "cover", backgroundPosition: imgPosition }
-    : { background: gradient };
+  const [view, setView] = useState<View>("index");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<Project | null>(null);
+  const [pos, setPos] = useState<{ x: number; y: number; pinned: boolean }>({ x: 0, y: 0, pinned: false });
 
   useEffect(() => {
     setIsTouch(window.matchMedia("(hover: none)").matches);
   }, []);
 
-  // Left half of the card → flip rightward (+1); right half → flip leftward (-1)
-  const sideDir = (clientX: number) => {
-    const el = cardRef.current;
-    if (!el) return 1;
-    const rect = el.getBoundingClientRect();
-    return clientX < rect.left + rect.width / 2 ? 1 : -1;
+  const visible = statusFilter === "all" ? projects : projects.filter((p) => p.status === statusFilter);
+  const groups = groupByCategory(visible);
+
+  const statusOptions: { id: StatusFilter; text: string }[] = [
+    { id: "all", text: "All" },
+    ...presentStatuses().map((s) => ({ id: s, text: STATUS_LABELS[s] })),
+  ];
+
+  const showPreview = (p: Project, rect?: DOMRect) => {
+    setPreview(p);
+    if (rect) {
+      // Keyboard focus: anchor beside the row and pin (stop cursor-following).
+      const x = Math.min(rect.right + 20, window.innerWidth - PLATE_W - 12);
+      const y = Math.min(Math.max(rect.top, 12), window.innerHeight - PLATE_H - 12);
+      setPos({ x, y, pinned: true });
+    } else {
+      // Pointer hover: release any pin so onMove resumes cursor-following.
+      setPos((prev) => (prev.pinned ? { ...prev, pinned: false } : prev));
+    }
+  };
+  const clearPreview = (p: Project) => setPreview((cur) => (cur === p ? null : cur));
+
+  const onMove = (e: React.MouseEvent) => {
+    if (isTouch || pos.pinned) return;
+    const x = Math.min(e.clientX + 24, window.innerWidth - PLATE_W - 12);
+    const y = Math.min(Math.max(e.clientY - PLATE_H / 2, 12), window.innerHeight - PLATE_H - 12);
+    setPos({ x, y, pinned: false });
   };
 
-  const handleEnter = (e: React.MouseEvent) => {
-    if (isTouch) return;
-    setDir(sideDir(e.clientX));
-    setFlipped(true);
-  };
-  const handleLeave = () => {
-    if (isTouch) return;
-    setFlipped(false);
-  };
-  const handleClick = (e: React.MouseEvent) => {
-    if (!isTouch) return;
-    setDir(sideDir(e.clientX));
-    setFlipped((f) => !f);
-  };
-
-  return (
-    <article
-      ref={cardRef}
-      className="project-card"
-      aria-label={project.name}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      onClick={isTouch ? handleClick : undefined}
-    >
-      <div
-        className="project-card-inner"
-        style={{ transform: flipped ? `rotateY(${dir * 180}deg)` : "rotateY(0deg)" }}
-      >
-        {/* ── FRONT ── */}
-        <div className="project-card-front" style={frontStyle}>
-          {/* Vignette — blurred dark edges over the photo */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "radial-gradient(ellipse at 50% 55%, transparent 28%, rgba(0,0,0,0.68) 100%)",
-            }}
-          />
-
-          {/* Status + category top row */}
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
-            <StatusBadge status={project.status} />
-            <span
-              style={{
-                fontSize: "0.6rem",
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: catColor,
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                filter: "brightness(1.2)",
-                background: "rgba(0,0,0,0.75)",
-                padding: "4px 10px",
-                borderRadius: 20,
-              }}
-            >
-              {project.category}
-            </span>
-          </div>
-
-          {/* Bottom name/tagline overlay */}
-          <div
-            className="absolute bottom-0 left-0 right-0"
-            style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)",
-              padding: "48px 20px 20px",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "var(--font-display), sans-serif",
-                fontSize: "1.15rem",
-                fontWeight: 700,
-                color: "#fff",
-                letterSpacing: "-0.02em",
-                marginBottom: 4,
-              }}
-            >
-              {project.name}
-            </h3>
-            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.35 }}>
-              {project.tagline}
-            </p>
-          </div>
-
-          {/* Touch hint */}
-          {isTouch && (
-            <div
-              className="absolute bottom-4 right-4"
-              style={{ opacity: 0.5, color: "#fff" }}
-              aria-hidden="true"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-              </svg>
-            </div>
-          )}
-        </div>
-
-        {/* ── BACK ── */}
-        <div className="project-card-back">
-          {/* Colour top bar */}
-          <div style={{ height: 3, background: catColor, opacity: 0.8, flexShrink: 0 }} aria-hidden="true" />
-
-          <div className="flex flex-col gap-4 p-5 flex-1 overflow-hidden">
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3
-                  className="text-base mb-0.5"
-                  style={{ fontFamily: "var(--font-display), sans-serif", fontWeight: 700, letterSpacing: "-0.02em" }}
-                >
-                  {project.name}
-                </h3>
-                <p className="text-xs italic leading-snug" style={{ color: "var(--fg-muted)" }}>
-                  {project.tagline}
-                </p>
-              </div>
-              <StatusBadge status={project.status} />
-            </div>
-
-            {/* Description */}
-            <p className="text-xs leading-relaxed flex-1" style={{ color: "var(--fg-muted)" }}>
-              {project.description}
-            </p>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1">
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[0.55rem] tracking-wider px-1.5 py-0.5 rounded border border-[var(--border)]"
-                  style={{ color: "var(--fg-subtle)", fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Links */}
-            <div className="flex items-center gap-3 pt-0.5 border-t border-[var(--border)]">
-              {project.status !== "planned" && (
-                <a
-                  href={`https://${project.subdomain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-medium hover:text-[var(--primary)] transition-colors"
-                  aria-label={`Visit ${project.name}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Visit
-                  <svg width="10" height="10" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-                    <path d="M1.5 9.5L9.5 1.5M5 1.5h4.5v4.5"/>
-                  </svg>
-                </a>
-              )}
-              {project.repoUrl && (
-                <a
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs opacity-45 hover:opacity-90 transition-opacity"
-                  aria-label={`${project.name} on GitHub`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fg)" aria-hidden="true">
-                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.603-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.003.071 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
-                  </svg>
-                  Repo
-                </a>
-              )}
-              <span
-                className="ml-auto text-[0.55rem] tracking-wider opacity-30"
-                style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-              >
-                {project.year}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/* ── List card (list view — no flip) ──────────────────── */
-function ListCard({ project }: { project: Project }) {
-  const catColor = CATEGORY_COLORS[project.category] ?? "var(--primary)";
-  return (
-    <article
-      className="rounded-2xl border border-[var(--border)] overflow-hidden flex gap-0 hover:-translate-y-0.5 transition-transform"
-      style={{ background: "var(--surface)" }}
-      aria-label={project.name}
-    >
-      {/* Side accent */}
-      <div style={{ width: 4, background: catColor, opacity: 0.75, flexShrink: 0 }} aria-hidden="true" />
-      <div className="flex flex-wrap items-start justify-between gap-4 p-5 flex-1">
-        <div className="flex flex-col gap-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 style={{ fontFamily: "var(--font-display), sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.02em" }}>
-              {project.name}
-            </h3>
-            <StatusBadge status={project.status} />
-          </div>
-          <p className="text-sm italic" style={{ color: "var(--fg-muted)" }}>{project.tagline}</p>
-          <p className="text-xs leading-relaxed mt-1" style={{ color: "var(--fg-muted)" }}>{project.description}</p>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {project.tags.map((t) => (
-              <span key={t} className="text-[0.55rem] tracking-wider px-1.5 py-0.5 rounded border border-[var(--border)]"
-                style={{ color: "var(--fg-subtle)", fontFamily: "var(--font-jetbrains-mono), monospace" }}>
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          {project.status !== "planned" && (
-            <a href={`https://${project.subdomain}`} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium hover:text-[var(--primary)] transition-colors"
-              aria-label={`Visit ${project.name}`}>
-              Visit <svg width="10" height="10" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M1.5 9.5L9.5 1.5M5 1.5h4.5v4.5"/></svg>
-            </a>
-          )}
-          {project.repoUrl && (
-            <a href={project.repoUrl} target="_blank" rel="noopener noreferrer"
-              className="text-xs opacity-40 hover:opacity-80 transition-opacity"
-              aria-label={`${project.name} on GitHub`}>
-              Repo
-            </a>
-          )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/* ── Main section ──────────────────────────────────────── */
-type View   = "grid" | "list";
-type Filter = "all"  | "featured";
-
-function ProjectsContent() {
-  const [view,   setView]   = useState<View>("grid");
-  const [filter, setFilter] = useState<Filter>("all");
-  const revealRef    = useReveal();
-  const filterBarRef = useRef<HTMLDivElement>(null);
-  const gridRef      = useRef<HTMLDivElement>(null);
-  const [underline, setUnderline] = useState({ left: 0, width: 0 });
-  const visible = filter === "featured" ? projects.filter((p) => p.featured) : projects;
-
-  // Slide the underline indicator under the active filter label
-  useEffect(() => {
-    const bar = filterBarRef.current;
-    if (!bar) return;
-    const id = requestAnimationFrame(() => {
-      const btn = bar.querySelector<HTMLButtonElement>(`[data-f="${filter}"]`);
-      if (btn) setUnderline({ left: btn.offsetLeft, width: btn.offsetWidth });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [filter]);
+  let running = 0;
 
   return (
     <div ref={revealRef} className="reveal">
-      {/* Header */}
+      {/* Header + controls */}
       <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
         <div>
-          <p className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+          <p
+            className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
+            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+          >
             02 / Projects
           </p>
-          <h2 id="projects-heading" className="leading-[1.0] tracking-tight"
-            style={{ fontFamily: "var(--font-display), sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
+          <h2
+            id="projects-heading"
+            className="leading-[1.0] tracking-tight"
+            style={{
+              fontFamily: "var(--font-display), sans-serif",
+              fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+            }}
+          >
             Things I&apos;m building
           </h2>
         </div>
 
-        <div className="flex items-center gap-5">
-          {/* Sliding underline filter */}
-          <div ref={filterBarRef} className="relative flex items-center pb-px" role="group" aria-label="Filter projects">
-            {(["all", "featured"] as Filter[]).map((f) => (
-              <button
-                key={f}
-                data-f={f}
-                onClick={() => setFilter(f)}
-                aria-pressed={filter === f}
-                className="px-3 pb-2 text-xs capitalize transition-colors"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                  letterSpacing: "0.08em",
-                  background: "transparent",
-                  border: "none",
-                  color: filter === f ? "var(--fg)" : "var(--fg-subtle)",
-                }}
-              >
-                {f}
-              </button>
-            ))}
-            {/* Animated underline */}
-            <span
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: underline.left,
-                width: underline.width,
-                height: 2,
-                background: "var(--primary)",
-                borderRadius: 1,
-                transition: "left 0.26s cubic-bezier(0.4,0,0.2,1), width 0.26s cubic-bezier(0.4,0,0.2,1)",
-              }}
-            />
-          </div>
-
-          {/* View toggle — minimal icon pair */}
-          <div className="flex items-center gap-1" role="group" aria-label="Toggle layout">
-            {([
-              { id: "grid" as View, icon: <svg width="14" height="14" viewBox="0 0 13 13" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1"/><rect x="0" y="7.5" width="5.5" height="5.5" rx="1"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"/></svg> },
-              { id: "list" as View, icon: <svg width="14" height="14" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><path d="M1 2.5h11M1 6.5h11M1 10.5h11"/></svg> },
-            ]).map(({ id, icon }) => (
-              <button
-                key={id}
-                onClick={() => setView(id)}
-                aria-pressed={view === id}
-                aria-label={`${id} layout`}
-                className="p-2 rounded transition-colors"
-                style={{
-                  color: view === id ? "var(--primary)" : "var(--fg-subtle)",
-                  background: "transparent",
-                }}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-6">
+          <Segmented label="Filter by status" options={statusOptions} value={statusFilter} onChange={setStatusFilter} />
+          <Segmented
+            label="Choose layout"
+            options={[{ id: "index", text: "Index" }, { id: "list", text: "List" }]}
+            value={view}
+            onChange={setView}
+          />
         </div>
       </div>
 
-      {view === "grid" ? (
-        <div
-          ref={gridRef}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start"
-        >
-          {visible.map((p) => (
-            <FlipCard key={p.id} project={p} />
-          ))}
+      {view === "index" ? (
+        <div className="project-index" onMouseMove={onMove}>
+          {groups.map(([cat, items]) => {
+            const start = running + 1;
+            running += items.length;
+            return (
+              <section key={cat} className="project-group" aria-label={cat}>
+                <header className="project-group-head" style={{ color: CAT_ACCENT[cat] }}>
+                  <span className="project-group-name">{cat}</span>
+                  <span className="project-group-count" aria-hidden="true">
+                    {String(items.length).padStart(2, "0")}
+                  </span>
+                </header>
+
+                {items.map((p, i) => (
+                  <ProjectRow
+                    key={p.id}
+                    project={p}
+                    index={start + i}
+                    isTouch={isTouch}
+                    selected={selectedId === p.id}
+                    onSelect={() => setSelectedId((id) => (id === p.id ? null : p.id))}
+                    onPreview={showPreview}
+                    onClearPreview={clearPreview}
+                  />
+                ))}
+              </section>
+            );
+          })}
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {visible.map((p) => <ListCard key={p.id} project={p} />)}
+        <ul className="project-list">
+          {visible.map((p) => <ListRow key={p.id} project={p} />)}
+        </ul>
+      )}
+
+      {/* Floating preview — pointer (follows cursor) + keyboard (anchored). Never on touch. */}
+      {view === "index" && !isTouch && preview && (
+        <div className="project-plate-floating" aria-hidden="true" style={{ left: pos.x, top: pos.y }}>
+          <CategoryPlate category={preview.category} />
         </div>
       )}
     </div>
