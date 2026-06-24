@@ -108,8 +108,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)",  color: "#222B28" },
-    { media: "(prefers-color-scheme: light)", color: "#F8F4EB" },
+    // Mirrors --bg in app/globals.css (.dark / :root). Static metadata, so it
+    // can't read CSS vars — keep in sync when the bg tokens change.
+    { media: "(prefers-color-scheme: dark)",  color: "#0B0F0D" },
+    { media: "(prefers-color-scheme: light)", color: "#F6F5F1" },
   ],
 };
 
