@@ -28,6 +28,11 @@ const securityHeaders = [
       // hCaptcha renders its challenge inside an iframe from newassets.hcaptcha.com
       "frame-src https://newassets.hcaptcha.com",
       "frame-ancestors 'none'",
+      // lock down the remaining fetch directives for a clean security-headers scan
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+      "upgrade-insecure-requests",
     ].join("; "),
   },
 ];

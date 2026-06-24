@@ -44,3 +44,59 @@ lives · alternatives considered.
   each project answers (DESIGN-GUIDELINES voice rule); CTA rewritten as a Chicago love
   letter. · Lives in `content/projects.ts` (festival, draft, midterms, grocery, cta). ·
   *Untouched on purpose:* parlor / f1 / house-special taglines already read in-voice.
+
+---
+
+## Segment v2.5 — SEO, security & discoverability
+
+### Decisions I made (in-repo)
+
+- **OG image colors hardcoded from `lib/theme.ts`** — `app/opengraph-image.tsx` is a
+  server-rendered PNG and genuinely can't read the CSS theme vars. · **Chose:** import
+  the typed `tokens.dark` values from `lib/theme.ts` so the card stays in lockstep with
+  the default dark palette without re-typing hex. · *Alternative:* fetch a brand font +
+  use a static asset — more build weight for a card that's fine in the default sans.
+
+- **Sitemap = homepage only** — the site is one indexable route; project subdomains are
+  separate origins. · **Chose:** list `/` only in `app/sitemap.ts`. · *Alternative:*
+  enumerate `*.an9.dev` subdomains — wrong, a sitemap is per-origin and those carry
+  their own.
+
+- **CSP keeps `'unsafe-inline'` + `'unsafe-eval'` on `script-src`** — Next.js inline
+  bootstrap + the theme-flash guard need `'unsafe-inline'`; hCaptcha's api.js needs
+  `'unsafe-eval'`. · **Chose:** keep both, but tighten everything else (`base-uri`,
+  `form-action`, `object-src 'none'`, `upgrade-insecure-requests`). · *Alternative:*
+  nonce-based strict CSP — a large refactor against Next's inline scripts for marginal
+  gain on a static marketing site; revisit if Andrew wants a perfect CSP grade.
+  Lives in `next.config.ts`.
+
+### External items for Andrew (cannot do in-repo)
+
+- **DNS CAA record** — add a `CAA` record at the registrar/DNS host authorizing only
+  the issuing CA (Vercel uses Let's Encrypt: `0 issue "letsencrypt.org"`). Improves the
+  security-headers / legitimacy posture. Not doable from the repo.
+- **DMARC / SPF / DKIM** — only relevant if mail is ever sent *from* `@an9.dev`. The
+  contact form sends via Resend's domain, not necessarily `an9.dev`. If Andrew wants
+  mail-from-domain alignment: add SPF (`v=spf1 include:resend.com ~all`), a DKIM record
+  from the Resend dashboard, and a DMARC policy (`v=DMARC1; p=none; …` to start). DNS-only.
+- **Vercel cert / HSTS preload** — HSTS header with `preload` is set in `next.config.ts`;
+  actually submitting `an9.dev` to the HSTS preload list (hstspreload.org) is a one-time
+  external action. Confirm the apex + `www` both serve HTTPS with a valid cert in the
+  Vercel dashboard (Domains tab). Can't verify from the repo.
+- **Vercel domain verification** — ensure `an9.dev` (and `*.an9.dev` wildcard for the
+  project subdomains) are verified/attached in the Vercel project's Domains settings.
+- **Rich-results / Lighthouse live validation** — JSON-LD validated structurally in
+  build; run Google's Rich Results Test + a security-headers.com scan against the live
+  prod URL post-deploy to confirm headers survive the edge. Done against localhost here.
+
+### Found during v2.5 validation (to sweep in the closeout a11y QA)
+
+- **Low-opacity label contrast** — Lighthouse (prod build) flagged one color-contrast
+  failure: decorative mono labels rendered at `opacity-50` / `opacity-35` and the giant
+  `.section-num` watermark fall below WCAG AA. These are **pre-existing** (v2.1 theme
+  era), site-wide (About / Projects / Contact section labels), and out of v2.5's
+  SEO/security scope — so not touched here. Addressed in phase closeout step (a)
+  full-site a11y QA. Lighthouse otherwise: **SEO 100, Best Practices 100, A11y 97** on
+  the production build (`next start`). Note: running Lighthouse against `next dev`
+  falsely reports "no meta description" because dev places Next's generated `<meta>` in
+  `<body>`; the production build correctly hoists all 31 tags into `<head>` — verified.
