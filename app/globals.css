@@ -399,15 +399,11 @@ body::after {
   #nav .an-logo-disc { width: 68px !important; height: 68px !important; }
   #nav .an-logo      { width: 52px !important; height: 52px !important; }
 
-  /* Flip cards: slightly shorter on small screens */
-  .project-card { height: 300px; }
-
   /* Eyebrow items can wrap on very narrow screens */
   #hero .eyebrow { flex-wrap: wrap; gap: 8px; }
 }
 
 @media (max-width: 480px) {
-  .project-card { height: 270px; }
   #hero .hero-ctas { flex-direction: column; align-items: flex-start; }
 }
 
@@ -418,7 +414,6 @@ body::after {
   #menu-overlay { padding: 64px 16px 24px; }
   #nav .an-logo-disc { width: 58px !important; height: 58px !important; }
   #nav .an-logo      { width: 44px !important; height: 44px !important; }
-  .project-card { height: 256px; }
   /* Keep the menu pill compact so the nav never overflows */
   #nav .flex.items-center.gap-5 { gap: 10px; }
 }
@@ -470,40 +465,96 @@ body::after {
   .section-num { display: none; }
 }
 
-/* ─── Project cards — flip ──────────────────────────────── */
-.project-card {
-  perspective: 1200px;
-  height: 340px;
-  cursor: pointer;
-}
+/* ─── Project editorial index (v2.3) ────────────────────── */
+/* Large serif names against monospace metadata — the signature pairing.
+   Replaces the v1 flip cards (the project list must not be cards in v2). */
+.project-group { margin-bottom: 48px; }
 
-.project-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px;
-}
-
-/* Flip is JS-driven (directional): the inner's transform is set inline based on
-   which side was hovered/tapped, so the card spins toward the pointer. */
-
-.project-card-front,
-.project-card-back {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-}
-.project-card-back {
-  transform: rotateY(180deg);
-  background: var(--surface);
+.project-group-head {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-strong);
+}
+.project-group-name {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+.project-group-count {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  color: var(--fg-subtle);
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr auto;
+  align-items: baseline;
+  gap: 18px;
+  padding: 18px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-row-idx {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.72rem;
+  color: var(--fg-subtle);
+}
+
+.project-row-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.project-row-name {
+  font-family: var(--font-newsreader), serif;
+  font-size: clamp(1.7rem, 3.6vw, 2.7rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+}
+.project-row-tagline {
+  font-family: var(--font-newsreader), serif;
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--fg-muted);
+}
+
+.project-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--font-jetbrains-mono), monospace;
+}
+.project-row-status {
+  width: 5.5rem;
+  text-align: right;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.project-row-year {
+  width: 3rem;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--fg-subtle);
+}
+
+/* Mobile: metadata drops beneath the name, left-aligned. */
+@media (max-width: 640px) {
+  .project-row {
+    grid-template-columns: 2.25rem 1fr;
+    gap: 6px 14px;
+    padding: 16px 4px;
+  }
+  .project-row-meta {
+    grid-column: 2;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+  .project-row-status { width: auto; text-align: left; }
+  .project-row-year   { width: auto; text-align: left; }
 }
 
 /* ─── Scroll progress ───────────────────────────────────── */
