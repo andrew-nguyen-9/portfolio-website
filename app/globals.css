@@ -227,10 +227,6 @@ body {
 .dark .hero-name-first { color: var(--fg); }
 .dark .hero-name-last  { color: var(--secondary); }
 
-/* When a compliment "typo" wraps onto a 2nd visual line, color it like line 2 */
-.hero-flash-wrapped       { color: var(--fg); }
-.dark .hero-flash-wrapped { color: var(--secondary); }
-
 /* ─── Typing cursor ─────────────────────────────────────── */
 @keyframes cursor-blink {
   0%, 49% { opacity: 1; }
