@@ -243,9 +243,13 @@ function ProjectsContent() {
   const showPreview = (p: Project, rect?: DOMRect) => {
     setPreview(p);
     if (rect) {
+      // Keyboard focus: anchor beside the row and pin (stop cursor-following).
       const x = Math.min(rect.right + 20, window.innerWidth - PLATE_W - 12);
       const y = Math.min(Math.max(rect.top, 12), window.innerHeight - PLATE_H - 12);
       setPos({ x, y, pinned: true });
+    } else {
+      // Pointer hover: release any pin so onMove resumes cursor-following.
+      setPos((prev) => (prev.pinned ? { ...prev, pinned: false } : prev));
     }
   };
   const clearPreview = (p: Project) => setPreview((cur) => (cur === p ? null : cur));
