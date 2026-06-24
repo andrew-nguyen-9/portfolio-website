@@ -847,6 +847,37 @@ body::after {
   -webkit-mask-composite: source-in;
 }
 
+/* ─── Skills filter dropdown (About) ────────────────────── */
+.skill-filter {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  padding: 0.45rem 2rem 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  /* chevron drawn from currentColor so it follows the token, no hardcoded hex */
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.1rem) center,
+    calc(100% - 0.75rem) center;
+  background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+.skill-filter:hover { border-color: var(--primary); color: var(--fg); }
+.skill-filter:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.skill-filter option { color: var(--fg); background: var(--surface); }
+
 /* ─── hCaptcha wrapper ──────────────────────────────────── */
 .hcaptcha-wrapper {
   display: block;

@@ -5,57 +5,56 @@ import { useReveal } from "@/hooks/useReveal";
 
 /* ─── Data ──────────────────────────────────────────────── */
 const STATS = [
-  { target: 8,   prefix: "",   suffix: "",    label: "Active projects",    sub: "across 5 data domains"          },
-  { target: 5,   prefix: "",   suffix: "",    label: "Data domains",       sub: "music, sports, civic, food, games" },
-  { target: 10,  prefix: "",   suffix: "+",   label: "APIs integrated",   sub: "Spotify, OpenF1, TMDB & more"   },
-  { target: 2026, prefix: "",  suffix: "",    label: "Current build year", sub: "ship season in progress"        },
+  { target: 8,    prefix: "", suffix: "", label: "Projects in the family", sub: "each at its own an9.dev subdomain" },
+  { target: 5,    prefix: "", suffix: "", label: "Things I dig into",       sub: "transit, food, sports, politics, music" },
+  { target: 1,    prefix: "", suffix: "", label: "City it keeps circling",  sub: "Chicago — hence the CTA project"      },
+  { target: 2026, prefix: "", suffix: "", label: "Year I'm building it",    sub: "learning out loud as I go"            },
 ];
 
+// The throughlines — what I actually keep coming back to, not a service menu.
 const DOMAINS = [
-  { label: "Music",   desc: "Festival lineups, artist intelligence, streaming metadata, audio experimentation",       color: "var(--secondary)"  },
-  { label: "Sports",  desc: "Fantasy draft tools, NFL intelligence pipelines, F1 telemetry storyboards",             color: "var(--primary)"    },
-  { label: "Civic",   desc: "CTA transit analysis, Super PAC funding flows, 2026 midterms election analytics",       color: "var(--highlight)"  },
-  { label: "Games",   desc: "Daily trivia rooms with four formats — powered by Wikipedia, TMDB, Deezer & Sleeper",   color: "var(--highlight)"  },
-  { label: "Food",    desc: "Shrinkflation tracking, CPI food categories, recipe discovery with real-time pricing",  color: "var(--secondary)"  },
+  { label: "Transit & cities",   desc: "How a city moves. CTA coverage, route design, and the case for transit that just works.",     color: "var(--highlight)" },
+  { label: "Architecture",       desc: "How places are built and why some blocks feel alive. The structure under the streetscape.",   color: "var(--primary)"   },
+  { label: "Cooking & food",     desc: "Trying things I've never eaten, then figuring out why the groceries cost what they cost.",    color: "var(--secondary)" },
+  { label: "Politics & sports",  desc: "I follow both mostly for the statistics — funding flows, polls, box scores, and trends.",     color: "var(--highlight)" },
+  { label: "Building with AI",   desc: "Learning to code, using AI to get ideas out of my head and onto a screen faster.",            color: "var(--secondary)" },
 ];
 
-const SKILL_TABS = [
+// What I'm building these projects with — and still learning. Grouped, filterable.
+const SKILL_GROUPS = [
   {
-    id: "languages", label: "Languages",
+    id: "languages", label: "Languages I write",
     items: ["Python", "SQL", "TypeScript", "JavaScript", "MATLAB"],
   },
   {
-    id: "data", label: "Data & Cloud",
-    items: ["BigQuery", "DataBricks", "GCP", "Supabase", "DuckDB", "Document AI", "dbt", "Tableau", "FRED API", "BLS API", "FEC API"],
+    id: "data", label: "Data & public APIs",
+    items: ["BigQuery", "Supabase", "DuckDB", "dbt", "GTFS", "FRED API", "BLS API", "FEC API"],
   },
   {
-    id: "analysis", label: "Analysis",
-    items: ["Forensic Accounting", "Statistical Modeling", "OCR / PDF Parsing", "Damages Analysis", "LLMs", "Relativity", "OFAC Compliance", "HIPAA / VPPA"],
+    id: "web", label: "Web & build",
+    items: ["Next.js", "React", "Tailwind", "D3.js", "Tone.js", "Web Audio API"],
   },
   {
-    id: "web", label: "Web & Build",
-    items: ["Next.js", "React", "Tailwind", "D3.js", "Tone.js", "Web Audio API", "Spotify API", "OpenF1 API", "TMDB API", "Deezer API", "SolidWorks", "Jira", "Confluence"],
+    id: "ai", label: "Learning with AI",
+    items: ["LLMs", "AI-assisted coding", "Prompt-driven prototyping", "Document parsing"],
   },
 ];
 
 const INTERESTS = [
-  "Trivia Nights", "Concerts", "Vinyl Records", "Skiing",
-  "Urban Planning", "Swimming", "Biking", "Traveling",
-  "AMC A-Lister", "Dog Volunteering",
+  "Public transit", "Urban planning", "Architecture", "Cooking",
+  "Trying new restaurants", "Chicago", "Concerts", "Vinyl records",
+  "Biking", "Traveling", "Skiing", "Trivia nights",
 ];
 
-/* ─── Typo cycler — types / deletes / retypes a rotating word ─── */
+/* ─── Rotating curiosity word — types / deletes / retypes a topic ─── */
 const CURIOSITY_WORDS = [
-  "insight", "intelligence", "decisions", "discovery",
-  "clarity", "truth", "knowledge", "action", "impact",
-  "growth", "efficiency", "performance", "people",
-  "collaboration", "learning", "creativity", "curiosity",
-  "expertise", "trust", "transparency", "empowerment",
-  "complexity", "simplicity", "uncertainty", "excellence",
+  "Chicago", "transit", "elections", "good food", "race weekends",
+  "festival lineups", "cities that work", "the statistics",
+  "how things get built", "the questions I keep asking",
 ];
 
-function TypoCycler() {
-  const [text, setText] = useState("insight");
+function CuriosityCycler() {
+  const [text, setText] = useState(CURIOSITY_WORDS[0]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -68,7 +67,7 @@ function TypoCycler() {
 
     let cancelled = false;
     let wi = 0;          // word index
-    const buf = { s: "insight" };
+    const buf = { s: CURIOSITY_WORDS[0] };
 
     const type = (full: string, done: () => void) => {
       let i = buf.s.length;
@@ -78,7 +77,7 @@ function TypoCycler() {
         buf.s = full.slice(0, i + 1);
         setText(buf.s);
         i++;
-        setTimeout(tick, 32);
+        setTimeout(tick, 38);
       };
       tick();
     };
@@ -99,7 +98,7 @@ function TypoCycler() {
           wi = (wi + 1) % CURIOSITY_WORDS.length;
           type(CURIOSITY_WORDS[wi], loop);
         });
-      }, 2200);
+      }, 2400);
     };
 
     loop();
@@ -108,7 +107,7 @@ function TypoCycler() {
 
   return (
     <em style={{ color: "var(--secondary)", fontStyle: "italic" }}>
-      around {text}
+      {text}
       {mounted && <span className="typing-cursor" aria-hidden="true" />}
     </em>
   );
@@ -123,6 +122,11 @@ function CountUp({ target, prefix = "", suffix = "" }: { target: number; prefix?
   useEffect(() => {
     const el = elRef.current;
     if (!el) return;
+    // Reduced motion — show the final value, skip the count-up
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.classList.contains("reduce-motion")
+    ) { setCount(target); return; }
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting || ran.current) return;
@@ -204,13 +208,14 @@ function InterestPill({ label }: { label: string }) {
 
 /* ─── Main content ───────────────────────────────────────── */
 function AboutContent() {
-  const [activeTab, setActiveTab] = useState("languages");
+  // "all" shows every group; otherwise a single group is filtered in via the dropdown.
+  const [filter, setFilter] = useState("all");
   const revealTop     = useReveal();
   const revealStats   = useReveal();
   const revealDomains = useReveal();
   const revealSkills  = useReveal();
 
-  const currentTab = SKILL_TABS.find(t => t.id === activeTab) ?? SKILL_TABS[0];
+  const shownGroups = filter === "all" ? SKILL_GROUPS : SKILL_GROUPS.filter(g => g.id === filter);
 
   return (
     <div>
@@ -223,25 +228,28 @@ function AboutContent() {
           </p>
           <h2 id="about-heading" className="leading-[1.0] tracking-tight mb-6"
             style={{ fontFamily: "var(--font-display), sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
-            Building data tools
+            Building small tools
             <br />
-            <TypoCycler />
+            for <CuriosityCycler />
           </h2>
         </div>
 
         <div className="flex flex-col justify-center gap-4 text-[1.01rem] leading-relaxed" style={{ color: "var(--fg-muted)" }}>
           <p>
-            Every project starts with a question a spreadsheet can&apos;t answer. Which
-            festival lineup has the most genre overlap? Which waiver wire pickup wins the
-            week? Which Chicago bus route is bleeding riders? I build the data tools to
-            find out — pipelines, dashboards, and interfaces all included.
+            I studied Mechanical Engineering at the University of Texas, but what I
+            do for fun is build little tools to answer questions I can&apos;t stop
+            asking. How well does the CTA actually cover Chicago? Where does Super PAC
+            money really go? Why did that box of crackers get smaller? I&apos;m
+            learning to code as I go, leaning on AI to get ideas out of my head and
+            onto a screen faster.
           </p>
           <p>
-            I work across five domains: music, sports, civic, games, and food. Each one
-            lives at its own subdomain on <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "0.9em", color: "var(--primary)" }}>an9.dev</span>.
-            Mechanical Engineering background, data career, product instincts — I care
-            about the full stack from pipeline design to the interface someone actually
-            sits with.
+            This site is two things at once — a portfolio and a home base for those
+            projects. Each one lives at its own subdomain on{" "}
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "0.9em", color: "var(--primary)" }}>an9.dev</span>.
+            I follow politics and sports mostly for the statistics, I cook to try
+            things I&apos;ve never had, and I keep coming back to Chicago — which is
+            why one of these is a love letter to the CTA.
           </p>
         </div>
       </div>
@@ -251,11 +259,11 @@ function AboutContent() {
         {STATS.map(stat => <StatCard key={stat.label} stat={stat} />)}
       </div>
 
-      {/* ── Project domains ──────────────────────────────────── */}
+      {/* ── Throughlines ─────────────────────────────────────── */}
       <div ref={revealDomains} className="reveal mb-14">
         <p className="text-xs tracking-[0.25em] uppercase mb-5 opacity-50"
           style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
-          Project domains
+          What I keep coming back to
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {DOMAINS.map(d => <DomainCard key={d.label} item={d} />)}
@@ -266,34 +274,38 @@ function AboutContent() {
       <div ref={revealSkills} className="reveal grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         {/* Skills */}
         <div>
-          <p className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
-            Toolkit
-          </p>
-          <div className="flex gap-5 mb-5 border-b border-[var(--border)]" role="tablist" aria-label="Skill categories">
-            {SKILL_TABS.map(tab => (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={activeTab === tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className="pb-2.5 text-xs transition-colors whitespace-nowrap"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                  letterSpacing: "0.08em",
-                  background: "transparent",
-                  border: "none",
-                  borderBottom: activeTab === tab.id ? "2px solid var(--primary)" : "2px solid transparent",
-                  marginBottom: -1,
-                  color: activeTab === tab.id ? "var(--primary)" : "var(--fg-subtle)",
-                }}
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <p className="text-xs tracking-[0.25em] uppercase opacity-50"
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+              What I build with
+            </p>
+            <label className="flex items-center gap-2">
+              <span className="sr-only">Filter skills by category</span>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="skill-filter"
+                aria-label="Filter skills by category"
               >
-                {tab.label}
-              </button>
-            ))}
+                <option value="all">All</option>
+                {SKILL_GROUPS.map(g => (
+                  <option key={g.id} value={g.id}>{g.label}</option>
+                ))}
+              </select>
+            </label>
           </div>
-          <div className="flex flex-wrap gap-2 items-start content-start" style={{ minHeight: 80 }}>
-            {currentTab.items.map(item => <SkillPill key={item} label={item} />)}
+          <div className="flex flex-col gap-5">
+            {shownGroups.map(group => (
+              <div key={group.id}>
+                <p className="text-[0.62rem] tracking-[0.18em] uppercase mb-2.5 opacity-40"
+                  style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+                  {group.label}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {group.items.map(item => <SkillPill key={item} label={item} />)}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -301,7 +313,7 @@ function AboutContent() {
         <div>
           <p className="text-xs tracking-[0.25em] uppercase mb-4 opacity-50"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
-            Outside of work
+            Outside the projects
           </p>
           <div className="flex flex-wrap gap-2">
             {INTERESTS.map(i => <InterestPill key={i} label={i} />)}
