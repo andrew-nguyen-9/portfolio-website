@@ -60,12 +60,21 @@ The two highest-signal first-impression moments.
 - **v2.2.1** — **Hero:** remove the typo cycle (`LINE1`/`LINE2`/`BOTH` pools);
   type only "Andrew Nguyen," cleanly. Keep/curate the role line if it still earns
   its place; drop the arrogance. Preserve a11y labels + reduced-motion.
-- **v2.2.2** — **Loader:** implement the revamped concept from DESIGN-RESEARCH —
-  bolder, original, on-brand. Keep the once-per-session gate + reduced-motion
-  bail-out.
-- **v2.2.3** — Tune loader timing/perf so it never delays a returning visitor and
-  never causes layout shift on handoff to the page.
-- **v2.2.4** — QA hero + loader across themes, breakpoints, reduced-motion,
+- **v2.2.2** — **Loader:** ~~implement the blueprint draw-in~~ **superseded
+  2026-06-24 — keep the v1 vinyl loader.** Andrew reviewed three blueprint
+  draw-in prototypes (orthographic / compass / isometric, all resolving into the
+  spire monogram) and chose to keep the original spinning-vinyl loader instead.
+  The blueprint concept is shelved (not built). The vinyl loader already keeps
+  the once-per-session `sessionStorage` gate + reduced-motion bail-out, so no
+  loader code changed this segment.
+- **v2.2.3** — Verify loader timing/perf against the keep-vinyl decision: never
+  delays a returning visitor (`sessionStorage` gate), no layout shift on handoff
+  (fixed overlay that translates out; page fades in via opacity), sub-second for
+  returning visitors. No change required — confirmed.
+- **v2.2.4** — **Shared grain/paper texture layer** (deferred from v2.1): a subtle
+  paper/grain layer across the UI for tactility, without reducing token contrast
+  or hurting performance. Transform/opacity-friendly; reduced-motion-safe.
+- **v2.2.5** — QA hero + grain across themes, breakpoints, reduced-motion,
   keyboard.
 
 ---
@@ -164,7 +173,10 @@ Run the ritual from WORKFLOW.md in order:
 
 - **References:** use the research set in DESIGN-RESEARCH.md (Awwwards + Muzli
   2026). No extra sites supplied; Andrew may add specific ones before v2.2/v2.3.
-- **Loader:** drop the vinyl motif — go **blueprint draw-in** (architectural plan
-  resolving into the AN monogram; nods to his ME background).
+- **Loader:** ~~drop the vinyl motif — go blueprint draw-in~~ **reversed
+  2026-06-24 (segment v2.2): keep the v1 vinyl loader.** Blueprint draw-in
+  prototypes were built and reviewed; Andrew preferred the original vinyl. The
+  blueprint concept is shelved.
 - **Hero:** **name only** — type "Andrew Nguyen" cleanly, no role line.
+  (Shipped v2.2.1; the pulsing "Available" hire badge was also dropped.)
 - **Texture:** add a **subtle grain** layer (tactility without hurting contrast/perf).

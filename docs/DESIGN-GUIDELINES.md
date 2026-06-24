@@ -112,8 +112,10 @@ monospace labels is the signature.
   purposeful transitions. Every animation must have an off-switch via
   `prefers-reduced-motion` / the A11y panel.
 - Prefer transform/opacity (GPU) over layout-animating properties.
-- The loading screen is a signature moment (see `v2.2`) — it should feel crafted,
-  but never block a returning visitor (gate on `sessionStorage`, as v1 does).
+- The loading screen is a signature moment — it should feel crafted, but never
+  block a returning visitor (gate on `sessionStorage`). The v1 spinning-vinyl
+  loader is **kept** in v2 (a blueprint draw-in was prototyped in `v2.2` and set
+  aside; see `phases/v2.0.0/DESIGN-RESEARCH.md`).
 
 ## Components & layout
 
