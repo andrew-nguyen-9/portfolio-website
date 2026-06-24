@@ -447,7 +447,6 @@ body::after {
 @media (max-height: 560px) {
   #hero { padding-top: 72px; padding-bottom: 40px; }
   #hero .hero-name { font-size: clamp(2.2rem, 6vw, 3.6rem) !important; }
-  #hero .hero-subtitle { min-height: 0 !important; }
 }
 
 /* ─── Section numbers ───────────────────────────────────── */
