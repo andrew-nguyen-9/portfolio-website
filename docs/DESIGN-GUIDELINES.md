@@ -85,6 +85,14 @@ Text on a `--primary` background uses `--bg` (e.g. `::selection`, buttons), not
 a hardcoded `#fff` — that's what keeps contrast valid as the primary changes
 across themes.
 
+**Never fade text with `opacity` to make it look "muted."** Opacity blends the text
+toward the background, so contrast collapses — worst in light mode, where dark ink
+lightens toward pale paper and drops below AA. Use a muted *token color* at full
+opacity instead. The shared `.eyebrow` utility (`color: var(--fg-subtle); opacity: 1`)
+is the standard for section kickers and metadata labels; it stays AA in light/dark and
+AAA in the high-contrast palettes. (Decorative `aria-hidden` elements like the
+`.section-num` watermark are the only exception — they carry no information.)
+
 ### Texture (decided v2; implemented with overall-UI work in v2.2)
 
 A **subtle grain/paper layer** is part of the v2 look (adds tactility, escapes

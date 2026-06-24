@@ -37,5 +37,30 @@ committed — it's a menu for the v3 planning conversation.
 - Per-project OG images (generated) for nicer link sharing.
 - RSS for the writing/changelog section.
 
-## Promoted from v2 (filled at v2 closeout)
-- _(graduate the durable items from `phases/v2.0.0/BRAINSTORM.md` here when v2 closes)_
+## Promoted from v2 closeout (surfaced while building phase 2)
+
+### Things noticed in the code
+- **The loader doesn't theme.** The kept v1 vinyl loader (`components/Loader`) uses
+  hardcoded SVG hex for the record/grooves and a dark backdrop, so in light mode a dark
+  loader hands off to a light page. Either theme the loader (token-driven SVG) or make
+  the handoff intentional. Out of scope in v2.2 (loader was deliberately kept as-is).
+- **Token drift guard.** `lib/theme.ts` mirrors `app/globals.css` by hand — already
+  listed under Platform/DX above, but v2 reinforced the need: a tiny generator or test
+  that fails if the two diverge would prevent silent palette drift.
+- **`.section-num` watermark + Lighthouse a11y.** The decorative `aria-hidden` section
+  numerals are exempt from WCAG contrast but still cap Lighthouse a11y at 97. If a clean
+  100 is wanted, render them as a CSS background/pseudo-element (not audited as text)
+  rather than darkening them.
+
+### Process lessons (fold into WORKFLOW if they recur)
+- **Validate SEO against a production build, not `next dev`.** Dev places Next's
+  generated `<meta>` into `<body>`; only `next start` hoists them into `<head>`. Running
+  Lighthouse on dev falsely fails the meta-description / SEO checks.
+- **Never fade text with `opacity` for "muted" styling** — it tanks contrast (worst in
+  light mode). Use a muted token color (the new `.eyebrow` pattern). Candidate for a
+  lint rule or a DESIGN-GUIDELINES note.
+
+### Ops / external (from v2 DEFERRED.md — needs Andrew, not code)
+- DNS **CAA** record; **DMARC/SPF/DKIM** if mail-from-`@an9.dev` is ever used.
+- **HSTS preload** submission + Vercel cert/domain (apex, `www`, `*.an9.dev`) posture.
+- Post-deploy **Rich Results Test** + **security-headers scan** against prod.

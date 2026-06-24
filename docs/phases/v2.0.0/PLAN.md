@@ -1,5 +1,9 @@
 # v2.0.0 — Phase Plan
 
+> ✅ **Shipped & released** (tagged `v2.0.0` on `main`). This is the original plan,
+> kept for lineage. For what actually shipped — including deviations — see
+> [`ARCHIVE.md`](ARCHIVE.md).
+
 **Branch:** `v2` (off `main`) · **Release tag on merge:** `v2.0.0`
 **Companion docs:** [`DESIGN-RESEARCH.md`](DESIGN-RESEARCH.md) ·
 [`BRAINSTORM.md`](BRAINSTORM.md) · process in [`../../WORKFLOW.md`](../../WORKFLOW.md)
