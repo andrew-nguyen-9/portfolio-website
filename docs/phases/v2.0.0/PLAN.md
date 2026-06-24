@@ -112,6 +112,7 @@ voice — **not** a resume.
 - Follows **politics and sports for the statistics**.
 - Loves **Chicago** — hence a project dedicated to the **CTA**.
 - Avoid job-seeking / resume framing entirely.
+- Include more organized skills section with dropdown filters and more.
 
 - **v2.4.1** — Rewrite the About bio copy to the brief above.
 - **v2.4.2** — Revisit the stat counters / domain cards / skill tabs / interests so
