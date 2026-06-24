@@ -26,9 +26,11 @@ reads like a resume or "available for hire" pitch. See
 
 | Path | What it is |
 |------|------------|
-| `app/layout.tsx` | Root layout, fonts, metadata, theme-flash guard |
+| `app/layout.tsx` | Root layout, fonts, **SEO metadata + JSON-LD**, theme-flash guard |
 | `app/page.tsx` | Page composition (section order) |
 | `app/globals.css` | **Design tokens** (light / dark / high-contrast) + base styles |
+| `app/robots.ts` · `app/sitemap.ts` | `robots.txt` + `sitemap.xml` routes |
+| `app/opengraph-image.tsx` · `app/twitter-image.tsx` | Programmatic OG / Twitter social card |
 | `app/api/contact/route.ts` | Contact form handler (Resend + hCaptcha) |
 | `app/icon.tsx` | Favicon generation |
 | `components/*` | One folder per UI section (Hero, About, Projects, Loader, …) |
