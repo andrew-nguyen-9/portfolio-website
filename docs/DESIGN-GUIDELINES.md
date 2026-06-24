@@ -46,9 +46,9 @@ dark palette is retired as the default.
 
 Light mode is being rebuilt to feel **more serious and editorial**, matching
 Andrew's personality — restrained, architectural, less "warm parchment cozy."
-Think ink-on-paper precision over decorative. Exact tokens are set in segment
-`v2.1`; the brief is: higher contrast than v1 light, more disciplined neutrals,
-accents used sparingly as punctuation.
+Think ink-on-paper precision over decorative. Shipped in segment `v2.1` (final
+hexes in the token table below): higher contrast than v1 light, more disciplined
+neutrals, accents used sparingly as punctuation.
 
 ### Token contract
 
@@ -60,6 +60,37 @@ Components must only consume tokens, never hardcode theme colors:
 ```
 
 Adding a color means adding a token in all palettes, not a hex in a component.
+
+### v2 final token values (segment v2.1)
+
+The shipped palettes. `app/globals.css` is the source of truth; `lib/theme.ts`
+mirrors it for reference. All pairs are WCAG-verified — text/accents on both
+`--bg` and `--surface` clear AA, and `fg`·`bg` clear AAA in high-contrast.
+
+| Token | Light (`:root`) | Dark default (`.dark`) | Light HC | Dark HC |
+|-------|-----------------|------------------------|----------|---------|
+| `--bg`            | `#F6F5F1` | `#0B0F0D` | `#fff` | `#000` |
+| `--surface`       | `#ECEAE3` | `#141A17` | `#f4f4f4` | `#0a0a0a` |
+| `--primary`       | `#1E5C42` | `#5BE3A7` | `#00563a` | `#3DFFAE` |
+| `--secondary`     | `#B23C12` | `#FF8A47` | `#a82c00` | `#FF8A1F` |
+| `--highlight`     | `#7C5D12` | `#FFC94D` | `#00567a` | `#FFD21F` |
+| `--fg`            | `#181A1B` | `#F2F5F1` | `#000` | `#fff` |
+| `--fg-muted`      | `#45504A` | `#B7C5BD` | `#141414` | `#E6E6E6` |
+| `--fg-subtle`     | `#596660` | `#7C9085` | `#2b2b2b` | `#B8B8B8` |
+| `--border`        | `rgba(20,24,26,.12)` | `rgba(242,245,241,.12)` | `rgba(0,0,0,.45)` | `rgba(255,255,255,.45)` |
+| `--border-strong` | `rgba(20,24,26,.22)` | `rgba(242,245,241,.24)` | `rgba(0,0,0,.75)` | `rgba(255,255,255,.78)` |
+| `--card-border`   | `#D7D4CB` | `#2A332E` | `#000` | `#fff` |
+
+Text on a `--primary` background uses `--bg` (e.g. `::selection`, buttons), not
+a hardcoded `#fff` — that's what keeps contrast valid as the primary changes
+across themes.
+
+### Texture (decided v2; implemented with overall-UI work in v2.2)
+
+A **subtle grain/paper layer** is part of the v2 look (adds tactility, escapes
+the flat-template feel) — it must not reduce token contrast or hurt performance.
+Decided in `docs/phases/v2.0.0/DESIGN-RESEARCH.md`; the design-system tokens
+above don't block it.
 
 ## Typography
 

@@ -15,8 +15,8 @@ const DOMAINS = [
   { label: "Music",   desc: "Festival lineups, artist intelligence, streaming metadata, audio experimentation",       color: "var(--secondary)"  },
   { label: "Sports",  desc: "Fantasy draft tools, NFL intelligence pipelines, F1 telemetry storyboards",             color: "var(--primary)"    },
   { label: "Civic",   desc: "CTA transit analysis, Super PAC funding flows, 2026 midterms election analytics",       color: "var(--highlight)"  },
-  { label: "Games",   desc: "Daily trivia rooms with four formats — powered by Wikipedia, TMDB, Deezer & Sleeper",   color: "#9DB5A5"           },
-  { label: "Food",    desc: "Shrinkflation tracking, CPI food categories, recipe discovery with real-time pricing",  color: "#C27848"           },
+  { label: "Games",   desc: "Daily trivia rooms with four formats — powered by Wikipedia, TMDB, Deezer & Sleeper",   color: "var(--highlight)"  },
+  { label: "Food",    desc: "Shrinkflation tracking, CPI food categories, recipe discovery with real-time pricing",  color: "var(--secondary)"  },
 ];
 
 const SKILL_TABS = [

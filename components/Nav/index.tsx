@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
 import FocusTrap from "focus-trap-react";
 import { ANLogo } from "@/components/Logo";
 import Tooltip from "@/components/Tooltip";
@@ -123,9 +124,9 @@ export default function Nav() {
           paddingBottom: `${Math.round(12 * logoScale)}px`,
         }}
       >
-        <a href="/" aria-label="Andrew Nguyen — home" style={{ lineHeight: 0 }}>
+        <Link href="/" aria-label="Andrew Nguyen — home" style={{ lineHeight: 0 }}>
           <ANLogo size={Math.round(96 * logoScale)} />
-        </a>
+        </Link>
 
         <div className="flex items-center gap-5">
           <ChicagoClock />

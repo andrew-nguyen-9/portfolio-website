@@ -240,7 +240,7 @@ export default function A11yPanel() {
                           ? "1.5px solid var(--primary)"
                           : "1.5px solid var(--border)",
                         background: active ? "var(--primary)" : "var(--bg)",
-                        color: active ? "#fff" : "var(--fg)",
+                        color: active ? "var(--bg)" : "var(--fg)",
                         cursor: "pointer",
                         fontSize: `${fontSizeScale[key] * 14}px`,
                         fontFamily: "var(--font-jetbrains-mono), monospace",
@@ -334,7 +334,7 @@ export default function A11yPanel() {
         className="w-11 h-11 sm:w-10 sm:h-10 rounded-full flex items-center justify-center"
         style={{
           background: open ? "var(--primary)" : "var(--surface)",
-          color: open ? "#fff" : "var(--fg)",
+          color: open ? "var(--bg)" : "var(--fg)",
           border: "1.5px solid var(--border-strong)",
           cursor: "pointer",
           boxShadow: "0 2px 10px rgba(0,0,0,0.15)",

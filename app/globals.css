@@ -3,70 +3,77 @@
 @tailwind utilities;
 
 /* ─── Theme tokens ─────────────────────────────────────── */
-/* Color theory: split-complementary harmony anchored on the logo's dark
-   forest green (#222B28). Primary = deep green · Secondary = warm orange
-   (complementary) · Highlight = gold (split-complement). 60-30-10 rule:
-   parchment bg / sage surface / green+orange accents.                    */
+/* v2 palette philosophy (see docs/DESIGN-GUIDELINES.md):
+   · light  = serious / editorial — ink on paper, disciplined neutrals,
+              accents (forest green / burnt orange / brass) as punctuation.
+   · dark   = bold high-contrast by default (near-black + vivid accents).
+   · .high-contrast = the A11y option, pushed further than either default.
+   Accents stay anchored on the logo's forest green; light deepens them for
+   contrast on paper, dark brightens them for contrast on near-black.       */
 :root {
-  --bg:           #F8F4EB;  /* warm parchment */
-  --surface:      #EDE5D3;  /* sage-kissed sand */
-  --primary:      #2D6A4F;  /* richer forest green — logo DNA */
-  --secondary:    #C8491C;  /* punchier warm orange */
-  --highlight:    #3F9E7C;  /* vivid teal pulled from logo lines */
-  --fg:           #16201A;  /* near-black with green undertone */
-  --fg-muted:     #3F5C4E;
-  --fg-subtle:    #6F9685;
-  --border:       rgba(22, 32, 26, 0.10);
-  --border-strong:rgba(22, 32, 26, 0.18);
-  --card-border:  #C7C3B3;  /* border-strong composited onto surface */
+  --bg:           #F6F5F1;  /* clean off-white paper (cooler than v1 parchment) */
+  --surface:      #ECEAE3;  /* restrained light sand */
+  --primary:      #1E5C42;  /* deep forest green — logo DNA, serious */
+  --secondary:    #B23C12;  /* burnt orange — sparing punctuation */
+  --highlight:    #7C5D12;  /* antique brass/gold — AA on bg AND surface */
+  --fg:           #181A1B;  /* near-black ink, neutral */
+  --fg-muted:     #45504A;
+  --fg-subtle:    #596660;
+  --border:       rgba(20, 24, 26, 0.12);
+  --border-strong:rgba(20, 24, 26, 0.22);
+  --card-border:  #D7D4CB;  /* border-strong composited onto surface */
   --radius:       8px;
   --font-display: var(--font-geist-sans);
 }
 
 .dark {
-  /* Bg = logo disc color so logo blends into the page in dark mode.
-     Surface is slightly lighter, creating subtle depth.               */
-  --bg:           #222B28;
-  --surface:      #2D3632;
-  --primary:      #7FC9A6;  /* vivid sage green, readable on dark */
-  --secondary:    #FF7A33;  /* vibrant orange */
-  --highlight:    #E8B43E;  /* warm gold */
-  --fg:           #EDE8DE;
-  --fg-muted:     #A9C6B6;
-  --fg-subtle:    #5C7A6A;
-  --border:       rgba(237, 232, 222, 0.08);
-  --border-strong:rgba(237, 232, 222, 0.16);
-  --card-border:  #4C524E;  /* border-strong composited onto surface */
+  /* v2 default dark = the bold high-contrast look (Andrew's preference).
+     Near-black green-tinted bg keeps the logo's forest DNA while the logo
+     screen-blends crisply against it; vivid saturated accents.          */
+  --bg:           #0B0F0D;  /* near-black, faint forest undertone */
+  --surface:      #141A17;  /* a step lighter for depth */
+  --primary:      #5BE3A7;  /* vivid sage-green, pushed bright */
+  --secondary:    #FF8A47;  /* vibrant orange */
+  --highlight:    #FFC94D;  /* bright gold */
+  --fg:           #F2F5F1;  /* bright near-white, faint warm */
+  --fg-muted:     #B7C5BD;
+  --fg-subtle:    #7C9085;
+  --border:       rgba(242, 245, 241, 0.12);
+  --border-strong:rgba(242, 245, 241, 0.24);
+  --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
-/* Light high-contrast: white bg, black text, saturated accents */
+/* The A11y "high contrast" option pushes *further* than the default themes:
+   pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */
+
+/* Light high-contrast: pure white bg, pure black text */
 .high-contrast {
   --bg:           #fff;
-  --surface:      #f2f2f2;
-  --primary:      #0a5c3a;
-  --secondary:    #b23800;
-  --highlight:    #005f99;
+  --surface:      #f4f4f4;
+  --primary:      #00563a;  /* deep saturated green, AAA on white */
+  --secondary:    #a82c00;  /* deep saturated burnt orange */
+  --highlight:    #00567a;  /* deep teal-blue (gold can't hit AAA on white) */
   --fg:           #000;
-  --fg-muted:     #1a1a1a;
-  --fg-subtle:    #333;
-  --border:       rgba(0,0,0,0.30);
-  --border-strong:rgba(0,0,0,0.55);
+  --fg-muted:     #141414;
+  --fg-subtle:    #2b2b2b;
+  --border:       rgba(0,0,0,0.45);
+  --border-strong:rgba(0,0,0,0.75);
   --card-border:  #000;
 }
 
-/* Dark high-contrast: black bg, white text, bright accents */
+/* Dark high-contrast: pure black bg, pure white text, brand accents at max */
 .dark.high-contrast {
   --bg:           #000;
-  --surface:      #111;
-  --primary:      #fff;
-  --secondary:    #fc0;
-  --highlight:    #0cf;
+  --surface:      #0a0a0a;
+  --primary:      #3DFFAE;  /* max-bright green */
+  --secondary:    #FF8A1F;  /* max-saturation orange */
+  --highlight:    #FFD21F;  /* max-bright gold */
   --fg:           #fff;
-  --fg-muted:     #ccc;
-  --fg-subtle:    #999;
-  --border:       rgba(255,255,255,0.30);
-  --border-strong:rgba(255,255,255,0.55);
+  --fg-muted:     #E6E6E6;
+  --fg-subtle:    #B8B8B8;
+  --border:       rgba(255,255,255,0.45);
+  --border-strong:rgba(255,255,255,0.78);
   --card-border:  #fff;
 }
 

@@ -48,7 +48,7 @@ function StatusBadge({ status }: { status: Project["status"] }) {
 }
 
 /* ── Flip card (grid view) ─────────────────────────────── */
-function FlipCard({ project, index = 0 }: { project: Project; index?: number }) {
+function FlipCard({ project }: { project: Project }) {
   const [flipped, setFlipped] = useState(false);
   // dir = +1 spins left→right (rotateY +180), -1 spins right→left (-180)
   const [dir, setDir] = useState(1);
@@ -414,8 +414,8 @@ function ProjectsContent() {
           ref={gridRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start"
         >
-          {visible.map((p, i) => (
-            <FlipCard key={p.id} project={p} index={i} />
+          {visible.map((p) => (
+            <FlipCard key={p.id} project={p} />
           ))}
         </div>
       ) : (
