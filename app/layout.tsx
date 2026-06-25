@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
+import Script from "next/script";
 import {
   Inter,
   JetBrains_Mono,
@@ -82,18 +84,23 @@ const majorMonoDisplay = Major_Mono_Display({
 });
 
 const SITE_URL = "https://an9.dev";
+const SITE_TITLE = "an9.dev — Andrew Nguyen";
 const SITE_DESCRIPTION =
   "A portfolio and home base for a family of data-driven passion projects — " +
   "transit, food, sports, politics, and music — each living at its own an9.dev " +
   "subdomain. Built by Andrew Nguyen in Chicago.";
+const OG_DESCRIPTION =
+  "Small tools for the questions I keep asking — transit, food, sports, politics, and the city I love.";
+const OG_IMAGE = `${SITE_URL}/og`;
+const OG_IMAGE_ALT = "an9.dev — Andrew Nguyen's projects: transit, food, sports, politics, music";
 
+// All head tags (title, description, canonical, OG/Twitter, robots) are rendered as
+// JSX in the body so React 19 hoists them into <head>. Under the nonce-based CSP the
+// page renders dynamically, and Next's metadata system streams its tags into <body>
+// instead — author-rendered tags are the reliable way to keep them in <head> for
+// crawlers and link-unfurl scrapers. Only build-time/non-DOM metadata stays here.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: "an9.dev — Andrew Nguyen",
-    template: "%s | an9.dev",
-  },
-  description: SITE_DESCRIPTION,
   keywords: [
     "Andrew Nguyen", "an9.dev", "Chicago", "CTA", "public transit",
     "urban planning", "data projects", "passion projects", "Next.js", "portfolio",
@@ -101,27 +108,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Andrew Nguyen", url: SITE_URL }],
   creator: "Andrew Nguyen",
   publisher: "Andrew Nguyen",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "an9.dev — Andrew Nguyen",
-    description:
-      "Small tools for the questions I keep asking — transit, food, sports, politics, and the city I love.",
-    type: "website",
-    locale: "en_US",
-    url: SITE_URL,
-    siteName: "an9.dev",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "an9.dev — Andrew Nguyen",
-    description:
-      "Small tools for the questions I keep asking — transit, food, sports, politics, and the city I love.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
 };
 
 // Structured data — identity + site signals for search engines and link unfurls.
@@ -167,23 +153,15 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Per-request nonce set by middleware.ts for the strict, nonce-based CSP.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
+    // No manual <head> — Next owns it and injects metadata there. A user-authored
+    // <head> breaks metadata placement under dynamic rendering (the nonce-based CSP
+    // forces dynamic), streaming the tags into <body> instead.
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Dark-mode flash prevention */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
-          }}
-        />
-        {/* hCaptcha script is loaded inside the Contact component via next/script
-            so we can detect when an ad/script blocker prevents it and fall back. */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
-        />
-      </head>
       <body
         className={[
           GeistSans.variable,
@@ -197,6 +175,39 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           majorMonoDisplay.variable,
         ].join(" ")}
       >
+        {/* Head tags rendered as JSX so React 19 hoists them into <head> even under
+            the dynamic (nonce-CSP) render — Next's metadata stream lands in <body>. */}
+        <title>{SITE_TITLE}</title>
+        <meta name="description" content={SITE_DESCRIPTION} />
+        <link rel="canonical" href={SITE_URL} />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta property="og:title" content={SITE_TITLE} />
+        <meta property="og:description" content={OG_DESCRIPTION} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:site_name" content="an9.dev" />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={OG_IMAGE_ALT} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={SITE_TITLE} />
+        <meta name="twitter:description" content={OG_DESCRIPTION} />
+        <meta name="twitter:image" content={OG_IMAGE} />
+        <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+
+        {/* Dark-mode flash prevention — beforeInteractive injects this into <head>
+            and runs it before hydration. hCaptcha loads inside Contact via next/script. */}
+        <Script id="theme-flash" strategy="beforeInteractive" nonce={nonce}>
+          {`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`}
+        </Script>
+        {/* JSON-LD — valid in body; Google reads it either way. */}
+        <script
+          nonce={nonce}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
         <a href="#main-content" className="skip-link">Skip to content</a>
         {children}
       </body>
