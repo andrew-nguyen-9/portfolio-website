@@ -19,6 +19,7 @@ the file that matches your task below.
 |-----|--------------|
 | [`CONTACT-EMAIL.md`](CONTACT-EMAIL.md) | Setting up the contact form's Resend email (env vars + domain verification). |
 | [`DNS-CAA.md`](DNS-CAA.md) | Adding the CAA / certificate-authority DNS records in Cloudflare. |
+| [`SITE-CATEGORIZATION.md`](SITE-CATEGORIZATION.md) | Submitting an9.dev to web filters (Sophos, Talos, …) so it isn't blocked as "uncategorized". |
 
 ## Phases (what we're building)
 
