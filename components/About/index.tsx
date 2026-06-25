@@ -2,13 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useReveal } from "@/hooks/useReveal";
+import { projects } from "@/content/projects";
 
-/* ─── Data ──────────────────────────────────────────────── */
+/* ─── Data ──────────────────────────────────────────────────
+   Counters derive from content/projects.ts (the source of truth) so they can't
+   drift as the project family grows. */
+const inBuild = projects.filter(p => p.status !== "planned").length;
+const domainCount = new Set(projects.map(p => p.category)).size;
+
 const STATS = [
-  { target: 8,    prefix: "", suffix: "", label: "Projects in the family", sub: "each at its own an9.dev subdomain" },
-  { target: 5,    prefix: "", suffix: "", label: "Things I dig into",       sub: "transit, food, sports, politics, music" },
-  { target: 1,    prefix: "", suffix: "", label: "City it keeps circling",  sub: "Chicago — hence the CTA project"      },
-  { target: 2026, prefix: "", suffix: "", label: "Year I'm building it",    sub: "learning out loud as I go"            },
+  { target: projects.length, prefix: "", suffix: "", label: "Projects in the family", sub: "each at its own an9.dev subdomain" },
+  { target: inBuild,         prefix: "", suffix: "", label: "In active build",        sub: "the rest are on the runway"        },
+  { target: domainCount,     prefix: "", suffix: "", label: "Domains I'm digging into", sub: "music · sports · civic · games · food" },
+  { target: 2026,            prefix: "", suffix: "", label: "The year I'm shipping",   sub: "learning out loud as I go"         },
 ];
 
 // The throughlines — what I actually keep coming back to, not a service menu.
@@ -208,14 +214,22 @@ function InterestPill({ label }: { label: string }) {
 
 /* ─── Main content ───────────────────────────────────────── */
 function AboutContent() {
-  // "all" shows every group; otherwise a single group is filtered in via the dropdown.
-  const [filter, setFilter] = useState("all");
+  // Multi-select skill filter: empty set = show every group; otherwise show the
+  // selected groups. Richer than a single-select dropdown — combine categories.
+  const [active, setActive] = useState<Set<string>>(new Set());
+  const toggleGroup = (id: string) =>
+    setActive(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   const revealTop     = useReveal();
   const revealStats   = useReveal();
   const revealDomains = useReveal();
   const revealSkills  = useReveal();
 
-  const shownGroups = filter === "all" ? SKILL_GROUPS : SKILL_GROUPS.filter(g => g.id === filter);
+  const shownGroups = active.size === 0 ? SKILL_GROUPS : SKILL_GROUPS.filter(g => active.has(g.id));
+  const shownCount  = shownGroups.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <div>
@@ -274,25 +288,37 @@ function AboutContent() {
       <div ref={revealSkills} className="reveal grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         {/* Skills */}
         <div>
-          <div className="flex items-center justify-between gap-4 mb-5">
+          <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
             <p className="text-xs tracking-[0.25em] uppercase eyebrow"
               style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
               What I build with
             </p>
-            <label className="flex items-center gap-2">
-              <span className="sr-only">Filter skills by category</span>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="skill-filter"
-                aria-label="Filter skills by category"
+            <span className="text-[0.62rem] tracking-[0.12em] uppercase eyebrow"
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+              aria-live="polite">
+              {shownCount} tools
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-5" role="group" aria-label="Filter skills by category">
+            <button
+              type="button"
+              onClick={() => setActive(new Set())}
+              aria-pressed={active.size === 0}
+              className="skill-toggle"
+            >
+              All
+            </button>
+            {SKILL_GROUPS.map(g => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => toggleGroup(g.id)}
+                aria-pressed={active.has(g.id)}
+                className="skill-toggle"
               >
-                <option value="all">All</option>
-                {SKILL_GROUPS.map(g => (
-                  <option key={g.id} value={g.id}>{g.label}</option>
-                ))}
-              </select>
-            </label>
+                {g.label}
+              </button>
+            ))}
           </div>
           <div className="flex flex-col gap-5">
             {shownGroups.map(group => (
@@ -328,7 +354,7 @@ function AboutContent() {
 export default function About() {
   return (
     <section id="about" aria-labelledby="about-heading" className="section relative">
-      <span className="section-num" aria-hidden="true">01</span>
+      <span className="section-num" data-num="01" aria-hidden="true" />
       <AboutContent />
     </section>
   );

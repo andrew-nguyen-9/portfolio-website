@@ -1,16 +1,16 @@
 import { ImageResponse } from "next/og";
 import { tokens } from "@/lib/theme";
 
-// Programmatic social card. Rendered server-side to PNG, so it can't read the
-// CSS theme vars — it imports the dark-palette token values from lib/theme.ts
-// to stay in lockstep with the site's default dark look.
-export const alt = "an9.dev — Andrew Nguyen's projects: transit, food, sports, politics, music";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-
+// Programmatic 1200×630 social card, served as a plain route (GET /og) rather than
+// via the opengraph-image file convention — that convention also auto-injects a
+// duplicate og:image <meta>. The single og:image/twitter:image tags live in
+// app/layout.tsx and point here. Rendered server-side to PNG, so it can't read the
+// CSS theme vars — it pulls the dark-palette values from lib/theme.ts to match the
+// site's default dark look.
 const t = tokens.dark;
+const size = { width: 1200, height: 630 };
 
-export default function OpengraphImage() {
+export function GET() {
   return new ImageResponse(
     (
       <div
@@ -76,6 +76,9 @@ export default function OpengraphImage() {
         />
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      headers: { "Cache-Control": "public, max-age=86400, s-maxage=604800, immutable" },
+    }
   );
 }
