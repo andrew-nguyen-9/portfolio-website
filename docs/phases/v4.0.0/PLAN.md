@@ -59,6 +59,19 @@ Voice stays **passion projects, not a job hunt** ([`../../DESIGN-GUIDELINES.md`]
 
 ---
 
+## Run status (autonomous run, 2026-06-25)
+
+Built out of dependency order at Andrew's request (v4.2→v4.6 first; v4.1 was held back).
+
+- ✅ **Shipped & verified** (type-check/lint/build + runtime smoke): shared `SiteChrome`
+  + pathname-aware `Nav`; **v4.2** content engine (plain-MDX, no Keystatic yet);
+  **v4.3** affiliate + `/uses`; **v4.5.5** `/now`; **v4.6.1/2/4** (lazy hCaptcha,
+  token-drift guard, CI).
+- ↪ **Deferred to v4.7** (decisions locked 2026-06-25): **v4.1** foundation (build next);
+  **v4.2 Keystatic GUI** (add over existing MDX); **v4.5** view-transitions + theme-variants
+  + interactive-hero + Spotify-expansions; **v4.4** scaffold (Next.js + Supabase starter).
+- ⏳ **Still needs a deploy** (not decisions): v4.6.3 visual-regression, v4.6.5 prod SEO audit.
+
 ## Segment map
 
 Ordered by dependency: the registry-driven foundation first (everything consumes it),
@@ -193,6 +206,29 @@ Polish; each task independently shippable. Pick up where v3 left the design back
   **production build** (per the v2 lesson: never validate on `next dev`).
 - **v4.6.6** — `/code-review`; write `ARCHIVE.md` + any `DEFERRED.md`; review all docs;
   merge `v4` → `main`; tag `v4.0.0`; delete spent branches; seed `v5-ideas.md`.
+
+---
+
+### v4.7 — Deferred from the autonomous run
+**Branch:** `v4.7` · **Depends on:** none (v4.1 first within it)
+
+Carries the work held back on 2026-06-25, with decisions locked:
+
+- **v4.7.1 — v4.1 showcase foundation (build first).** Per-project `/projects/[id]`
+  detail pages + status-aware subdomain routing (apex render, per BRAINSTORM) + per-project
+  OG/JSON-LD/sitemap + registry extend (ACOS + reserved AI slot). Chrome + sitemap patterns
+  from this run are already in place.
+- **v4.7.2 — Keystatic GUI** (local-only) over the existing `content/writing/*.mdx`.
+  Verify it doesn't require loosening the nonce-CSP; gate the admin to dev.
+- **v4.7.3 — View Transitions API** for cross-route nav (home ↔ /writing). Progressive
+  enhancement; degrade where unsupported.
+- **v4.7.4 — Theme variants** (seasonal / "transit map" palettes). Needs an aesthetic
+  direction; add as token sets, keep token-drift guard green.
+- **v4.7.5 — Interactive hero** (subtle, on-brand, reduced-motion safe). Touches homepage.
+- **v4.7.6 — Spotify expansions** — recently-played feed + top-artists/genres viz (ties to
+  Festival). Reuses v3 token route; re-verify scopes/tokens.
+- **v4.7.7 — v4.4 scaffold automation** producing a **Next.js + Supabase** satellite
+  starter wired to a registry entry (`docs/SCAFFOLD.md`).
 
 ## Risks & deferrals
 
