@@ -59,8 +59,9 @@ docs/                 # planning, workflow, versioning, design guidelines
 ## How this repo is run
 
 Work moves in **phases → segments → tasks** (`v[phase].[segment].[task]`), each
-phase on its own branch, gated by tests + review at every merge. The current
-target is **v2.0.0**.
+phase on its own branch, gated by tests + review at every merge. **v1** and **v2**
+are released and frozen (tags `v1.0.0`, `v2.0.0` → `v2.1.0`); **v3** is the next
+phase — ideas seeded in [`docs/brainstorming/v3-ideas.md`](docs/brainstorming/v3-ideas.md).
 
 - Contributing / workflow → [`docs/WORKFLOW.md`](docs/WORKFLOW.md)
 - Versioning scheme → [`docs/VERSIONING.md`](docs/VERSIONING.md)

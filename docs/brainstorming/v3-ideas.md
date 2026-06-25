@@ -47,10 +47,9 @@ committed — it's a menu for the v3 planning conversation.
 - **Token drift guard.** `lib/theme.ts` mirrors `app/globals.css` by hand — already
   listed under Platform/DX above, but v2 reinforced the need: a tiny generator or test
   that fails if the two diverge would prevent silent palette drift.
-- **`.section-num` watermark + Lighthouse a11y.** The decorative `aria-hidden` section
-  numerals are exempt from WCAG contrast but still cap Lighthouse a11y at 97. If a clean
-  100 is wanted, render them as a CSS background/pseudo-element (not audited as text)
-  rather than darkening them.
+- ~~**`.section-num` watermark + Lighthouse a11y.**~~ **Resolved in v2.7** — moved to a
+  `::before` pseudo-element so axe/Lighthouse no longer audit it as text; Accessibility
+  is now **100**. (Kept here for lineage; nothing to do.)
 
 ### Process lessons (fold into WORKFLOW if they recur)
 - **Validate SEO against a production build, not `next dev`.** Dev places Next's
