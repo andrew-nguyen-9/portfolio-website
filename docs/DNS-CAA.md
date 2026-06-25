@@ -11,18 +11,47 @@ with the "blocked by corporate filters" perception.
 > matches how `an9.dev` is served, and add the matching CA(s).
 
 How `an9.dev` is served today: **Vercel** (apex `an9.dev` + `www.an9.dev`), certs
-auto-issued by **Let's Encrypt**. Pick the option below for your DNS setup.
+auto-issued by **Let's Encrypt**.
+
+> ✅ **Chosen: Option C** (permissive). It authorizes every CA that Vercel or
+> Cloudflare could plausibly use, so nothing breaks if the hosting/proxy path changes,
+> while the `iodef` contact still signals a properly run domain. Options A and B are
+> kept below as tighter alternatives.
 
 In Cloudflare: **DNS → Records → Add record → Type `CAA`**, `Name: @`, then set the
 tag ("Only allow specific hostnames" = `issue`, "…wildcards" = `issuewild`, "Send
-violation reports to" = `iodef`) and the CA domain / mailto value.
+violation reports to" = `iodef`) and the CA domain / mailto value. Add one Cloudflare
+record per line below.
 
 ---
 
-## Option A — Vercel direct, DNS-only (recommended for the current setup)
+## Option C — permissive · ✅ CHOSEN
 
-Records are served by Cloudflare but **not proxied** (grey cloud), so Vercel issues
-the cert via Let's Encrypt:
+Broadest safe set — authorizes every CA Vercel or Cloudflare could use, plus the
+reporting contact, so nothing breaks regardless of the hosting/proxy path. **Add
+these seven records in Cloudflare:**
+
+```
+an9.dev.  CAA  0 issue     "letsencrypt.org"
+an9.dev.  CAA  0 issue     "pki.goog"
+an9.dev.  CAA  0 issue     "ssl.com"
+an9.dev.  CAA  0 issue     "digicert.com"
+an9.dev.  CAA  0 issuewild "letsencrypt.org"
+an9.dev.  CAA  0 issuewild "pki.goog"
+an9.dev.  CAA  0 iodef     "mailto:andrewng9999@gmail.com"
+```
+
+In Cloudflare's CAA editor each row is: **Name** `@`, **Tag** = the middle word
+(`issue` → "Only allow specific hostnames", `issuewild` → "…wildcards", `iodef` →
+"Send violation reports to"), **Value/CA domain** = the quoted string (for `iodef`,
+the `mailto:` URL). Flags stay `0`.
+
+---
+
+## Option A — Vercel direct, DNS-only (tighter alternative)
+
+If you'd rather authorize only the CA actually in use (Vercel/Let's Encrypt), with
+records **not proxied** (grey cloud):
 
 ```
 an9.dev.  CAA  0 issue     "letsencrypt.org"
@@ -45,21 +74,6 @@ an9.dev.  CAA  0 issuewild "pki.goog"
 an9.dev.  CAA  0 iodef     "mailto:andrewng9999@gmail.com"
 ```
 
-## Option C — permissive (when unsure which path is live)
-
-Broadest safe set — authorizes the common CAs so nothing breaks while you settle the
-hosting path, plus the reporting contact. Tighten to A or B once confirmed:
-
-```
-an9.dev.  CAA  0 issue     "letsencrypt.org"
-an9.dev.  CAA  0 issue     "pki.goog"
-an9.dev.  CAA  0 issue     "ssl.com"
-an9.dev.  CAA  0 issue     "digicert.com"
-an9.dev.  CAA  0 issuewild "letsencrypt.org"
-an9.dev.  CAA  0 issuewild "pki.goog"
-an9.dev.  CAA  0 iodef     "mailto:andrewng9999@gmail.com"
-```
-
 ---
 
 ## Notes
@@ -69,7 +83,7 @@ an9.dev.  CAA  0 iodef     "mailto:andrewng9999@gmail.com"
   whatever address you prefer to receive those at.
 - CAA applies to the whole domain and its subdomains (`*.an9.dev` project subdomains
   inherit it) unless a subdomain sets its own CAA. The project subdomains are also on
-  Vercel/Let's Encrypt, so Option A covers them.
+  Vercel/Let's Encrypt, so Option C covers them.
 - Verify after adding: `dig CAA an9.dev +short`, or use the SSLMate CAA test.
 - Related: email-sending DNS (SPF/DKIM/DMARC) lives in [`CONTACT-EMAIL.md`](CONTACT-EMAIL.md).
 - **HSTS preload** is intentionally **not** submitted yet (deferred until the site is
