@@ -61,3 +61,84 @@ confirming the pipeline; not for production.
 
 See also [`DNS-CAA.md`](DNS-CAA.md) for the CAA / certificate-authority records that
 round out the domain's DNS posture.
+
+---
+
+## Email authentication: SPF · DKIM · DMARC · BIMI
+
+All are **Cloudflare DNS records** (DNS-only / grey cloud). Add `dig` after each to
+confirm. Order matters: fix SPF, keep Resend's DKIM, then ratchet DMARC, then BIMI.
+
+### SPF — fix the "multiple records" failure
+
+RFC 7208 allows **exactly one** `v=spf1` TXT record per name. The scanner found two on
+`an9.dev` → email validation can fail. **Merge them into one** and delete the rest.
+
+```
+# Root an9.dev — ONE TXT record, all senders' includes merged:
+an9.dev.  TXT  "v=spf1 include:amazonses.com ~all"
+```
+
+- `include:amazonses.com` covers Resend (it sends through Amazon SES). If you also send
+  via another provider (e.g. Google Workspace), merge its include into the **same**
+  record: `v=spf1 include:amazonses.com include:_spf.google.com ~all`. Never two
+  `v=spf1` records.
+- End with `~all` (softfail) while testing; tighten to `-all` (hardfail) once you've
+  confirmed every legitimate sender is listed.
+- Resend's own verification also adds an SPF TXT on the **`send` subdomain**
+  (`send.an9.dev`) for its return-path — that's separate and fine; leave it. The
+  "multiple records" error is about two records on the **same** name.
+
+### DKIM — leave Resend's record in place
+
+Resend's domain verification adds `resend._domainkey.an9.dev` (the DKIM key). This is
+what makes DMARC pass via **DKIM alignment** (the signature is for `an9.dev`), so
+tightening DMARC below won't block legitimate Resend mail. Don't remove it.
+
+### DMARC — move off `p=none`
+
+One TXT at `_dmarc.an9.dev`. Ratchet the policy in three steps; don't jump straight to
+`reject` until reports are clean.
+
+```
+# Step 1 — monitor (collect reports ~1–2 weeks). You may already have this.
+_dmarc.an9.dev.  TXT  "v=DMARC1; p=none; rua=mailto:dmarc@an9.dev; fo=1; pct=100"
+
+# Step 2 — enforce softly (spoofed mail → spam folder)
+_dmarc.an9.dev.  TXT  "v=DMARC1; p=quarantine; pct=100; rua=mailto:dmarc@an9.dev; fo=1"
+
+# Step 3 — full protection (spoofed mail rejected) — clears the scanner warning + unblocks BIMI
+_dmarc.an9.dev.  TXT  "v=DMARC1; p=reject; pct=100; rua=mailto:dmarc@an9.dev; fo=1"
+```
+
+- Alignment stays **relaxed** (the default — no `adkim=s`/`aspf=s`). Strict SPF
+  alignment would fail because Resend's return-path is the `send.an9.dev` subdomain;
+  relaxed lets it (and DKIM) align. Leave it relaxed.
+- **`rua` reporting address gotcha:** aggregate reports only reach an address whose
+  domain authorizes it. A different domain (e.g. `…@gmail.com`) needs a
+  `an9.dev._report._dmarc.gmail.com` record you can't set on gmail.com — so use an
+  address **on `an9.dev`** (`dmarc@an9.dev`, forwarded to your inbox) or a free DMARC
+  monitoring service that hands you a working `rua` address. Reports are optional; the
+  policy works without them.
+
+### BIMI — optional, and gated on a paid VMC
+
+BIMI shows your logo in inboxes. It requires, in order:
+
+1. DMARC at **`p=quarantine` or `p=reject`** on the org domain at `pct=100` (Step 3
+   above). Until then BIMI can't pass — that's the scanner's "Fail".
+2. A square logo in **SVG Tiny Portable/Secure** (SVG P/S) profile, served over HTTPS
+   (e.g. `https://an9.dev/bimi.svg` — drop the file in `public/`; the current
+   `public/an-logo.png` must be converted to SVG P/S first).
+3. For **Gmail and Apple Mail**, a **VMC** (Verified Mark Certificate, `a=` below) —
+   ~$1,000/yr from DigiCert/Entrust and it requires a **registered trademark** of the
+   logo. Without a VMC the record is valid but the logo only shows in a few clients
+   (e.g. Fastmail), not Gmail.
+
+```
+default._bimi.an9.dev.  TXT  "v=BIMI1; l=https://an9.dev/bimi.svg; a=https://an9.dev/vmc.pem"
+```
+
+Reality check: BIMI is the lowest-ROI item here — pursue it only if the inbox logo
+matters enough to buy + trademark. SPF + DKIM + DMARC are the ones that actually affect
+deliverability and the "legitimate sender" signal; do those first.
