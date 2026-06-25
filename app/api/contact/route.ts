@@ -69,13 +69,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Human verification required." }, { status: 400 });
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    // Resend test sender (onboarding@resend.dev) needs no domain verification,
-    // but only delivers to the Resend account owner's email — set CONTACT_EMAIL.
-    const to = process.env.CONTACT_EMAIL ?? "andrewng9999@gmail.com";
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("[contact] RESEND_API_KEY is not set — cannot send email");
+      return NextResponse.json({ error: "Email isn't configured yet." }, { status: 500 });
+    }
+
+    const resend = new Resend(apiKey);
+    // `from` MUST be a verified Resend sender. Two setups (see docs/CONTACT-EMAIL.md):
+    //   • Production: verify an9.dev in Resend → RESEND_FROM="an9.dev <contact@an9.dev>"
+    //     (then `to` can be anything).
+    //   • Quick/no-DNS: leave RESEND_FROM unset to use Resend's test sender
+    //     (onboarding@resend.dev) — but it ONLY delivers to your Resend account
+    //     email, so CONTACT_EMAIL must be that address.
+    const from = process.env.RESEND_FROM ?? "Portfolio <onboarding@resend.dev>";
+    const to   = process.env.CONTACT_EMAIL ?? "andrewng9999@gmail.com";
 
     const { error } = await resend.emails.send({
-      from:     "Portfolio <onboarding@resend.dev>",
+      from,
       to:       [to],
       replyTo:  email,
       subject:  `[Portfolio] ${subject?.trim() || "New message"} — from ${name}`,

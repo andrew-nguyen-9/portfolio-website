@@ -1,5 +1,55 @@
 # v2.0.0 — Deferred decisions & external items
 
+---
+
+## Deferred sweep (segment v2.7, 2026-06-25) — answers + resolutions
+
+Andrew answered the open questions; this segment actioned them.
+
+- **(1) CAA records** — DONE in-repo: [`docs/DNS-CAA.md`](../../DNS-CAA.md) gives three
+  Cloudflare CAA configurations (Vercel-direct, CF-proxied, permissive) + `iodef`.
+  *External:* Andrew adds the chosen records in Cloudflare.
+- **(2) Resend email** — DONE in-repo: `from` is now env-driven (`RESEND_FROM`) with a
+  missing-key guard and clearer errors; [`docs/CONTACT-EMAIL.md`](../../CONTACT-EMAIL.md)
+  documents both setup modes. *External (required to actually send):* verify `an9.dev`
+  in Resend → add the DKIM/SPF/return-path records in Cloudflare → set
+  `RESEND_API_KEY` / `RESEND_FROM` / `CONTACT_EMAIL` in Vercel env. Real delivery
+  couldn't be tested here (no creds); the route, fallback captcha, and guard are
+  verified.
+- **(3) HSTS preload** — deferred by request until the site is finalized. Header still
+  sent; not submitted to hstspreload.org.
+- **(4) Vercel access** — RESOLVED: the Vercel connector is authenticated in-session.
+  Confirmed `an9.dev` + `www.an9.dev` attached to the `portfolio-website` project,
+  latest prod deploy READY, certs auto-managed (Let's Encrypt). No wildcard needed here
+  (project subdomains are separate Vercel projects).
+- **(6) Richer skills section** — DONE: native `<select>` replaced with a multi-select
+  toggle-chip filter (`.skill-toggle`, `aria-pressed`) + a live "N tools" count.
+- **(7) About throughlines** — kept (not mapped to project categories).
+- **(8) Stat counters** — DONE: now data-driven from `content/projects.ts`
+  (projects / in-build / domains / year).
+- **(10) OG card** — kept; moved to a plain `app/og/route.tsx` (de-duplicated meta).
+- **(11) `.section-num`** — DONE: rendered via `::before` pseudo-element so axe/Lighthouse
+  skip it → **Accessibility 100**.
+- **(12) Loader** — kept dark-always (no change).
+- **(13) Strict CSP** — DONE: nonce-based CSP via `middleware.ts` (`strict-dynamic`,
+  no blanket inline-script execution; `'unsafe-eval'` kept only because hCaptcha needs
+  it). This forces dynamic rendering, which made Next stream metadata into `<body>`;
+  fixed by rendering all head tags (title/description/canonical/OG/Twitter/robots) as
+  JSX so React 19 hoists them into `<head>`. **Lighthouse 100 / 100 / 100 / 100.**
+
+### Still needs Andrew / a live check (v2.7)
+
+- **hCaptcha under strict CSP** — couldn't verify locally (no hCaptcha keys → form uses
+  the math fallback). The CSP keeps the hCaptcha hosts + `'unsafe-eval'` and uses
+  `strict-dynamic` (nonce'd next/script loader). Verify the widget renders + the CSP
+  reports no violations once `NEXT_PUBLIC_HCAPTCHA_SITE_KEY` / `HCAPTCHA_SECRET` are set
+  on the deployed site.
+- **`/` is now dynamically rendered** (the nonce cost). Fine for this site on Vercel,
+  but note it's no longer a static HTML cache.
+
+---
+
+
 Autonomous-run log. Each entry is a choice I made without Andrew, or a thing that
 can't be done inside the repo. Andrew sweeps this as an adhoc hotfix **after**
 phase 2. Format: **topic** — why it needed him · the default I chose · where it

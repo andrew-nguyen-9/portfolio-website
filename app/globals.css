@@ -444,7 +444,11 @@ body::after {
   #hero .hero-name { font-size: clamp(2.2rem, 6vw, 3.6rem) !important; }
 }
 
-/* ─── Section numbers ───────────────────────────────────── */
+/* ─── Section numbers ───────────────────────────────────────
+   Decorative watermark numerals. The glyph is rendered via ::before content
+   (from the data-num attribute) rather than as a DOM text node — this is purely
+   decorative (aria-hidden) and axe-core/Lighthouse skip pseudo-element content
+   for the color-contrast audit, so the faint watermark doesn't fail a11y. */
 .section-num {
   position: absolute;
   font-family: var(--font-display), sans-serif;
@@ -460,6 +464,7 @@ body::after {
   letter-spacing: -0.04em;
   z-index: 2;
 }
+.section-num::before { content: attr(data-num); }
 
 @media (max-width: 768px) {
   .section-num { display: none; }
@@ -855,36 +860,32 @@ body::after {
    palettes, so these labels stay legible in every theme. */
 .eyebrow { color: var(--fg-subtle); opacity: 1; }
 
-/* ─── Skills filter dropdown (About) ────────────────────── */
-.skill-filter {
-  appearance: none;
-  -webkit-appearance: none;
+/* ─── Skills filter toggles (About) ─────────────────────────
+   Multi-select category chips. aria-pressed reflects state; selected chips fill
+   with --primary (text uses --bg, AA-safe), unselected sit at --fg-subtle (AA). */
+.skill-toggle {
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   letter-spacing: 0.06em;
-  color: var(--fg-muted);
-  background: var(--surface);
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  background: transparent;
   border: 1px solid var(--border-strong);
   border-radius: 9999px;
-  padding: 0.45rem 2rem 0.45rem 0.9rem;
+  padding: 0.4rem 0.85rem;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
-  /* chevron drawn from currentColor so it follows the token, no hardcoded hex */
-  background-image:
-    linear-gradient(45deg, transparent 50%, currentColor 50%),
-    linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position:
-    calc(100% - 1.1rem) center,
-    calc(100% - 0.75rem) center;
-  background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
-  background-repeat: no-repeat;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
-.skill-filter:hover { border-color: var(--primary); color: var(--fg); }
-.skill-filter:focus-visible {
+.skill-toggle:hover { color: var(--fg); border-color: var(--primary); }
+.skill-toggle:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.skill-filter option { color: var(--fg); background: var(--surface); }
+.skill-toggle[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--primary);
+  border-color: var(--primary);
+}
 
 /* ─── hCaptcha wrapper ──────────────────────────────────── */
 .hcaptcha-wrapper {

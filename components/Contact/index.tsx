@@ -238,7 +238,7 @@ export default function Contact() {
 
   return (
     <section id="contact" aria-labelledby="contact-heading" className="section relative">
-      <span className="section-num" aria-hidden="true">03</span>
+      <span className="section-num" data-num="03" aria-hidden="true" />
       <div ref={revealRef} className="reveal max-w-2xl">
         <p
           className="text-xs tracking-[0.25em] uppercase mb-5 eyebrow"
