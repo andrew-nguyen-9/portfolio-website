@@ -43,9 +43,11 @@ reads like a resume or "available for hire" pitch. See
 
 This repo uses a phase / segment / task model: **`v[phase].[segment].[task]`**.
 
-- **v1.0.0** and **v2.0.0** are released and frozen on `main` (tags). v2 shipped the
-  theme overhaul, name-only hero, non-card project index, passion-project About, and the
-  SEO/security pass — see [`docs/phases/v2.0.0/ARCHIVE.md`](docs/phases/v2.0.0/ARCHIVE.md).
+- **v1** and **v2** are released and frozen on `main` (tags `v1.0.0`; `v2.0.0` →
+  `v2.1.0`). v2 shipped the theme overhaul, name-only hero, non-card project index,
+  passion-project About, the SEO/security pass (strict nonce CSP, Resend, Lighthouse
+  100s), and the skills category slider — see
+  [`docs/phases/v2.0.0/ARCHIVE.md`](docs/phases/v2.0.0/ARCHIVE.md).
 - **Next phase: v3** — open a `v3` branch off `main` once planned. Seed ideas in
   [`docs/brainstorming/v3-ideas.md`](docs/brainstorming/v3-ideas.md); write
   `docs/phases/v3.0.0/PLAN.md` before any code.
