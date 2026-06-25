@@ -265,6 +265,28 @@ body::after {
   animation: cursor-blink 0.82s step-end infinite;
 }
 
+/* ─── Now-playing widget (About) ────────────────────────── */
+@keyframes np-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%      { opacity: 0.4; transform: scale(0.72); }
+}
+.np-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--highlight);
+  /* Reduced-motion safe: globals zero out animation-duration under both
+     .reduce-motion and prefers-reduced-motion, leaving a steady dot. */
+  animation: np-pulse 1.6s ease-in-out infinite;
+}
+.np-link { text-decoration: none; }
+.np-link:hover .np-card,
+.np-link:focus-visible .np-card {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
 /* ─── Typography ────────────────────────────────────────── */
 .font-display  { font-family: var(--font-display), system-ui, sans-serif; }
 .font-mono     { font-family: var(--font-jetbrains-mono), 'Courier New', monospace; }
