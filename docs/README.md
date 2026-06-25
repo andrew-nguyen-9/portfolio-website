@@ -29,7 +29,7 @@ plan, design research, and (once complete) its archived summary + brainstorm.
 | Phase | Status | Folder |
 |-------|--------|--------|
 | **v1.0.0** | ✅ Released (frozen) | [`phases/v1.0.0/`](phases/v1.0.0/ARCHIVE.md) |
-| **v2.0.0** | ✅ Released | [`phases/v2.0.0/`](phases/v2.0.0/ARCHIVE.md) |
+| **v2** | ✅ Released (frozen) · tags `v2.0.0` → `v2.1.0` | [`phases/v2.0.0/`](phases/v2.0.0/ARCHIVE.md) |
 
 ## Brainstorming (what might come next)
 

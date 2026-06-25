@@ -1,7 +1,9 @@
 # v2.0.0 — Archive
 
-**Status:** ✅ Released. Merged to `main` and tagged `v2.0.0`. This is the
-consolidated record of what phase 2 shipped, the decisions made, and where it
+**Status:** ✅ Released · frozen. The initial release merged to `main` and tagged
+`v2.0.0`; the post-release segments (v2.7 deferred sweep, v2.8 skills slider) were
+then consolidated and the finished phase tagged **`v2.1.0`**. This file is the
+single complete record of what phase 2 shipped, the decisions made, and where it
 deviated from the plan. The working notes ([`PLAN.md`](PLAN.md),
 [`DESIGN-RESEARCH.md`](DESIGN-RESEARCH.md), [`BRAINSTORM.md`](BRAINSTORM.md),
 [`DEFERRED.md`](DEFERRED.md)) remain for lineage; this file is the summary.
@@ -46,6 +48,23 @@ and real SEO/security signals — all built under the phase/segment/task workflo
   reality; the new SEO routes indexed in the `CLAUDE.md` codebase map. Repo structure
   was already clean (`app`/`components`/`content`/`hooks`/`lib`/`docs`/`public`) — no
   file moves were needed.
+- **v2.7 — Deferred sweep (post-2.0.0).** Worked the open `DEFERRED.md` questions:
+  env-driven Resend sender (`RESEND_FROM` + missing-key guard,
+  [`docs/CONTACT-EMAIL.md`](../../CONTACT-EMAIL.md)); CAA / SPF / DMARC / BIMI DNS
+  guidance ([`docs/DNS-CAA.md`](../../DNS-CAA.md)); data-driven stat counters;
+  richer skills filter (native `<select>` → multi-select toggle chips + live "N
+  tools" count); `.section-num` moved to a `::before` pseudo-element so axe/Lighthouse
+  skip it; and a **strict nonce-based CSP** via `middleware.ts` (`strict-dynamic`,
+  head tags JSX-hoisted so React 19 keeps them in `<head>`). Production Lighthouse:
+  **100 / 100 / 100 / 100**. Trade-off: `/` is now dynamically rendered (nonce cost).
+- **v2.8 — Skills slider & copy polish (phase close).** The multi-select toggle filter
+  became a single **range slider** that scrubs categories (index 0 = All, 1..n = one
+  group) with click-to-jump tick labels (`.skill-slider` / `.skill-stop`). Skills and
+  interests title-cased (`dbt` left lowercase); Skiing dropped, Swimming + Houseplants
+  added. Self-belittling "small/little tools" copy replaced with "tools — useful in my
+  life" in the About heading, bio, and OG meta (the shrinkflation "crackers get smaller"
+  line and the CTA "move a little better" line are different meanings, left intact).
+  This closed the last deferred item ("richer skills section") and ended the phase.
 
 ## Phase closeout
 
@@ -57,13 +76,21 @@ and real SEO/security signals — all built under the phase/segment/task workflo
   is the decorative `aria-hidden` `.section-num` watermark — exempt under WCAG 1.4.3,
   left intentionally).
 - `type-check`, `lint`, and a production `build` clean throughout; 0 console errors.
+- Post-2.0.0 segments (v2.7 / v2.8) each re-ran `type-check` + `lint` + production
+  `build` clean. v2.7 hit Lighthouse **100 / 100 / 100 / 100** (prod); v2.8 is a
+  copy/UI change with no new perf or a11y surface (native range input = keyboard +
+  screen-reader support for free via `aria-valuetext`).
 
 ## Key decisions & deviations
 
 - **Loader:** blueprint draw-in shelved; v1 vinyl loader kept (v2.2).
 - **Hero:** name-only typing; role line and "available" badge dropped (v2.2).
-- **Skills UI:** native `<select>` dropdown filter chosen over a custom combobox or the
-  old tab strip — accessible for free (v2.4).
+- **Skills UI (evolved across the phase):** old tab strip → native `<select>` dropdown
+  (v2.4, accessible for free) → multi-select toggle chips with a live count (v2.7,
+  combine categories) → a single **range slider** scrubbing one category at a time
+  (v2.8). Each step kept native, keyboard- and screen-reader-accessible controls over a
+  custom combobox; the slider trades multi-select for a lighter, more tactile scrub and
+  one `number` of state.
 - **About "domains":** reframed as personal throughlines, not a project-category service
   menu (v2.4).
 - **Contrast:** never fade text with `opacity`; use a muted *token color* so the ratio
@@ -81,6 +108,9 @@ External / not doable in-repo — for Andrew to action:
   Vercel dashboard check that apex + `www` + the `*.an9.dev` wildcard serve valid certs.
 - **Live validation post-deploy:** Google Rich Results Test + a security-headers.com
   scan against the production URL.
+- **hCaptcha under the strict CSP (v2.7):** couldn't verify locally (no keys → form uses
+  the math fallback). Once `NEXT_PUBLIC_HCAPTCHA_SITE_KEY` / `HCAPTCHA_SECRET` are set on
+  the deployed site, confirm the widget renders and the nonce CSP reports no violations.
 
 Full rationale and file:line detail for every autonomous decision and external item is
 in [`DEFERRED.md`](DEFERRED.md). Durable feature ideas graduated to
