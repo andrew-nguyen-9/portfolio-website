@@ -6,10 +6,15 @@ const SOCIAL = [
   { label: "Email",    href: "mailto:andrewng9999@gmail.com",                 external: false },
 ];
 
+// Absolute hash links so they work from any route (e.g. /writing), not just home.
+// On the homepage the browser still smooth-scrolls (html { scroll-behavior: smooth }).
 const NAV = [
-  { label: "About",    href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact",  href: "#contact" },
+  { label: "About",    href: "/#about" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Contact",  href: "/#contact" },
+  { label: "Writing",  href: "/writing" },
+  { label: "Now",      href: "/now" },
+  { label: "Uses",     href: "/uses" },
 ];
 
 export default function Footer() {

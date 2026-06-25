@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import FocusTrap from "focus-trap-react";
 import { ANLogo } from "@/components/Logo";
 import Tooltip from "@/components/Tooltip";
@@ -46,6 +47,8 @@ const NAV_LINKS = [
 ];
 
 export default function Nav() {
+  const pathname = usePathname();
+  const router   = useRouter();
   const [open,      setOpen]      = useState(false);
   const [scrolled,  setScrolled]  = useState(false);
   const [hidden,    setHidden]    = useState(false);
@@ -110,8 +113,14 @@ export default function Nav() {
 
   const handleNavClick = useCallback((href: string) => {
     setOpen(false);
+    // On the homepage the targets exist — smooth-scroll to them. Off-homepage
+    // (e.g. /writing) the anchors live on "/", so route there with the hash.
+    if (pathname !== "/") {
+      router.push(`/${href}`); // "/#about"
+      return;
+    }
     setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }), 50);
-  }, []);
+  }, [pathname, router]);
 
   return (
     <>

@@ -7,16 +7,20 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check-content": "node scripts/check-content.mjs",
+    "check-tokens": "node scripts/check-tokens.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^11.11.0",
     "geist": "^1.3.1",
+    "gray-matter": "^4.0.3",
     "gsap": "^3.12.5",
     "lenis": "^1.1.14",
     "next": "^15.5.19",
+    "next-mdx-remote": "^6.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^4.0.0"

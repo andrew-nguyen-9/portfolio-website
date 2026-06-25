@@ -1,0 +1,71 @@
+---
+title: "A live now-playing widget under a strict CSP"
+summary: "How the little 'currently listening' card on this site stays live without ever leaking a Spotify token — and why a nonce-based Content-Security-Policy made it interesting."
+publishedAt: "2026-06-20"
+tags: ["Next.js", "Spotify API", "Security", "CSP"]
+---
+
+The About section of this site shows what I'm listening to on Spotify, more or less
+in real time. It looks like a throwaway flourish. Getting it to behave under this
+site's security posture was the actual work.
+
+## The constraint that shaped everything
+
+Two non-negotiables were already true before the widget existed:
+
+1. **No secret ever reaches the browser.** Spotify's API needs a client secret and a
+   refresh token. Those are server-only, full stop.
+2. **A strict, nonce-based Content-Security-Policy.** Every request gets a fresh
+   nonce; only scripts carrying that nonce (and what they load, via `strict-dynamic`)
+   are allowed to run. There is no blanket `unsafe-inline` escape hatch.
+
+The first rule means the browser can't talk to Spotify directly. The second means I
+can't sprinkle in a quick inline script to paper over anything.
+
+## The server route does the secret-handling
+
+The browser only ever talks to a same-origin route — `/api/spotify/now-playing`.
+That route is where the refresh-token-for-access-token swap happens, cached in memory
+so most requests skip it:
+
+```ts
+// refresh → access token, then fetch what's playing
+const token = await getAccessToken();           // cached; refreshes on miss
+const res = await fetch(NOW_PLAYING_ENDPOINT, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+if (res.status === 204 || res.status > 400) {
+  return recentlyPlayedFallback();              // nothing live → "last played"
+}
+```
+
+The client gets back a tiny, boring JSON shape: `isPlaying`, `title`, `artist`,
+`albumImageUrl`, `songUrl`. Nothing sensitive, nothing to leak.
+
+## Degrade like the lights went out, not like the building burned down
+
+The most important state is the one nobody notices. With the environment variables
+unset — a fresh clone, a preview deploy, a misconfiguration — the route returns a typed
+"not configured" payload instead of throwing. The widget reads that and shows a quiet,
+static version of itself. No console errors, no broken layout, no half-rendered card.
+
+That mirrors how the contact form already handled a missing email key. Consistency in
+failure modes is underrated; it means one mental model covers the whole site.
+
+## What the CSP actually cost
+
+Album art comes from Spotify's CDN, so `i.scdn.co` had to join `img-src`. That was the
+entire CSP change. The widget itself is a client component that fetches the same-origin
+route and polls every 30–60 seconds — no inline script, nothing for the nonce to bless,
+nothing that fights `strict-dynamic`.
+
+The lesson I keep relearning: if a feature needs you to weaken the CSP, the feature is
+usually wrong. Routing the data through your own origin is almost always cleaner than
+punching a hole in the policy.
+
+## Why bother
+
+This site is a home base for a family of data projects, not a résumé. A live signal —
+proof that there's a person here, actively listening, actively building — does more for
+that premise than another paragraph about myself ever could. It just had to earn its
+place without compromising anything around it.

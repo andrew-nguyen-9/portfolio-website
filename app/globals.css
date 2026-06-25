@@ -939,3 +939,150 @@ body::after {
 .hcaptcha-wrapper {
   display: block;
 }
+
+/* ─── Writing index rows (v4.2) ─────────────────────────────
+   Editorial list matching the project index: serif title, muted summary,
+   monospace metadata. Token-driven so it themes across all four palettes. */
+.article-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 8px 24px;
+  padding: 22px 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease, padding-left 0.2s ease;
+}
+.article-row:hover { background: var(--surface); padding-left: 14px; }
+.article-row-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.article-row-title {
+  font-family: var(--font-newsreader), serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.article-row-summary {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+.article-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .article-row { grid-template-columns: 1fr; }
+  .article-row-meta { flex-direction: row; align-items: baseline; gap: 14px; justify-content: flex-start; }
+}
+
+/* ─── Article prose (v4.2) ──────────────────────────────────
+   Long-form reading column. Body in the Newsreader serif (--font-writing);
+   headings in the display face; everything on tokens for theme parity. */
+.article-prose {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.7;
+  color: var(--fg);
+}
+.article-prose > * + * { margin-top: 1.2em; }
+.article-prose h2 {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: 2em;
+}
+.article-prose h3 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.6em;
+}
+.article-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.article-prose a:hover { color: var(--secondary); }
+.article-prose ul, .article-prose ol { padding-left: 1.4em; }
+.article-prose li + li { margin-top: 0.4em; }
+.article-prose strong { font-weight: 600; }
+.article-prose blockquote {
+  border-left: 2px solid var(--primary);
+  padding-left: 1.2em;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+.article-prose code {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+.article-prose pre {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1em 1.3em;
+  overflow-x: auto;
+}
+.article-prose pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+/* ─── Affiliate disclosure + link (v4.3) ────────────────────
+   FTC-compliant: visible disclosure banner; sponsored links visually marked. */
+.affiliate-disclosure {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--fg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  background: var(--surface);
+}
+.affiliate-link { color: var(--primary); text-underline-offset: 3px; }
+.affiliate-link::after {
+  content: "↗ partner";
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin-left: 0.4em;
+  white-space: nowrap;
+}
+
+/* ─── /uses + /now generic page lists (v4.3 / v4.5.5) ───────── */
+.uses-group { margin-bottom: 44px; }
+.uses-item { padding: 16px 8px; border-bottom: 1px solid var(--border); }
+.uses-item-name { font-weight: 600; }
+.uses-item-note { color: var(--fg-muted); font-size: 0.95rem; line-height: 1.5; margin-top: 4px; }
+
+.now-entry { padding: 20px 8px; border-top: 1px solid var(--border); }
+.now-entry-date {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+.now-entry-body { color: var(--fg-muted); line-height: 1.6; }

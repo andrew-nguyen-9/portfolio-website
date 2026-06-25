@@ -180,6 +180,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <title>{SITE_TITLE}</title>
         <meta name="description" content={SITE_DESCRIPTION} />
         <link rel="canonical" href={SITE_URL} />
+        <link rel="alternate" type="application/rss+xml" title="an9.dev — Writing" href={`${SITE_URL}/writing/rss.xml`} />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta property="og:title" content={SITE_TITLE} />
         <meta property="og:description" content={OG_DESCRIPTION} />
