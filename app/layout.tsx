@@ -86,8 +86,8 @@ const majorMonoDisplay = Major_Mono_Display({
 const SITE_URL = "https://an9.dev";
 const SITE_TITLE = "an9.dev — Andrew Nguyen";
 const SITE_DESCRIPTION =
-  "A portfolio and home base for a family of data-driven passion projects — " +
-  "transit, food, sports, politics, and music — each living at its own an9.dev " +
+  "A portfolio of data-driven passion projects — " +
+  "transit, food, sports, politics, and music — each living at its own " +
   "subdomain. Built by Andrew Nguyen in Chicago.";
 const OG_DESCRIPTION =
   "Small tools for the questions I keep asking — transit, food, sports, politics, and the city I love.";
