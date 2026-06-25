@@ -1,0 +1,39 @@
+name: CI
+
+# Quality gate for PRs into phase branches (vN, vN.N) and main. (v4.6.4)
+on:
+  pull_request:
+    branches:
+      - main
+      - "v[0-9]*"
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Content check
+        run: npm run check-content
+
+      - name: Token-drift guard
+        run: npm run check-tokens
+
+      - name: Build
+        run: npm run build
