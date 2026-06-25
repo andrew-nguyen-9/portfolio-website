@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useReveal } from "@/hooks/useReveal";
 import { projects } from "@/content/projects";
+import NowPlaying from "./NowPlaying";
 
 /* ─── Data ──────────────────────────────────────────────────
    Counters derive from content/projects.ts (the source of truth) so they can't
@@ -346,6 +347,11 @@ function AboutContent() {
           </p>
           <div className="flex flex-wrap gap-2">
             {INTERESTS.map(i => <InterestPill key={i} label={i} />)}
+          </div>
+
+          {/* Live music signal — hides itself when unconfigured/empty (see NowPlaying). */}
+          <div className="mt-6">
+            <NowPlaying />
           </div>
         </div>
       </div>
