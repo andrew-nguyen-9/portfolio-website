@@ -42,13 +42,13 @@ Voice stays **passion projects, not a job hunt** (see `docs/DESIGN-GUIDELINES.md
 | Content home | Apex **`/writing`** (Keystatic-managed MDX), not a separate subdomain |
 | Phase headline | **Showcase foundation** ships first |
 
-## Net-new AI flagship (provisional — may pivot)
+## Net-new AI flagship (slot reserved — concept deferred)
 
-An agentic **"data concierge"**: natural-language Q&A across Andrew's own project
-datasets (festival, CTA, fantasy, midterms) via the Vercel AI SDK + tool-calls to each
-project's API. Showcases the LLM skill *and* ties the project family together on the
-homepage. **Concept is provisional** — registry slot reserved; concept may change before
-that segment.
+**Resolved:** reserve the registry slot now as a `planned` project; **do not commit a
+concept in v4.** v4.1 adds the entry so routing/OG/sitemap treat it like any other
+planned project, but the actual flagship build (and its concept — the "data concierge"
+agentic NL-Q&A idea is one candidate, not a commitment) gets its own future segment so
+the showcase foundation isn't blocked on it.
 
 ---
 
@@ -104,9 +104,14 @@ that segment.
   content prove there's an audience.
 - Monorepo pivot (considered, rejected for v4 — would be its own phase).
 
-## Open items to resolve in planning
+## Open items — resolved in planning
 
-1. Net-new AI flagship concept (data concierge is provisional).
-2. Status-aware routing — does `planned`/`building` teaser render on the subdomain
-   (separate deploy) or on apex `/projects/[id]`? (Affects DNS + Vercel wildcard setup.)
-3. Keystatic auth/deploy model on Vercel (local vs. cloud editing).
+1. **AI flagship concept** → **slot reserved, concept deferred.** v4.1 adds a `planned`
+   registry entry; the build/concept moves to a future segment (see section above).
+2. **Status-aware routing render location** → **apex `/projects/[id]`.** Teaser +
+   coming-soon render on the apex detail page; planned/building subdomains *redirect to
+   apex*; only `live` redirects out to the real project. One wildcard redirect, no
+   per-project teaser deploys.
+3. **Keystatic auth/deploy model** → **local-only editing.** Keystatic runs in local dev
+   and commits MDX to git; production is read-only static. No hosted admin surface, no new
+   auth surface to harden against the strict-nonce CSP.
