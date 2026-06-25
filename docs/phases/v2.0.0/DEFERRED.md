@@ -1,5 +1,23 @@
 # v2.0.0 — Deferred decisions & external items
 
+> **Phase closed (v2.8, 2026-06-25).** Every in-repo deferred item is resolved; the
+> skills filter reached its final form (range slider — see below, supersedes the v2.7
+> toggle chips and the v2.4 `<select>`). The remaining open items are all **external**
+> (DNS records, HSTS submission, live post-deploy validation, hCaptcha-under-CSP check)
+> and are carried in [`ARCHIVE.md`](ARCHIVE.md) → "Open items carried out of v2" for
+> Andrew to action. Phase 2 tagged `v2.1.0`.
+
+---
+
+## Skills filter — final form (segment v2.8)
+
+Item (6) below landed as multi-select toggle chips in v2.7; v2.8 replaced them with a
+**range slider** (`.skill-slider` / `.skill-stop` in `app/globals.css`; `idx` state +
+`SKILL_TICKS` in `components/About/index.tsx`). Slider scrubs one category at a time
+(index 0 = All), with click-to-jump tick labels. Native `<input type="range">` keeps
+keyboard + screen-reader support for free via `aria-valuetext`. Trade-off vs. the toggle
+chips: no multi-select, but lighter state (one `number`) and a more tactile control.
+
 ---
 
 ## Deferred sweep (segment v2.7, 2026-06-25) — answers + resolutions

@@ -29,27 +29,30 @@ const DOMAINS = [
 // What I'm building these projects with — and still learning. Grouped, filterable.
 const SKILL_GROUPS = [
   {
-    id: "languages", label: "Languages I write",
+    id: "languages", label: "Languages I Write",
     items: ["Python", "SQL", "TypeScript", "JavaScript", "MATLAB"],
   },
   {
-    id: "data", label: "Data & public APIs",
+    id: "data", label: "Data & Public APIs",
     items: ["BigQuery", "Supabase", "DuckDB", "dbt", "GTFS", "FRED API", "BLS API", "FEC API"],
   },
   {
-    id: "web", label: "Web & build",
+    id: "web", label: "Web & Build",
     items: ["Next.js", "React", "Tailwind", "D3.js", "Tone.js", "Web Audio API"],
   },
   {
-    id: "ai", label: "Learning with AI",
-    items: ["LLMs", "AI-assisted coding", "Prompt-driven prototyping", "Document parsing"],
+    id: "ai", label: "Learning With AI",
+    items: ["LLMs", "AI-Assisted Coding", "Prompt-Driven Prototyping", "Document Parsing"],
   },
 ];
 
+// Short tick labels for the category slider — index 0 = All, then one per group (order matches SKILL_GROUPS).
+const SKILL_TICKS = ["All", "Lang", "Data", "Web", "AI"];
+
 const INTERESTS = [
-  "Public transit", "Urban planning", "Architecture", "Cooking",
-  "Trying new restaurants", "Chicago", "Concerts", "Vinyl records",
-  "Biking", "Traveling", "Skiing", "Trivia nights",
+  "Public Transit", "Urban Planning", "Architecture", "Cooking",
+  "Trying New Restaurants", "Chicago", "Concerts", "Vinyl Records",
+  "Biking", "Swimming", "Traveling", "Trivia Nights", "Houseplants",
 ];
 
 /* ─── Rotating curiosity word — types / deletes / retypes a topic ─── */
@@ -214,21 +217,15 @@ function InterestPill({ label }: { label: string }) {
 
 /* ─── Main content ───────────────────────────────────────── */
 function AboutContent() {
-  // Multi-select skill filter: empty set = show every group; otherwise show the
-  // selected groups. Richer than a single-select dropdown — combine categories.
-  const [active, setActive] = useState<Set<string>>(new Set());
-  const toggleGroup = (id: string) =>
-    setActive(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+  // Skill filter as a slider: index 0 shows every group, 1..n scrub to a single
+  // category. One number replaces the old multi-select Set.
+  const [idx, setIdx] = useState(0);
   const revealTop     = useReveal();
   const revealStats   = useReveal();
   const revealDomains = useReveal();
   const revealSkills  = useReveal();
 
-  const shownGroups = active.size === 0 ? SKILL_GROUPS : SKILL_GROUPS.filter(g => active.has(g.id));
+  const shownGroups = idx === 0 ? SKILL_GROUPS : [SKILL_GROUPS[idx - 1]];
   const shownCount  = shownGroups.reduce((n, g) => n + g.items.length, 0);
 
   return (
@@ -242,7 +239,7 @@ function AboutContent() {
           </p>
           <h2 id="about-heading" className="leading-[1.0] tracking-tight mb-6"
             style={{ fontFamily: "var(--font-display), sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 3.6rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
-            Building small tools
+            Building tools
             <br />
             for <CuriosityCycler />
           </h2>
@@ -251,8 +248,8 @@ function AboutContent() {
         <div className="flex flex-col justify-center gap-4 text-[1.01rem] leading-relaxed" style={{ color: "var(--fg-muted)" }}>
           <p>
             I studied Mechanical Engineering at the University of Texas, but what I
-            do for fun is build little tools to answer questions I can&apos;t stop
-            asking. How well does the CTA actually cover Chicago? Where does Super PAC
+            do for fun is build tools — useful in my life — to answer questions
+            I can&apos;t stop asking. How well does the CTA actually cover Chicago? Where does Super PAC
             money really go? Why did that box of crackers get smaller? I&apos;m
             learning to code as I go, leaning on AI to get ideas out of my head and
             onto a screen faster.
@@ -299,26 +296,32 @@ function AboutContent() {
               {shownCount} tools
             </span>
           </div>
-          <div className="flex flex-wrap gap-2 mb-5" role="group" aria-label="Filter skills by category">
-            <button
-              type="button"
-              onClick={() => setActive(new Set())}
-              aria-pressed={active.size === 0}
-              className="skill-toggle"
-            >
-              All
-            </button>
-            {SKILL_GROUPS.map(g => (
-              <button
-                key={g.id}
-                type="button"
-                onClick={() => toggleGroup(g.id)}
-                aria-pressed={active.has(g.id)}
-                className="skill-toggle"
-              >
-                {g.label}
-              </button>
-            ))}
+          <div className="mb-5">
+            <input
+              type="range"
+              min={0}
+              max={SKILL_GROUPS.length}
+              step={1}
+              value={idx}
+              onChange={e => setIdx(Number(e.target.value))}
+              className="skill-slider"
+              aria-label="Filter skills by category"
+              aria-valuetext={idx === 0 ? "All categories" : SKILL_GROUPS[idx - 1].label}
+            />
+            <div className="skill-stops">
+              {SKILL_TICKS.map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setIdx(i)}
+                  data-active={idx === i}
+                  className="skill-stop"
+                  aria-label={i === 0 ? "Show all categories" : SKILL_GROUPS[i - 1].label}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col gap-5">
             {shownGroups.map(group => (
