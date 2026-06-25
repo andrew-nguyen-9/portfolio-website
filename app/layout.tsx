@@ -90,7 +90,7 @@ const SITE_DESCRIPTION =
   "transit, food, sports, politics, and music — each living at its own " +
   "subdomain. Built by Andrew Nguyen in Chicago.";
 const OG_DESCRIPTION =
-  "Small tools for the questions I keep asking — transit, food, sports, politics, and the city I love.";
+  "Tools useful in my life for the questions I keep asking — transit, food, sports, politics, and the city I love.";
 const OG_IMAGE = `${SITE_URL}/og`;
 const OG_IMAGE_ALT = "an9.dev — Andrew Nguyen's projects: transit, food, sports, politics, music";
 
