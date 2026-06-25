@@ -59,9 +59,57 @@ button if they ever appear, and helps indexing. Worth doing once.
   dig +short CAA an9.dev        # → the Option C records once added (see DNS-CAA.md)
   ```
 - The **Sophos cert error on your own machine/network** is separate from categorization —
-  fix that by excluding `an9.dev` from Sophos TLS inspection, or making the browser trust
-  the Sophos CA (e.g. Zen/Firefox `about:config` → `security.enterprise_roots.enabled =
-  true`). Don't disable the site's HSTS — it's correct.
+  see the troubleshooting section below. Don't disable the site's HSTS — it's correct.
+
+---
+
+## Troubleshooting: "issuer not recognized" / "this site isn't safe" (TLS interception)
+
+If a browser refuses to open `an9.dev` with a cert/HSTS error, **first check whether the
+site is actually broken or whether something is intercepting your TLS.** Inspect the
+certificate the browser shows:
+
+- **Issued by a real CA** (Let's Encrypt / Google Trust Services) → a genuine site/cert
+  issue; investigate Vercel + DNS.
+- **Issued by something like `O=Sophos, OU=NSG, CN=Sophos SSL CA…`** (or Zscaler,
+  Netskope, Palo Alto, a corporate name) → **TLS interception (MITM)**. A
+  firewall/endpoint is decrypting and re-signing traffic with its own CA, which your
+  browser doesn't trust. **The site is fine** — you're seeing the interceptor's cert,
+  not Vercel's. HSTS then (correctly) blocks the "add exception" bypass.
+
+### Is the interceptor on your machine, or on the network?
+
+```
+# macOS — is a Sophos product installed locally?
+ls -d /Applications/Sophos* /Library/Sophos* 2>/dev/null
+ps -axo comm | grep -i sophos
+security find-certificate -a -c "Sophos" /Library/Keychains/System.keychain
+```
+
+- **Something found** → it's a **local** endpoint (Sophos Home / Intercept X). Configure
+  or disable its web/TLS protection, or exclude `an9.dev`.
+- **Nothing found** (the actual case here) → the interceptor is **upstream on the
+  network** — a Sophos firewall (XGS/UTM/SG) at the router/gateway decrypting all TLS,
+  whose CA was never installed on your device. Every HSTS site behind it errors the same
+  way.
+
+### Confirm + workaround (20 seconds)
+
+Open `an9.dev` on your **phone over mobile data** (WiFi off). Loads clean → it's the
+network, not the site. To use it now from the affected device: **phone hotspot** or a
+**VPN** that tunnels past the local firewall.
+
+### Real fix
+
+- **You control the firewall** (home Sophos): admin UI → **Rules & Policies → SSL/TLS
+  inspection** → add `an9.dev` + `*.an9.dev` to a **"Don't decrypt" / exclusion** list.
+  (Or install the firewall's CA on your devices — but exclusion beats trusting a MITM CA.)
+- **You don't control it** (work / school / landlord / public WiFi): only the network
+  admin can exclude `an9.dev` or push the CA. Use mobile data / VPN meanwhile.
+- **Never** remove the site's HSTS to "make it work" — that just trades a loud, correct
+  failure for a silently intercepted connection.
+
+---
 
 Related: [`DNS-CAA.md`](DNS-CAA.md) (CAA records) · [`CONTACT-EMAIL.md`](CONTACT-EMAIL.md)
 (SPF/DKIM/DMARC, which also strengthen the "legitimate domain" signal).
