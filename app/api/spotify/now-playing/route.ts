@@ -93,11 +93,21 @@ export async function GET() {
       if (data.item) return json(toPayload(data.item, data.is_playing ?? false));
     }
 
-    // 204 (nothing playing) or a paused/ad gap → fall back to most-recent track.
-    const recent = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${token}` } });
-    if (recent.status === 200) {
-      const data = (await recent.json()) as { items?: { track?: Track }[] };
-      return json(toPayload(data.items?.[0]?.track, false));
+    // 401 → cached token rejected mid-life (revoked / expired early). Drop it so
+    // the next poll mints a fresh one instead of looping on a dead token until
+    // the instance cold-starts. 429 → rate-limited; back off rather than firing a
+    // second doomed call. Either way, nothing to render this tick.
+    if (now.status === 401) cached = null;
+    if (now.status === 401 || now.status === 429) return json({ configured: true, ...EMPTY });
+
+    // 204 (nothing playing) or a 200 paused/ad gap → most-recent track.
+    if (now.status === 200 || now.status === 204) {
+      const recent = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${token}` } });
+      if (recent.status === 401) cached = null;
+      if (recent.status === 200) {
+        const data = (await recent.json()) as { items?: { track?: Track }[] };
+        return json(toPayload(data.items?.[0]?.track, false));
+      }
     }
 
     return json({ configured: true, ...EMPTY });
