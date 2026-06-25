@@ -348,7 +348,7 @@ function ProjectsContent() {
 export default function Projects() {
   return (
     <section id="projects" aria-labelledby="projects-heading" className="section relative">
-      <span className="section-num" aria-hidden="true">02</span>
+      <span className="section-num" data-num="02" aria-hidden="true" />
       <ProjectsContent />
     </section>
   );
