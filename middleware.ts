@@ -71,7 +71,7 @@ export const config = {
     // which carry no inline scripts and stay statically cached.
     {
       source:
-        "/((?!_next/static|_next/image|favicon.ico|icon|og|robots.txt|sitemap.xml).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icon|og|robots.txt|sitemap.xml|keystatic|api/keystatic).*)",
     },
   ],
 };
