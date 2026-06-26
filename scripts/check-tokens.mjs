@@ -28,6 +28,7 @@ const KEY_TO_VAR = {
 const PALETTE_TO_SELECTOR = {
   light: ":root",
   dark: ".dark",
+  transitMap: ".theme-transit",
   lightHighContrast: ".high-contrast",
   darkHighContrast: ".dark.high-contrast",
 };
