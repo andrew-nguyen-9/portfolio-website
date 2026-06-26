@@ -9,9 +9,12 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "check-content": "node scripts/check-content.mjs",
-    "check-tokens": "node scripts/check-tokens.mjs"
+    "check-tokens": "node scripts/check-tokens.mjs",
+    "scaffold": "node scripts/scaffold-project.mjs"
   },
   "dependencies": {
+    "@keystatic/core": "^0.5.50",
+    "@keystatic/next": "^5.0.4",
     "clsx": "^2.1.1",
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^11.11.0",

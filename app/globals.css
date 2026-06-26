@@ -43,6 +43,25 @@
   --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
+/* ─── Transit-map variant (v4.7.4) ──────────────────────────
+   Opt-in alt palette (A11y panel). Placed after .dark so it overrides both default
+   themes when html.theme-transit is set, but BEFORE the high-contrast blocks so the
+   A11y high-contrast option still wins. Values mirror lib/theme.ts.transitMap
+   (token-drift guard enforces it). */
+.theme-transit {
+  --bg:           #F7F5EF;
+  --surface:      #ECE8DD;
+  --primary:      #15607F;
+  --secondary:    #B0102A;
+  --highlight:    #7A5A12;
+  --fg:           #15191C;
+  --fg-muted:     #45504A;
+  --fg-subtle:    #59635D;
+  --border:       rgba(20, 24, 26, 0.14);
+  --border-strong:rgba(20, 24, 26, 0.24);
+  --card-border:  #D9D4C8;
+}
+
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
 /* The A11y "high contrast" option pushes *further* than the default themes:
    pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */
@@ -75,6 +94,21 @@
   --border:       rgba(255,255,255,0.45);
   --border-strong:rgba(255,255,255,0.78);
   --card-border:  #fff;
+}
+
+/* ─── Cross-document View Transitions (v4.7.3) ──────────────
+   Smooth crossfade when navigating between routes (home ↔ /writing ↔ /projects/…)
+   in browsers that support MPA view transitions; everywhere else it's an instant
+   nav (progressive enhancement, no JS). Gated behind no-preference so the OS
+   reduced-motion setting opts out; the A11y panel's .reduce-motion class also
+   neutralizes the animation below. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+.reduce-motion::view-transition-group(*),
+.reduce-motion::view-transition-old(*),
+.reduce-motion::view-transition-new(*) {
+  animation: none !important;
 }
 
 /* ─── Reduce-motion (via A11y panel class, supplements media query) ── */
@@ -285,6 +319,56 @@ body::after {
 .np-link:focus-visible .np-card {
   border-color: var(--primary);
   transform: translateY(-2px);
+}
+
+/* ─── Spotify panel (v4.7.6) ────────────────────────────────
+   Recently-played feed + top-genre chips below NowPlaying. Token-driven. */
+.spotify-panel { margin-top: 18px; }
+.genre-cloud { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.genre-chip {
+  font-family: var(--font-jetbrains-mono), monospace;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  color: var(--fg-muted);
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+.recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.recent-row { border-radius: 8px; }
+.recent-link,
+.recent-row > :not(a) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+.recent-link:hover,
+.recent-link:focus-visible { background: var(--surface); }
+.recent-art { width: 32px; height: 32px; border-radius: 5px; object-fit: cover; flex-shrink: 0; }
+.recent-art-empty { background: var(--surface); border: 1px solid var(--border); }
+.recent-text { display: flex; flex-direction: column; min-width: 0; }
+.recent-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-artist {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─── Typography ────────────────────────────────────────── */
@@ -1068,6 +1152,40 @@ body::after {
   color: var(--fg-subtle);
   margin-left: 0.4em;
   white-space: nowrap;
+}
+
+/* ─── Project detail page (v4.7.1) ──────────────────────────── */
+.project-shots {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 36px;
+}
+.project-shot {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+}
+.project-learned {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-learned li {
+  position: relative;
+  padding-left: 1.4em;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+.project-learned li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
 }
 
 /* ─── /uses + /now generic page lists (v4.3 / v4.5.5) ───────── */

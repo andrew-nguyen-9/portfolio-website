@@ -16,6 +16,7 @@ export default function Hero() {
   const [mounted, setMounted] = useState(false);
   const [display, setDisplay] = useState({ line1: "", line2: "", onLine2: false });
   const reduceRef = useRef(false);
+  const bgRef = useRef<HTMLDivElement>(null);
   const revealRef = useReveal();
 
   useEffect(() => {
@@ -56,6 +57,33 @@ export default function Hero() {
     return () => { cancelled = true; clearTimeout(t); };
   }, [mounted]);
 
+  /* ── Subtle pointer parallax on the hero image ───────────
+     A few px of counter-movement gives the hero depth without drawing attention.
+     Skipped under reduced motion (OS or A11y panel) and on touch (no pointer).
+     rAF-throttled; the CSS transition smooths between samples. */
+  useEffect(() => {
+    if (!mounted || reduceRef.current) return;
+    if (window.matchMedia("(hover: none)").matches) return;
+    const el = bgRef.current;
+    if (!el) return;
+
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      if (document.documentElement.classList.contains("reduce-motion")) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+        const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        el.style.transform = `scale(1.06) translate(${dx * -14}px, ${dy * -14}px)`;
+      });
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, [mounted]);
+
   const { line1, line2, onLine2 } = display;
 
   return (
@@ -65,8 +93,18 @@ export default function Hero() {
       className="relative flex flex-col justify-center min-h-[100svh] px-8 md:px-14 lg:px-24 py-24 overflow-hidden"
     >
       {/* Background image */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="hero-bg-img" style={{ backgroundImage: `url('${HERO_IMG}')`, opacity: 0.68 }} />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div
+          ref={bgRef}
+          className="hero-bg-img"
+          style={{
+            backgroundImage: `url('${HERO_IMG}')`,
+            opacity: 0.68,
+            transform: "scale(1.06)",
+            transition: "transform 0.3s ease-out",
+            willChange: "transform",
+          }}
+        />
       </div>
 
       <div ref={revealRef} className="reveal relative z-10 max-w-4xl">

@@ -35,5 +35,8 @@ jobs:
       - name: Token-drift guard
         run: npm run check-tokens
 
+      - name: Scaffold self-test
+        run: node scripts/scaffold-project.mjs --self-test
+
       - name: Build
         run: npm run build
