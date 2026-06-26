@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { projects, type Project, type ProjectStatus } from "@/content/projects";
 import { useReveal } from "@/hooks/useReveal";
 
@@ -128,6 +129,9 @@ function ProjectRow({
                 {project.tags.map((t) => <li key={t}>{t}</li>)}
               </ul>
               <div className="project-detail-links">
+                <Link href={`/projects/${project.id}`} aria-label={`${project.name} details`}>
+                  Details →
+                </Link>
                 {project.status !== "planned" && (
                   <a
                     href={`https://${project.subdomain}`}

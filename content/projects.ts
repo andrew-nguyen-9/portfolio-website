@@ -1,5 +1,10 @@
 export type ProjectStatus = "live" | "building" | "planned";
 
+export interface ProjectScreenshot {
+  url: string;
+  alt: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -13,6 +18,11 @@ export interface Project {
   tags: string[];
   category: string;
   featured: boolean;
+  // v4.7.1 — detail-page content (/projects/[id]). All optional: a project with none
+  // of these still renders a detail page from description + tags + links.
+  writeUp?: string[]; // body paragraphs
+  whatILearned?: string[]; // takeaway bullets
+  screenshots?: ProjectScreenshot[];
 }
 
 export const projects: Project[] = [
@@ -30,6 +40,14 @@ export const projects: Project[] = [
     tags: ["Next.js", "Supabase", "Python", "Spotify API", "Deezer API"],
     category: "Music",
     featured: true,
+    writeUp: [
+      "Every spring the same argument starts: is this year's lineup actually worth the ticket, or does it just look stacked on the poster? Festival Analyzer is my attempt to answer that with data instead of vibes.",
+      "A Python pipeline pulls the lineup, then enriches each artist with streaming stats and metadata from Spotify and Deezer. The frontend ranks who's worth showing up early for and surfaces the depth of a lineup, not just the headliners.",
+    ],
+    whatILearned: [
+      "Reconciling artist identities across Spotify and Deezer is most of the work — the same act is spelled three different ways.",
+      "Streaming popularity and 'worth seeing live' are only loosely correlated; the interesting signal is in the mid-card.",
+    ],
   },
   {
     id: "fantasy-football-tool",
@@ -45,13 +63,21 @@ export const projects: Project[] = [
     tags: ["Next.js", "Supabase", "Sleeper API", "nflverse"],
     category: "Sports",
     featured: true,
+    writeUp: [
+      "Draft Tool is the fantasy companion I wanted on draft day — not hot takes, just the numbers that actually move a pick. Player breakdowns, live draft help, a trade optimizer, and waiver-wire reads.",
+      "It pulls league state from the Sleeper API and historical performance from nflverse, then turns both into recommendations you can act on between picks while the clock runs.",
+    ],
+    whatILearned: [
+      "Live draft tooling lives or dies on latency — the read has to land before the pick clock does.",
+      "nflverse is a goldmine, but season-to-season schema drift means every offseason is a small migration.",
+    ],
   },
   {
     id: "trivia-generator",
     name: "Parlor",
     tagline: "An after-dark house of trivia games",
     description:
-      "Four trivia rooms over one daily question bank — The Board, The Clock, The Wedges, The Streak — forged from Wikipedia, Deezer, TMDB, and Sleeper.",
+      "Ten trivia rooms over one nightly question bank — a Jeopardy board, a year-guessing clock, map pins, name-that-tune, a Connections grid, a daily mix, and more — each one forged from Wikipedia, Deezer, TMDB, and Sleeper.",
     imageUrl: "https://images.unsplash.com/photo-1758818127034-84adef35c239?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjB8fHZpY3RvcmlhbiUyMGludGVyaW9yfGVufDB8fDB8fHww",
     subdomain: "parlor.an9.dev",
     repoUrl: "https://github.com/andrew-nguyen-9/trivia-generator",
@@ -60,6 +86,14 @@ export const projects: Project[] = [
     tags: ["Next.js", "Supabase", "dbt", "DuckDB", "Wikipedia API"],
     category: "Games",
     featured: true,
+    writeUp: [
+      "Parlor is an after-dark house of trivia — ten rooms over one nightly question bank, each a different way to play: a Jeopardy board, a year-guessing clock, map pins, name-that-tune, a Connections grid, and more.",
+      "One pipeline forges the whole bank each night from Wikipedia, Deezer, TMDB, and Sleeper, transformed with dbt over DuckDB so every room draws from the same clean, tested source.",
+    ],
+    whatILearned: [
+      "Generating fair, unambiguous trivia automatically is brutal — most of the pipeline is rejection rules, not generation.",
+      "dbt + DuckDB is a shockingly good local analytics stack for shaping content before it ever hits the app.",
+    ],
   },
   {
     id: "midterms-tracker",
@@ -129,6 +163,37 @@ export const projects: Project[] = [
     year: 2026,
     tags: ["Next.js", "Tone.js", "Web Audio API", "FlavorDB"],
     category: "Music",
+    featured: false,
+  },
+  // v4.7.1 — ACOS. TODO(andrew): confirm real name/tagline/description/subdomain before
+  // merging to main; this is placeholder copy so the slot exists on the grid + routing.
+  {
+    id: "acos",
+    name: "ACOS",
+    tagline: "A craft project in the family — details soon",
+    description:
+      "Another data-driven build in the an9.dev family. Write-up and links land as it takes shape.",
+    subdomain: "acos.an9.dev",
+    status: "planned",
+    year: 2026,
+    tags: ["Next.js"],
+    category: "Data",
+    featured: false,
+  },
+  // v4.7.1 — reserved AI-flagship slot. Concept deferred (BRAINSTORM): a candidate is an
+  // agentic "data concierge" over the project datasets. Kept `planned`; copy stays honest
+  // about being in design so it routes/OG/sitemaps like any planned project.
+  {
+    id: "data-concierge",
+    name: "Data Concierge",
+    tagline: "Ask the project family a question, get an answer",
+    description:
+      "A planned AI flagship: natural-language questions answered across the an9.dev datasets — festival lineups, transit, fantasy, midterms — by an agent that calls each project's own data. In design.",
+    subdomain: "ask.an9.dev",
+    status: "planned",
+    year: 2026,
+    tags: ["Next.js", "Vercel AI SDK", "Agents", "Tool calls"],
+    category: "Data",
     featured: false,
   },
 ];

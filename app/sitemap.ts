@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllArticles } from "@/lib/writing";
+import { projects } from "@/content/projects";
 
 const SITE = "https://an9.dev";
 
@@ -22,5 +23,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...articles];
+  const projectPages: MetadataRoute.Sitemap = projects.map((p) => ({
+    url: `${SITE}/projects/${p.id}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: p.featured ? 0.8 : 0.6,
+  }));
+
+  return [...staticRoutes, ...projectPages, ...articles];
 }

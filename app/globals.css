@@ -1070,6 +1070,40 @@ body::after {
   white-space: nowrap;
 }
 
+/* ─── Project detail page (v4.7.1) ──────────────────────────── */
+.project-shots {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 36px;
+}
+.project-shot {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+}
+.project-learned {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-learned li {
+  position: relative;
+  padding-left: 1.4em;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+.project-learned li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+}
+
 /* ─── /uses + /now generic page lists (v4.3 / v4.5.5) ───────── */
 .uses-group { margin-bottom: 44px; }
 .uses-item { padding: 16px 8px; border-bottom: 1px solid var(--border); }
