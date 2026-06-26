@@ -67,10 +67,15 @@ Built out of dependency order at Andrew's request (v4.2→v4.6 first; v4.1 was h
   + pathname-aware `Nav`; **v4.2** content engine (plain-MDX, no Keystatic yet);
   **v4.3** affiliate + `/uses`; **v4.5.5** `/now`; **v4.6.1/2/4** (lazy hCaptcha,
   token-drift guard, CI).
-- ↪ **Deferred to v4.7** (decisions locked 2026-06-25): **v4.1** foundation (build next);
-  **v4.2 Keystatic GUI** (add over existing MDX); **v4.5** view-transitions + theme-variants
-  + interactive-hero + Spotify-expansions; **v4.4** scaffold (Next.js + Supabase starter).
-- ⏳ **Still needs a deploy** (not decisions): v4.6.3 visual-regression, v4.6.5 prod SEO audit.
+- ✅ **v4.7 shipped & merged to v4** (2026-06-26): **v4.7.1** showcase foundation
+  (detail pages + status-aware routing + per-project OG/JSON-LD/sitemap; ACOS +
+  Data Concierge slots added); **v4.7.2** Keystatic (local-only, dev-gated);
+  **v4.7.3** view transitions; **v4.7.4** transit-map theme; **v4.7.5** interactive hero;
+  **v4.7.6** Spotify recently-played + top-genres; **v4.7.7** scaffold automation.
+  All verified (type-check/lint/content/tokens/scaffold-self-test/build + runtime smoke).
+- ⏳ **Still needs a deploy / Andrew** (not decisions): v4.6.3 visual-regression,
+  v4.6.5 prod SEO audit; ACOS real copy + subdomain; Spotify token re-mint with
+  `user-top-read` (genres panel hides until then); Vercel `*.an9.dev` wildcard + DNS.
 
 ## Segment map
 
