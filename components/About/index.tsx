@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useReveal } from "@/hooks/useReveal";
 import { projects } from "@/content/projects";
 import NowPlaying from "./NowPlaying";
+import SpotifyPanel from "./SpotifyPanel";
 
 /* ─── Data ──────────────────────────────────────────────────
    Counters derive from content/projects.ts (the source of truth) so they can't
@@ -352,6 +353,7 @@ function AboutContent() {
           {/* Live music signal — hides itself when unconfigured/empty (see NowPlaying). */}
           <div className="mt-6">
             <NowPlaying />
+            <SpotifyPanel />
           </div>
         </div>
       </div>
