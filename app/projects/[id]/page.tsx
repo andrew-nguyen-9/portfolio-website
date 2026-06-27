@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteChrome from "@/components/SiteChrome";
+import Seo from "@/components/Seo";
 import { projects } from "@/content/projects";
 
 const SITE = "https://an9.dev";
@@ -68,6 +69,12 @@ export default async function ProjectPage({
 
   return (
     <SiteChrome>
+      <Seo
+        title={`${p.name} — an9.dev`}
+        description={p.tagline}
+        canonical={url}
+        ogImage={`${url}/opengraph-image`}
+      />
       <script
         nonce={nonce}
         type="application/ld+json"

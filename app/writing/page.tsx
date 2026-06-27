@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteChrome from "@/components/SiteChrome";
+import Seo from "@/components/Seo";
 import { getAllArticles } from "@/lib/writing";
 
 const SITE = "https://an9.dev";
+const TITLE = "Writing — an9.dev";
+const DESC =
+  "Notes on building data-driven passion projects — the engineering, the data, and the questions behind transit, food, sports, politics, and music.";
 
 export const metadata: Metadata = {
   title: "Writing — an9.dev",
@@ -31,6 +35,7 @@ export default function WritingIndex() {
 
   return (
     <SiteChrome>
+      <Seo title={TITLE} description={DESC} canonical={`${SITE}/writing`} ogImage={`${SITE}/og`} />
       <section className="section" aria-labelledby="writing-heading">
         <span className="section-num" data-num="W" aria-hidden="true" />
         <p

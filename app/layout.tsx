@@ -155,7 +155,12 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   // Per-request nonce set by middleware.ts for the strict, nonce-based CSP.
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const h = await headers();
+  const nonce = h.get("x-nonce") ?? undefined;
+  // Homepage-identity SEO tags below are gated to "/" — on sub-routes they'd override
+  // each page's own canonical/OG (which Next streams into <body> under dynamic render),
+  // mis-canonicalizing every page to the homepage. Sub-routes set their own via metadata.
+  const isHome = (h.get("x-pathname") ?? "/") === "/";
 
   return (
     // No manual <head> — Next owns it and injects metadata there. A user-authored
@@ -176,27 +181,34 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         ].join(" ")}
       >
         {/* Head tags rendered as JSX so React 19 hoists them into <head> even under
-            the dynamic (nonce-CSP) render — Next's metadata stream lands in <body>. */}
-        <title>{SITE_TITLE}</title>
-        <meta name="description" content={SITE_DESCRIPTION} />
-        <link rel="canonical" href={SITE_URL} />
+            the dynamic (nonce-CSP) render — Next's metadata stream lands in <body>.
+            Global tags (RSS, robots) apply everywhere; the homepage-identity block is
+            gated to "/" so sub-routes aren't mis-canonicalized to the homepage — they
+            render their own via <Seo> (see components/Seo.tsx). */}
         <link rel="alternate" type="application/rss+xml" title="an9.dev — Writing" href={`${SITE_URL}/writing/rss.xml`} />
         <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta property="og:title" content={SITE_TITLE} />
-        <meta property="og:description" content={OG_DESCRIPTION} />
-        <meta property="og:type" content="website" />
-        <meta property="og:locale" content="en_US" />
-        <meta property="og:url" content={SITE_URL} />
-        <meta property="og:site_name" content="an9.dev" />
-        <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={OG_IMAGE_ALT} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={SITE_TITLE} />
-        <meta name="twitter:description" content={OG_DESCRIPTION} />
-        <meta name="twitter:image" content={OG_IMAGE} />
-        <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+        {isHome && (
+          <>
+            <title>{SITE_TITLE}</title>
+            <meta name="description" content={SITE_DESCRIPTION} />
+            <link rel="canonical" href={SITE_URL} />
+            <meta property="og:title" content={SITE_TITLE} />
+            <meta property="og:description" content={OG_DESCRIPTION} />
+            <meta property="og:type" content="website" />
+            <meta property="og:locale" content="en_US" />
+            <meta property="og:url" content={SITE_URL} />
+            <meta property="og:site_name" content="an9.dev" />
+            <meta property="og:image" content={OG_IMAGE} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={OG_IMAGE_ALT} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={SITE_TITLE} />
+            <meta name="twitter:description" content={OG_DESCRIPTION} />
+            <meta name="twitter:image" content={OG_IMAGE} />
+            <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+          </>
+        )}
 
         {/* Dark-mode flash prevention — beforeInteractive injects this into <head>
             and runs it before hydration. hCaptcha loads inside Contact via next/script. */}

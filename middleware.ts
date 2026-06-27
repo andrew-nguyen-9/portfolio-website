@@ -59,6 +59,10 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
+  // Let the layout know the path so it only stamps the homepage-identity SEO tags
+  // (canonical, og:*, twitter:*) on "/". Sub-routes provide their own via metadata —
+  // a global homepage canonical in <head> would mis-canonicalize them to the homepage.
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);

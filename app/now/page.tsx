@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/components/SiteChrome";
+import Seo from "@/components/Seo";
 import { now, lead, nowUpdated } from "@/content/now";
 
 const SITE = "https://an9.dev";
+const DESC = "What Andrew Nguyen is building and focused on right now.";
 
 export const metadata: Metadata = {
   title: "Now — an9.dev",
@@ -20,6 +22,7 @@ function formatDate(iso: string): string {
 export default function NowPage() {
   return (
     <SiteChrome>
+      <Seo title="Now — an9.dev" description={DESC} canonical={`${SITE}/now`} ogImage={`${SITE}/og`} />
       <section className="section" aria-labelledby="now-heading" style={{ maxWidth: 760 }}>
         <span className="section-num" data-num="N" aria-hidden="true" />
         <p

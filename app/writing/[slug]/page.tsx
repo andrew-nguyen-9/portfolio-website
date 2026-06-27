@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
 import SiteChrome from "@/components/SiteChrome";
+import Seo from "@/components/Seo";
 import { mdxComponents } from "@/components/mdx";
 import { getArticle } from "@/lib/writing";
 
@@ -86,6 +87,13 @@ export default async function ArticlePage({
 
   return (
     <SiteChrome>
+      <Seo
+        title={`${article.title} — an9.dev`}
+        description={article.summary}
+        canonical={url}
+        ogType="article"
+        ogImage={`${url}/opengraph-image`}
+      />
       <script
         nonce={nonce}
         type="application/ld+json"

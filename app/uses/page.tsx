@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/components/SiteChrome";
+import Seo from "@/components/Seo";
 import AffiliateLink from "@/components/AffiliateLink";
 import Disclosure from "@/components/Disclosure";
 import { uses } from "@/content/uses";
 
 const SITE = "https://an9.dev";
+const DESC = "The tools, services, and gear Andrew Nguyen actually reaches for when building.";
 
 export const metadata: Metadata = {
   title: "Uses — an9.dev",
@@ -17,6 +19,7 @@ export default function UsesPage() {
 
   return (
     <SiteChrome>
+      <Seo title="Uses — an9.dev" description={DESC} canonical={`${SITE}/uses`} ogImage={`${SITE}/og`} />
       <section className="section" aria-labelledby="uses-heading" style={{ maxWidth: 820 }}>
         <span className="section-num" data-num="U" aria-hidden="true" />
         <p
