@@ -445,6 +445,34 @@ body::after {
 @keyframes vinyl-spin    { to { transform: rotate(360deg);  } }
 @keyframes counter-spin  { to { transform: rotate(-360deg); } }
 
+/* ─── Loader theming (v4.5.2) ───────────────────────────────
+   The vinyl palette is tokenized (single source, intentional, HC-adjustable). The
+   record stays dark in every theme — it's a record — but the loader background uses
+   var(--bg) and the waveform + counter pick up the active theme's accent, so the
+   loader themes with the site and the dark→light handoff is deliberate. */
+:root {
+  --ldr-disc:        #181E1C;
+  --ldr-disc-edge:   #263030;
+  --ldr-disc-inner:  #3A4840;
+  --ldr-groove-major:#445040;
+  --ldr-groove-minor:#222B28;
+  --ldr-label:       #2A3230;
+  --ldr-label-ring:  #363E3A;
+  --ldr-spindle:     #222B28;
+  --ldr-spindle-edge:#181E1C;
+}
+.ldr-disc        { fill:   var(--ldr-disc); }
+.ldr-disc-edge   { stroke: var(--ldr-disc-edge); }
+.ldr-disc-inner  { stroke: var(--ldr-disc-inner); }
+.ldr-groove-major{ stroke: var(--ldr-groove-major); }
+.ldr-groove-minor{ stroke: var(--ldr-groove-minor); }
+.ldr-label       { fill:   var(--ldr-label); }
+.ldr-label-ring  { stroke: var(--ldr-label-ring); }
+.ldr-spindle     { fill:   var(--ldr-spindle); }
+.ldr-spindle-edge{ stroke: var(--ldr-spindle-edge); }
+.ldr-wave        { stroke: var(--primary); }     /* accent themes with the site */
+.ldr-counter     { fill:   var(--fg-subtle); }
+
 /* ─── Nav ───────────────────────────────────────────────── */
 #nav {
   position: fixed;
