@@ -38,5 +38,8 @@ jobs:
       - name: Scaffold self-test
         run: node scripts/scaffold-project.mjs --self-test
 
+      - name: SEO coverage
+        run: npm run check-seo
+
       - name: Build
         run: npm run build

@@ -73,9 +73,14 @@ Built out of dependency order at Andrew's request (v4.2→v4.6 first; v4.1 was h
   **v4.7.3** view transitions; **v4.7.4** transit-map theme; **v4.7.5** interactive hero;
   **v4.7.6** Spotify recently-played + top-genres; **v4.7.7** scaffold automation.
   All verified (type-check/lint/content/tokens/scaffold-self-test/build + runtime smoke).
-- ⏳ **Still needs a deploy / Andrew** (not decisions): v4.6.3 visual-regression,
-  v4.6.5 prod SEO audit; ACOS real copy + subdomain; Spotify token re-mint with
-  `user-top-read` (genres panel hides until then); Vercel `*.an9.dev` wildcard + DNS.
+- ✅ **v4.8 shipped & merged** (final code): **v4.5.2** loader theming; **v4.6.3**
+  visual-regression (Playwright, local baselines); **v4.6.5** SEO coverage audit +
+  per-article OG. All gates green.
+- ✅ **Phase closed (v4.6.6)**: `ARCHIVE.md` + `DEFERRED.md` written, `v5-ideas.md`
+  seeded, `/code-review` run, merged to `main`, tagged `v4.0.0`, branches deleted.
+- ⏳ **Carried to v5 / needs Andrew** (not code — see `DEFERRED.md`): AI flagship build,
+  commerce, ACOS real copy, Spotify `user-top-read` re-mint, Vercel `*.an9.dev`
+  wildcard + DNS, deliverability records, post-deploy Lighthouse/Rich-Results/security.
 
 ## Segment map
 

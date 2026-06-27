@@ -46,7 +46,9 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
         const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         el.setAttribute("r",            r.toFixed(1));
         el.setAttribute("fill",         "none");
-        el.setAttribute("stroke",       i % 5 === 0 ? "#445040" : "#222B28");
+        // Color comes from CSS tokens (.ldr-groove-*) so the loader themes; width stays
+        // an attribute (geometry, not color).
+        el.setAttribute("class",        i % 5 === 0 ? "ldr-groove-major" : "ldr-groove-minor");
         el.setAttribute("stroke-width", i % 5 === 0 ? "1.0" : "0.5");
         el.setAttribute("opacity",      "0");
         el.id = `groove-${i}`;
@@ -182,19 +184,19 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
         <g id="record" opacity="0" style={{ transformOrigin: "center" }}>
           {/* Spinning body */}
           <g id="record-body" style={{ transformOrigin: "center" }}>
-            <circle r="130" fill="#181E1C" />
-            <circle r="129" fill="none" stroke="#263030" strokeWidth="1.5" />
+            <circle r="130" className="ldr-disc" />
+            <circle r="129" fill="none" className="ldr-disc-edge" strokeWidth="1.5" />
             <g id="grooves" />
-            <circle r="52" fill="none" stroke="#3A4840" strokeWidth="0.6" />
+            <circle r="52" fill="none" className="ldr-disc-inner" strokeWidth="0.6" />
           </g>
 
           {/* Label — counter-rotates to stay upright */}
           <g id="label-group" style={{ transformOrigin: "center" }}>
-            <circle r="50" fill="#2A3230" />
-            <circle r="38" fill="none" stroke="#363E3A" strokeWidth="0.5" opacity="0.6" />
-            <circle r="26" fill="none" stroke="#363E3A" strokeWidth="0.5" opacity="0.4" />
-            <circle r="6"  fill="#222B28" />
-            <circle r="5.2" fill="none" stroke="#181E1C" strokeWidth="0.8" />
+            <circle r="50" className="ldr-label" />
+            <circle r="38" fill="none" className="ldr-label-ring" strokeWidth="0.5" opacity="0.6" />
+            <circle r="26" fill="none" className="ldr-label-ring" strokeWidth="0.5" opacity="0.4" />
+            <circle r="6"  className="ldr-spindle" />
+            <circle r="5.2" fill="none" className="ldr-spindle-edge" strokeWidth="0.8" />
           </g>
 
           {/* ── AN Monogram (phase 4) — sits above label, spins with record ── */}
@@ -226,7 +228,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
             "C 111,44 116,46 121,30     C 126,14  130,4   134,0",
             "C 140,-6 148,-18 160,0",
           ].join(" ")}
-          stroke="#A8B8A1"
+          className="ldr-wave"
           strokeWidth="1.4"
           fill="none"
           strokeLinecap="round"
@@ -240,7 +242,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
           textAnchor="middle"
           fontFamily="var(--font-jetbrains-mono), 'Courier New', monospace"
           fontSize="9"
-          fill="#6A7D70"
+          className="ldr-counter"
           letterSpacing="2"
           opacity="0.7"
         >
