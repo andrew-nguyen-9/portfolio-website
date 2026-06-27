@@ -43,6 +43,25 @@
   --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
+/* ─── Transit-map variant (v4.7.4) ──────────────────────────
+   Opt-in alt palette (A11y panel). Placed after .dark so it overrides both default
+   themes when html.theme-transit is set, but BEFORE the high-contrast blocks so the
+   A11y high-contrast option still wins. Values mirror lib/theme.ts.transitMap
+   (token-drift guard enforces it). */
+.theme-transit {
+  --bg:           #F7F5EF;
+  --surface:      #ECE8DD;
+  --primary:      #15607F;
+  --secondary:    #B0102A;
+  --highlight:    #7A5A12;
+  --fg:           #15191C;
+  --fg-muted:     #45504A;
+  --fg-subtle:    #59635D;
+  --border:       rgba(20, 24, 26, 0.14);
+  --border-strong:rgba(20, 24, 26, 0.24);
+  --card-border:  #D9D4C8;
+}
+
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
 /* The A11y "high contrast" option pushes *further* than the default themes:
    pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */
@@ -75,6 +94,21 @@
   --border:       rgba(255,255,255,0.45);
   --border-strong:rgba(255,255,255,0.78);
   --card-border:  #fff;
+}
+
+/* ─── Cross-document View Transitions (v4.7.3) ──────────────
+   Smooth crossfade when navigating between routes (home ↔ /writing ↔ /projects/…)
+   in browsers that support MPA view transitions; everywhere else it's an instant
+   nav (progressive enhancement, no JS). Gated behind no-preference so the OS
+   reduced-motion setting opts out; the A11y panel's .reduce-motion class also
+   neutralizes the animation below. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+.reduce-motion::view-transition-group(*),
+.reduce-motion::view-transition-old(*),
+.reduce-motion::view-transition-new(*) {
+  animation: none !important;
 }
 
 /* ─── Reduce-motion (via A11y panel class, supplements media query) ── */
@@ -287,6 +321,56 @@ body::after {
   transform: translateY(-2px);
 }
 
+/* ─── Spotify panel (v4.7.6) ────────────────────────────────
+   Recently-played feed + top-genre chips below NowPlaying. Token-driven. */
+.spotify-panel { margin-top: 18px; }
+.genre-cloud { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.genre-chip {
+  font-family: var(--font-jetbrains-mono), monospace;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  color: var(--fg-muted);
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+.recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.recent-row { border-radius: 8px; }
+.recent-link,
+.recent-row > :not(a) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+.recent-link:hover,
+.recent-link:focus-visible { background: var(--surface); }
+.recent-art { width: 32px; height: 32px; border-radius: 5px; object-fit: cover; flex-shrink: 0; }
+.recent-art-empty { background: var(--surface); border: 1px solid var(--border); }
+.recent-text { display: flex; flex-direction: column; min-width: 0; }
+.recent-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-artist {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ─── Typography ────────────────────────────────────────── */
 .font-display  { font-family: var(--font-display), system-ui, sans-serif; }
 .font-mono     { font-family: var(--font-jetbrains-mono), 'Courier New', monospace; }
@@ -360,6 +444,34 @@ body::after {
 
 @keyframes vinyl-spin    { to { transform: rotate(360deg);  } }
 @keyframes counter-spin  { to { transform: rotate(-360deg); } }
+
+/* ─── Loader theming (v4.5.2) ───────────────────────────────
+   The vinyl palette is tokenized (single source, intentional, HC-adjustable). The
+   record stays dark in every theme — it's a record — but the loader background uses
+   var(--bg) and the waveform + counter pick up the active theme's accent, so the
+   loader themes with the site and the dark→light handoff is deliberate. */
+:root {
+  --ldr-disc:        #181E1C;
+  --ldr-disc-edge:   #263030;
+  --ldr-disc-inner:  #3A4840;
+  --ldr-groove-major:#445040;
+  --ldr-groove-minor:#222B28;
+  --ldr-label:       #2A3230;
+  --ldr-label-ring:  #363E3A;
+  --ldr-spindle:     #222B28;
+  --ldr-spindle-edge:#181E1C;
+}
+.ldr-disc        { fill:   var(--ldr-disc); }
+.ldr-disc-edge   { stroke: var(--ldr-disc-edge); }
+.ldr-disc-inner  { stroke: var(--ldr-disc-inner); }
+.ldr-groove-major{ stroke: var(--ldr-groove-major); }
+.ldr-groove-minor{ stroke: var(--ldr-groove-minor); }
+.ldr-label       { fill:   var(--ldr-label); }
+.ldr-label-ring  { stroke: var(--ldr-label-ring); }
+.ldr-spindle     { fill:   var(--ldr-spindle); }
+.ldr-spindle-edge{ stroke: var(--ldr-spindle-edge); }
+.ldr-wave        { stroke: var(--primary); }     /* accent themes with the site */
+.ldr-counter     { fill:   var(--fg-subtle); }
 
 /* ─── Nav ───────────────────────────────────────────────── */
 #nav {
@@ -939,3 +1051,184 @@ body::after {
 .hcaptcha-wrapper {
   display: block;
 }
+
+/* ─── Writing index rows (v4.2) ─────────────────────────────
+   Editorial list matching the project index: serif title, muted summary,
+   monospace metadata. Token-driven so it themes across all four palettes. */
+.article-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 8px 24px;
+  padding: 22px 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease, padding-left 0.2s ease;
+}
+.article-row:hover { background: var(--surface); padding-left: 14px; }
+.article-row-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.article-row-title {
+  font-family: var(--font-newsreader), serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.article-row-summary {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+.article-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .article-row { grid-template-columns: 1fr; }
+  .article-row-meta { flex-direction: row; align-items: baseline; gap: 14px; justify-content: flex-start; }
+}
+
+/* ─── Article prose (v4.2) ──────────────────────────────────
+   Long-form reading column. Body in the Newsreader serif (--font-writing);
+   headings in the display face; everything on tokens for theme parity. */
+.article-prose {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.7;
+  color: var(--fg);
+}
+.article-prose > * + * { margin-top: 1.2em; }
+.article-prose h2 {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: 2em;
+}
+.article-prose h3 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.6em;
+}
+.article-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.article-prose a:hover { color: var(--secondary); }
+.article-prose ul, .article-prose ol { padding-left: 1.4em; }
+.article-prose li + li { margin-top: 0.4em; }
+.article-prose strong { font-weight: 600; }
+.article-prose blockquote {
+  border-left: 2px solid var(--primary);
+  padding-left: 1.2em;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+.article-prose code {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+.article-prose pre {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1em 1.3em;
+  overflow-x: auto;
+}
+.article-prose pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+/* ─── Affiliate disclosure + link (v4.3) ────────────────────
+   FTC-compliant: visible disclosure banner; sponsored links visually marked. */
+.affiliate-disclosure {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--fg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  background: var(--surface);
+}
+.affiliate-link { color: var(--primary); text-underline-offset: 3px; }
+.affiliate-link::after {
+  content: "↗ partner";
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin-left: 0.4em;
+  white-space: nowrap;
+}
+
+/* ─── Project detail page (v4.7.1) ──────────────────────────── */
+.project-shots {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 36px;
+}
+.project-shot {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+}
+.project-learned {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-learned li {
+  position: relative;
+  padding-left: 1.4em;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+.project-learned li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+}
+
+/* ─── /uses + /now generic page lists (v4.3 / v4.5.5) ───────── */
+.uses-group { margin-bottom: 44px; }
+.uses-item { padding: 16px 8px; border-bottom: 1px solid var(--border); }
+.uses-item-name { font-weight: 600; }
+.uses-item-note { color: var(--fg-muted); font-size: 0.95rem; line-height: 1.5; margin-top: 4px; }
+
+.now-entry { padding: 20px 8px; border-top: 1px solid var(--border); }
+.now-entry-date {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+.now-entry-body { color: var(--fg-muted); line-height: 1.6; }

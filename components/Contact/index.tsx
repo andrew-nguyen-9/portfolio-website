@@ -25,6 +25,11 @@ function ContactForm() {
   const [captchaMode, setCaptchaMode] = useState<CaptchaMode>(
     HCAPTCHA_SITE_KEY ? "loading" : "fallback"
   );
+  // Lazy-load hCaptcha: don't pull js.hcaptcha.com until the visitor actually engages
+  // with the form. The eager script is the dominant cold-load Best-Practices hit
+  // (deprecated APIs / third-party cookies), so visitors who never touch the form
+  // never pay for it. (v4.6.1)
+  const [engaged, setEngaged] = useState(false);
   const [math, setMath] = useState({ a: 0, b: 0 });
   const [mathAnswer, setMathAnswer] = useState("");
   const startRef = useRef(0);
@@ -39,15 +44,18 @@ function ContactForm() {
     const obs = new MutationObserver(check);
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-    // If hCaptcha hasn't initialized shortly after mount, assume it's blocked.
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    if (HCAPTCHA_SITE_KEY) {
-      timer = setTimeout(() => {
-        setCaptchaMode((m) => (m === "loading" && !window.hcaptcha ? "fallback" : m));
-      }, 2800);
-    }
-    return () => { obs.disconnect(); if (timer) clearTimeout(timer); };
+    return () => { obs.disconnect(); };
   }, []);
+
+  // Once engaged, the hCaptcha script is rendered. If it hasn't initialized shortly
+  // after, assume a blocker stopped it and fall back to the self-hosted challenge.
+  useEffect(() => {
+    if (!engaged || !HCAPTCHA_SITE_KEY) return;
+    const timer = setTimeout(() => {
+      setCaptchaMode((m) => (m === "loading" && !window.hcaptcha ? "fallback" : m));
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, [engaged]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -135,7 +143,14 @@ function ContactForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onFocus={() => setEngaged(true)}
+      onPointerDown={() => setEngaged(true)}
+      className="flex flex-col gap-5"
+      noValidate
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className={labelClass} style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>Name</label>
@@ -163,8 +178,8 @@ function ContactForm() {
         <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      {/* Load hCaptcha; if a blocker stops it, onError → self-hosted fallback */}
-      {HCAPTCHA_SITE_KEY && (
+      {/* Load hCaptcha only after engagement; if a blocker stops it, onError → fallback */}
+      {engaged && HCAPTCHA_SITE_KEY && (
         <Script
           src="https://js.hcaptcha.com/1/api.js"
           strategy="afterInteractive"

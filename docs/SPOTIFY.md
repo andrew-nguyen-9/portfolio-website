@@ -44,8 +44,12 @@ tokens on demand and caches them in-memory.
 
 ## Scopes
 
-`user-read-currently-playing` + `user-read-recently-played`. If you change scopes,
-re-mint the token — old tokens keep their original grant.
+`user-read-currently-playing` + `user-read-recently-played` + `user-top-read`. If you
+change scopes, re-mint the token — old tokens keep their original grant.
+
+> **v4.7.6 note:** the top-artists / genres panel needs **`user-top-read`**. Until the
+> refresh token is re-minted with that scope, `/api/spotify/top` returns 403 and the
+> genres panel hides itself (recently-played still works on the older scopes).
 
 ## Behavior
 

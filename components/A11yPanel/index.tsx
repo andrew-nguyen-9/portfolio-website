@@ -82,24 +82,30 @@ function A11yIcon() {
 
 const LS_KEY = "a11y-panel";
 
+type ThemeVariant = "default" | "transit";
+
 interface A11yState {
   fontSize: FontSize;
   highContrast: boolean;
   reduceMotion: boolean;
+  themeVariant: ThemeVariant;
 }
 
 function loadState(prefersReducedMotion: boolean): A11yState {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw) as A11yState;
-  } catch {
-    // ignore
-  }
-  return {
+  const defaults: A11yState = {
     fontSize: "medium",
     highContrast: false,
     reduceMotion: prefersReducedMotion,
+    themeVariant: "default",
   };
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    // Merge over defaults so state saved before themeVariant existed still loads.
+    if (raw) return { ...defaults, ...(JSON.parse(raw) as Partial<A11yState>) };
+  } catch {
+    // ignore
+  }
+  return defaults;
 }
 
 function saveState(state: A11yState) {
@@ -117,6 +123,7 @@ export default function A11yPanel() {
     fontSize: "medium",
     highContrast: false,
     reduceMotion: false,
+    themeVariant: "default",
   });
 
   // Hydrate from localStorage + media query on mount
@@ -135,6 +142,7 @@ export default function A11yPanel() {
     root.style.fontSize = FONT_SIZE_MAP[next.fontSize];
     root.classList.toggle("high-contrast", next.highContrast);
     root.classList.toggle("reduce-motion", next.reduceMotion);
+    root.classList.toggle("theme-transit", next.themeVariant === "transit");
   }
 
   function update(patch: Partial<A11yState>) {
@@ -321,6 +329,53 @@ export default function A11yPanel() {
                 onChange={(val) => update({ reduceMotion: val })}
               />
             </label>
+
+            {/* Divider */}
+            <div style={{ height: 1, background: "var(--border)", margin: "12px 0" }} />
+
+            {/* Theme variant */}
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--fg-muted)",
+                marginBottom: 8,
+              }}
+            >
+              Palette
+            </p>
+            <div style={{ display: "flex", gap: 6 }}>
+              {([
+                { key: "default", label: "Default" },
+                { key: "transit", label: "Transit map" },
+              ] as { key: ThemeVariant; label: string }[]).map(({ key, label }) => {
+                const active = state.themeVariant === key;
+                return (
+                  <button
+                    key={key}
+                    aria-pressed={active}
+                    onClick={() => update({ themeVariant: key })}
+                    style={{
+                      flex: 1,
+                      height: 34,
+                      borderRadius: 8,
+                      border: active ? "1.5px solid var(--primary)" : "1.5px solid var(--border)",
+                      background: active ? "var(--primary)" : "var(--bg)",
+                      color: active ? "var(--bg)" : "var(--fg)",
+                      cursor: "pointer",
+                      fontSize: 11,
+                      fontFamily: "var(--font-jetbrains-mono), monospace",
+                      fontWeight: 600,
+                      transition: "background 0.15s, border-color 0.15s",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

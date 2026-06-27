@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { projects } from "@/content/projects";
 
 // Strict, nonce-based Content-Security-Policy.
 //
@@ -14,6 +15,25 @@ import { NextRequest, NextResponse } from "next/server";
 // Note: reading the nonce in app/layout.tsx (via headers()) makes the page
 // dynamically rendered — the inherent cost of a nonce-based CSP in Next.js.
 export function middleware(request: NextRequest) {
+  // ── Status-aware subdomain routing (v4.7.1) ──────────────────────────────────
+  // *.an9.dev is a wildcard onto this app. A request that arrives on a project's
+  // subdomain (i.e. an unclaimed planned/building project — live ones have their own
+  // deploy/DNS that overrides the wildcard) is redirected to its apex detail page, so
+  // the teaser/coming-soon lives in one place (the BRAINSTORM "apex render" decision).
+  // Adding a project = one registry entry; no per-subdomain config.
+  const host = (request.headers.get("host") ?? "").toLowerCase().split(":")[0];
+  const isApex =
+    host === "an9.dev" ||
+    host === "www.an9.dev" ||
+    host === "localhost" ||
+    host.endsWith(".vercel.app");
+  if (!isApex && host.endsWith(".an9.dev")) {
+    const project = projects.find((p) => p.subdomain.toLowerCase() === host);
+    if (project) {
+      return NextResponse.redirect(new URL(`/projects/${project.id}`, "https://an9.dev"), 308);
+    }
+  }
+
   // Base64 nonce from Web Crypto — no Node Buffer (middleware runs on the Edge runtime).
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -39,6 +59,10 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
+  // Let the layout know the path so it only stamps the homepage-identity SEO tags
+  // (canonical, og:*, twitter:*) on "/". Sub-routes provide their own via metadata —
+  // a global homepage canonical in <head> would mis-canonicalize them to the homepage.
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
@@ -51,7 +75,7 @@ export const config = {
     // which carry no inline scripts and stay statically cached.
     {
       source:
-        "/((?!_next/static|_next/image|favicon.ico|icon|og|robots.txt|sitemap.xml).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icon|og|robots.txt|sitemap.xml|keystatic|api/keystatic).*)",
     },
   ],
 };
