@@ -26,35 +26,68 @@ export default function Hero() {
     setMounted(true);
   }, []);
 
-  /* ── Type the name once, cleanly ─────────────────────────
-     No cycle, no typos. Renders in full immediately under
-     reduced motion (the typing is JS, so the CSS reduced-motion
-     query can't stop it — guard here instead). */
+  /* ── Type the name, then retype the last line on a loop ──
+     First pass types both lines cleanly (no typos). After it lands,
+     a loop fires every 20–30s (random): it deletes only line 2
+     (nGuyen) and retypes it, so the name stays subtly alive without
+     re-running the whole intro. Renders in full immediately under
+     reduced motion (typing is JS, so the CSS reduced-motion query
+     can't stop it — guard here, and respect the A11y .reduce-motion
+     class toggled at runtime). */
   useEffect(() => {
     if (!mounted) return;
 
-    if (reduceRef.current) {
+    const reduced = () =>
+      reduceRef.current ||
+      document.documentElement.classList.contains("reduce-motion");
+
+    if (reduced()) {
       setDisplay({ line1: NAME.line1, line2: NAME.line2, onLine2: true });
       return;
     }
 
     let cancelled = false;
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    const after = (ms: number, fn: () => void) => {
+      const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
+      timers.add(id);
+    };
+
+    // Delete line 2 down to empty, then retype it, then schedule again.
+    const retypeLast = () => {
+      if (cancelled || reduced()) return;
+      const del = (i: number) => {
+        if (cancelled) return;
+        setDisplay({ line1: NAME.line1, line2: NAME.line2.slice(0, i), onLine2: true });
+        if (i > 0) after(34, () => del(i - 1));
+        else after(200, () => retype(0));
+      };
+      const retype = (i: number) => {
+        if (cancelled) return;
+        setDisplay({ line1: NAME.line1, line2: NAME.line2.slice(0, i), onLine2: true });
+        if (i < NAME.line2.length) after(58, () => retype(i + 1));
+        else scheduleRetype();
+      };
+      del(NAME.line2.length);
+    };
+    const scheduleRetype = () => after(20_000 + Math.random() * 10_000, retypeLast);
 
     const typeLine2 = (i: number) => {
       if (cancelled) return;
       setDisplay({ line1: NAME.line1, line2: NAME.line2.slice(0, i), onLine2: true });
-      if (i < NAME.line2.length) setTimeout(() => typeLine2(i + 1), 58);
+      if (i < NAME.line2.length) after(58, () => typeLine2(i + 1));
+      else scheduleRetype();
     };
 
     const typeLine1 = (i: number) => {
       if (cancelled) return;
       setDisplay({ line1: NAME.line1.slice(0, i), line2: "", onLine2: false });
-      if (i < NAME.line1.length) setTimeout(() => typeLine1(i + 1), 62);
-      else setTimeout(() => typeLine2(0), 180);
+      if (i < NAME.line1.length) after(62, () => typeLine1(i + 1));
+      else after(180, () => typeLine2(0));
     };
 
-    const t = setTimeout(() => typeLine1(0), 500);
-    return () => { cancelled = true; clearTimeout(t); };
+    after(500, () => typeLine1(0));
+    return () => { cancelled = true; timers.forEach(clearTimeout); };
   }, [mounted]);
 
   /* ── Subtle pointer parallax on the hero image ───────────
