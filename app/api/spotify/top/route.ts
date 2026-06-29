@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCreds, getAccessToken, clearToken } from "@/lib/spotify";
+import { getCreds, spotifyFetch } from "@/lib/spotify";
 
 // Top artists + derived top genres (v4.7.6). Requires the `user-top-read` scope on
 // the refresh token; if the current token lacks it Spotify returns 403 and we degrade
@@ -33,13 +33,9 @@ export async function GET() {
   if (!creds) return json({ configured: false });
 
   try {
-    const token = await getAccessToken(creds);
-    if (!token) return json({ configured: true, artists: [], genres: [] });
-
-    const res = await fetch(TOP_URL, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.status === 401) clearToken();
+    const res = await spotifyFetch(TOP_URL, creds);
     // 403 = token minted without user-top-read; degrade quietly.
-    if (res.status !== 200) return json({ configured: true, artists: [], genres: [] });
+    if (!res || res.status !== 200) return json({ configured: true, artists: [], genres: [] });
 
     const data = (await res.json()) as { items?: Artist[] };
     const items = data.items ?? [];

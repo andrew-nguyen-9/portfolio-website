@@ -3,20 +3,105 @@
 import { useState, useEffect, useRef } from "react";
 import { useReveal } from "@/hooks/useReveal";
 import { projects } from "@/content/projects";
+import Tooltip from "@/components/Tooltip";
 import NowPlaying from "./NowPlaying";
 import SpotifyPanel from "./SpotifyPanel";
 
-/* ─── Data ──────────────────────────────────────────────────
-   Counters derive from content/projects.ts (the source of truth) so they can't
-   drift as the project family grows. */
-const inBuild = projects.filter(p => p.status !== "planned").length;
-const domainCount = new Set(projects.map(p => p.category)).size;
+/* ─── Skill groups ──────────────────────────────────────────
+   Rebuilt from the real libraries across the project repos (Soundcheck, BlitzBoard,
+   Behind the Ballot, MetroTrack, Parlor). Grouped: languages · data & public APIs ·
+   web & build · AI. Each skill carries an accessible tooltip describing what it's for
+   / which builds use it. Shown all at once — no slider. */
+interface Skill {
+  name: string;
+  tip: string;
+}
+interface SkillGroup {
+  id: string;
+  label: string;
+  items: Skill[];
+}
+
+const SKILL_GROUPS: SkillGroup[] = [
+  {
+    id: "languages",
+    label: "Languages I Write",
+    items: [
+      { name: "Python", tip: "ETL pipelines, data enrichment, and forecasting across every project." },
+      { name: "SQL", tip: "Postgres + DuckDB queries — the bronze→silver→gold transforms behind the data." },
+      { name: "TypeScript", tip: "Strict typing for every Next.js and Astro frontend in the family." },
+      { name: "JavaScript", tip: "The runtime under it all: browser glue, scripting, and build tooling." },
+      { name: "MATLAB", tip: "Numerical work carried over from my mechanical-engineering background." },
+    ],
+  },
+  {
+    id: "data",
+    label: "Data & Public APIs",
+    items: [
+      { name: "Supabase", tip: "Postgres + auto-REST + RLS — the cached data store for Soundcheck, BlitzBoard, and Parlor." },
+      { name: "PostGIS", tip: "Spatial queries for MetroTrack's route and coverage mapping." },
+      { name: "DuckDB", tip: "In-process analytics engine under the dbt transform layer." },
+      { name: "dbt", tip: "Tested bronze→silver→gold models that shape data before it reaches the app." },
+      { name: "BigQuery", tip: "Warehouse-scale SQL for larger analytical slices." },
+      { name: "Spotify API", tip: "Lineup and streaming stats for Soundcheck; the now-playing signal here." },
+      { name: "Deezer API", tip: "Track previews and artist metadata for Soundcheck and Parlor's jukebox." },
+      { name: "Sleeper API", tip: "Live league and draft state for BlitzBoard." },
+      { name: "nflverse", tip: "Historical NFL play-by-play and projections for BlitzBoard." },
+      { name: "TMDB API", tip: "Film and TV posters and facts for Parlor's gallery round." },
+      { name: "Wikipedia API", tip: "The raw fact source Parlor's nightly question bank is forged from." },
+      { name: "FEC API", tip: "Campaign-finance and Super PAC filings for Behind the Ballot." },
+      { name: "Census API", tip: "District demographics for Behind the Ballot." },
+      { name: "FRED API", tip: "Federal economic indicators underneath the political and grocery data." },
+      { name: "BLS API", tip: "Labor and price data — the CPI numbers behind the cost stories." },
+      { name: "GTFS", tip: "Transit schedules and stops feeding MetroTrack's coverage maps." },
+      { name: "Chicago Data Portal", tip: "Open civic datasets powering the Chicago transit work." },
+    ],
+  },
+  {
+    id: "web",
+    label: "Web & Build",
+    items: [
+      { name: "Next.js", tip: "App Router frontends for the portfolio, Soundcheck, BlitzBoard, and Parlor." },
+      { name: "Astro", tip: "Static-first islands powering Behind the Ballot and MetroTrack." },
+      { name: "React", tip: "The component layer across every interactive frontend." },
+      { name: "Tailwind", tip: "Utility CSS plus design tokens — the shared styling system." },
+      { name: "Framer Motion", tip: "Reveal and transition motion, always reduce-motion guarded." },
+      { name: "D3.js", tip: "Custom data viz for finance flows and transit charts." },
+      { name: "MapLibre", tip: "Vector basemaps and route overlays for MetroTrack." },
+      { name: "deck.gl", tip: "GPU map layers for dense transit and coverage data." },
+      { name: "ECharts", tip: "Funding and time-series charts across the civic projects." },
+      { name: "Tone.js", tip: "Synthesized audio for the cooking-music experiments." },
+      { name: "Vercel", tip: "Hosting and preview deploys for the Next.js apps." },
+      { name: "GitHub Actions", tip: "Scheduled cron ETL that refreshes each project's data nightly." },
+    ],
+  },
+  {
+    id: "ai",
+    label: "Learning With AI",
+    items: [
+      { name: "Claude API", tip: "AI-generated festival insights in Soundcheck — and building with Claude Code." },
+      { name: "AI-Assisted Coding", tip: "Getting ideas from head to screen faster with LLM pair-programming." },
+      { name: "Prompt-Driven Prototyping", tip: "Spec → working slice loops when shaping a new feature." },
+      { name: "Vercel AI SDK", tip: "The agent and tool-call layer for the planned Data Concierge." },
+    ],
+  },
+];
+
+/* ─── Stats (all derived from the project family / skill list — never hardcoded) ─── */
+const familyCount = projects.length;
+const inBuild = projects.filter((p) => p.status !== "planned").length;
+// Distinct public-data APIs wired across the family — every tag that names an API.
+const apiCount = new Set(
+  projects.flatMap((p) => p.tags).filter((t) => /\bAPI\b/.test(t))
+).size;
+// Distinct tools/libraries I build with, across every skill group.
+const toolCount = new Set(SKILL_GROUPS.flatMap((g) => g.items.map((s) => s.name))).size;
 
 const STATS = [
-  { target: projects.length, prefix: "", suffix: "", label: "Projects in the family", sub: "each at its own an9.dev subdomain" },
-  { target: inBuild,         prefix: "", suffix: "", label: "In active build",        sub: "the rest are on the runway"        },
-  { target: domainCount,     prefix: "", suffix: "", label: "Domains I'm digging into", sub: "music · sports · civic · games · food" },
-  { target: 2026,            prefix: "", suffix: "", label: "The year I'm shipping",   sub: "learning out loud as I go"         },
+  { target: familyCount, prefix: "", suffix: "", label: "Projects in the family", sub: "each at its own an9.dev subdomain" },
+  { target: inBuild,     prefix: "", suffix: "", label: "In active build",        sub: "live or shipping now"             },
+  { target: apiCount,    prefix: "", suffix: "", label: "Public data APIs wired", sub: "real sources, not mock data"      },
+  { target: toolCount,   prefix: "", suffix: "", label: "Tools in the stack",     sub: "languages, data, web, and AI"     },
 ];
 
 // The throughlines — what I actually keep coming back to, not a service menu.
@@ -27,29 +112,6 @@ const DOMAINS = [
   { label: "Politics & sports",  desc: "I follow both mostly for the statistics — funding flows, polls, box scores, and trends.",     color: "var(--highlight)" },
   { label: "Building with AI",   desc: "Learning to code, using AI to get ideas out of my head and onto a screen faster.",            color: "var(--secondary)" },
 ];
-
-// What I'm building these projects with — and still learning. Grouped, filterable.
-const SKILL_GROUPS = [
-  {
-    id: "languages", label: "Languages I Write",
-    items: ["Python", "SQL", "TypeScript", "JavaScript", "MATLAB"],
-  },
-  {
-    id: "data", label: "Data & Public APIs",
-    items: ["BigQuery", "Supabase", "DuckDB", "dbt", "GTFS", "FRED API", "BLS API", "FEC API"],
-  },
-  {
-    id: "web", label: "Web & Build",
-    items: ["Next.js", "React", "Tailwind", "D3.js", "Tone.js", "Web Audio API"],
-  },
-  {
-    id: "ai", label: "Learning With AI",
-    items: ["LLMs", "AI-Assisted Coding", "Prompt-Driven Prototyping", "Document Parsing"],
-  },
-];
-
-// Short tick labels for the category slider — index 0 = All, then one per group (order matches SKILL_GROUPS).
-const SKILL_TICKS = ["All", "Lang", "Data", "Web", "AI"];
 
 const INTERESTS = [
   "Public Transit", "Urban Planning", "Architecture", "Cooking",
@@ -189,21 +251,26 @@ function DomainCard({ item }: { item: typeof DOMAINS[number] }) {
   );
 }
 
-/* ─── Skill pill ─────────────────────────────────────────── */
-function SkillPill({ label }: { label: string }) {
+/* ─── Skill pill ─────────────────────────────────────────────
+   The pill is the tooltip trigger: tabbable so the description is reachable by
+   keyboard and tap (mobile), not just hover. Tooltip is the shared primitive. */
+function SkillPill({ skill }: { skill: Skill }) {
   return (
-    <span
-      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs transition-all hover:border-[var(--primary)] hover:-translate-y-0.5 hover:text-[var(--fg)]"
-      style={{
-        fontFamily: "var(--font-jetbrains-mono), monospace",
-        color: "var(--fg-muted)",
-        background: "transparent",
-        border: "1px solid var(--border-strong)",
-        letterSpacing: "0.03em",
-      }}
-    >
-      {label}
-    </span>
+    <Tooltip content={skill.tip} rich tabbable>
+      <span
+        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs transition-all hover:border-[var(--primary)] hover:-translate-y-0.5 hover:text-[var(--fg)]"
+        style={{
+          fontFamily: "var(--font-jetbrains-mono), monospace",
+          color: "var(--fg-muted)",
+          background: "transparent",
+          border: "1px solid var(--border-strong)",
+          letterSpacing: "0.03em",
+          cursor: "help",
+        }}
+      >
+        {skill.name}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -219,16 +286,10 @@ function InterestPill({ label }: { label: string }) {
 
 /* ─── Main content ───────────────────────────────────────── */
 function AboutContent() {
-  // Skill filter as a slider: index 0 shows every group, 1..n scrub to a single
-  // category. One number replaces the old multi-select Set.
-  const [idx, setIdx] = useState(0);
   const revealTop     = useReveal();
   const revealStats   = useReveal();
   const revealDomains = useReveal();
   const revealSkills  = useReveal();
-
-  const shownGroups = idx === 0 ? SKILL_GROUPS : [SKILL_GROUPS[idx - 1]];
-  const shownCount  = shownGroups.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <div>
@@ -249,20 +310,32 @@ function AboutContent() {
 
         <div className="flex flex-col justify-center gap-4 text-[1.01rem] leading-relaxed" style={{ color: "var(--fg-muted)" }}>
           <p>
-            I studied Mechanical Engineering at the University of Texas, but what I
-            do for fun is build tools — useful in my life — to answer questions
-            I can&apos;t stop asking. How well does the CTA actually cover Chicago? Where does Super PAC
-            money really go? Why did that box of crackers get smaller? I&apos;m
-            learning to code as I go, leaning on AI to get ideas out of my head and
-            onto a screen faster.
+            Howdy, my name is Andrew Nguyen, and welcome to my website! This website
+            is where I share the projects I build, the ideas I&apos;m exploring, and the
+            lessons I pick up along the way. Some projects are polished, some are
+            experiments, and some are simply excuses to learn a new technology.
+            Together, they document my journey through data engineering, analytics,
+            software development, automation, and AI, while reflecting a simple
+            philosophy: the best way to learn is to build something real.
           </p>
           <p>
-            This site is two things at once — a portfolio and a home base for those
-            projects. Each one lives at its own subdomain on{" "}
-            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "0.9em", color: "var(--primary)" }}>an9.dev</span>.
-            I follow politics and sports mostly for the statistics, I cook to try
-            things I&apos;ve never had, and I keep coming back to Chicago — which is
-            why one of these is a love letter to the CTA.
+            Although my projects cover a wide range of topics, they all share the same
+            goal: making complicated information easier to understand and more
+            enjoyable to explore. I like combining data engineering, software
+            development, analytics, and AI to build tools that solve real problems,
+            whether that&apos;s generating personalized festival schedules, analyzing
+            election trends, improving fantasy football decisions, visualizing transit
+            systems, or creating interactive games. For me, every project starts with
+            curiosity and ends with a deeper understanding of both the technology
+            behind it and the people who use it.
+          </p>
+          <p>
+            This website is meant to be explored. Every project has its own corner of
+            the workshop, complete with its goals, technical challenges, and the ideas
+            that shaped it. Some projects are polished, others are still evolving, but
+            each represents a step in my journey as a builder. If something catches
+            your eye, dive in and take a look around. You might even find inspiration
+            for your own next project!
           </p>
         </div>
       </div>
@@ -285,55 +358,27 @@ function AboutContent() {
 
       {/* ── Skills + Interests ───────────────────────────────── */}
       <div ref={revealSkills} className="reveal grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-        {/* Skills */}
+        {/* Skills — all groups shown at once, each pill tooltipped. */}
         <div>
-          <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+          <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
             <p className="text-xs tracking-[0.25em] uppercase eyebrow"
               style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
               What I build with
             </p>
             <span className="text-[0.62rem] tracking-[0.12em] uppercase eyebrow"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-              aria-live="polite">
-              {shownCount} tools
+              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
+              {toolCount} tools
             </span>
           </div>
-          <div className="mb-5">
-            <input
-              type="range"
-              min={0}
-              max={SKILL_GROUPS.length}
-              step={1}
-              value={idx}
-              onChange={e => setIdx(Number(e.target.value))}
-              className="skill-slider"
-              aria-label="Filter skills by category"
-              aria-valuetext={idx === 0 ? "All categories" : SKILL_GROUPS[idx - 1].label}
-            />
-            <div className="skill-stops">
-              {SKILL_TICKS.map((label, i) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setIdx(i)}
-                  data-active={idx === i}
-                  className="skill-stop"
-                  aria-label={i === 0 ? "Show all categories" : SKILL_GROUPS[i - 1].label}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
           <div className="flex flex-col gap-5">
-            {shownGroups.map(group => (
+            {SKILL_GROUPS.map(group => (
               <div key={group.id}>
                 <p className="text-[0.62rem] tracking-[0.18em] uppercase mb-2.5 eyebrow"
                   style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>
                   {group.label}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {group.items.map(item => <SkillPill key={item} label={item} />)}
+                  {group.items.map(item => <SkillPill key={item.name} skill={item} />)}
                 </div>
               </div>
             ))}

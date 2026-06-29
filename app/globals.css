@@ -955,6 +955,21 @@ body::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+.tooltip-wrapper:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 9999px; }
+
+/* Rich variant — sentence-length descriptions: wraps, normal case, wider, left-aligned. */
+.tooltip-rich {
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  font-size: 0.7rem;
+  text-align: left;
+  width: max-content;
+  max-width: min(240px, 70vw);
+  padding: 8px 11px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+}
 
 /* ─── Background image masks (fades on image only, never on text) ── */
 /* Hero: right-bottom anchored, strong fades toward top-left */
@@ -999,59 +1014,6 @@ body::after {
    on both --bg and --surface (~5.5:1) and goes further in the high-contrast
    palettes, so these labels stay legible in every theme. */
 .eyebrow { color: var(--fg-subtle); opacity: 1; }
-
-/* ─── Skills filter slider (About) ──────────────────────────
-   A single range slider scrubs through categories: index 0 = All, 1..n select one
-   group. Tick labels below are click-to-jump shortcuts. Thumb fills with --primary
-   (AA-safe ring via --bg border); ticks sit at --fg-subtle, active at --primary. */
-.skill-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 4px;
-  border-radius: 9999px;
-  background: var(--border-strong);
-  cursor: pointer;
-  outline: none;
-}
-.skill-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-.skill-slider::-webkit-slider-thumb:hover { transform: scale(1.12); }
-.skill-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-}
-.skill-slider:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
-
-.skill-stops { display: flex; justify-content: space-between; margin-top: 0.6rem; }
-.skill-stop {
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--fg-subtle);
-  background: transparent;
-  border: none;
-  padding: 0.15rem 0.2rem;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-.skill-stop:hover { color: var(--fg); }
-.skill-stop[data-active="true"] { color: var(--primary); font-weight: 600; }
-.skill-stop:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
 
 /* ─── hCaptcha wrapper ──────────────────────────────────── */
 .hcaptcha-wrapper {

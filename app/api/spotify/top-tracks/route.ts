@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { getCreds, getAccessToken, clearToken } from "@/lib/spotify";
+import { getCreds, spotifyFetch } from "@/lib/spotify";
 
-// Recently-played feed (v4.7.6). Same secret-handling posture as now-playing.
+// Monthly top tracks (v5.2). `time_range=short_term` ≈ the last 4 weeks = "most played
+// this month". Requires the `user-top-read` scope on the refresh token; if the token
+// lacks it Spotify returns 403 and we degrade to empty (the song list hides) until the
+// token is re-minted. See docs/SPOTIFY.md.
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-const RECENT_URL = "https://api.spotify.com/v1/me/player/recently-played?limit=20";
+const TOP_TRACKS_URL =
+  "https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=short_term";
 
 type Track = {
   name?: string;
@@ -42,23 +46,15 @@ export async function GET() {
   if (!creds) return json({ configured: false });
 
   try {
-    const token = await getAccessToken(creds);
-    if (!token) return json({ configured: true, items: [] });
+    const res = await spotifyFetch(TOP_TRACKS_URL, creds);
+    // 403 = token minted without user-top-read; degrade quietly.
+    if (!res || res.status !== 200) return json({ configured: true, items: [] });
 
-    const res = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.status === 401) clearToken();
-    if (res.status !== 200) return json({ configured: true, items: [] });
-
-    const data = (await res.json()) as { items?: { track?: Track }[] };
-    const seen = new Set<string>();
+    const data = (await res.json()) as { items?: Track[] };
     const items: Item[] = [];
-    for (const entry of data.items ?? []) {
-      const item = entry.track ? toItem(entry.track) : null;
-      if (!item) continue;
-      const key = `${item.title}—${item.artist}`;
-      if (seen.has(key)) continue; // collapse repeats from looping the same track
-      seen.add(key);
-      items.push(item);
+    for (const t of data.items ?? []) {
+      const item = toItem(t);
+      if (item) items.push(item);
       if (items.length >= 6) break;
     }
     return json({ configured: true, items });

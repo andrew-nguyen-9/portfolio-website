@@ -49,7 +49,17 @@ change scopes, re-mint the token — old tokens keep their original grant.
 
 > **v4.7.6 note:** the top-artists / genres panel needs **`user-top-read`**. Until the
 > refresh token is re-minted with that scope, `/api/spotify/top` returns 403 and the
-> genres panel hides itself (recently-played still works on the older scopes).
+> genres panel hides itself.
+
+> **v5.2 note:** the About song list now shows **monthly top tracks** —
+> `/api/spotify/top-tracks?time_range=short_term` ("most played this month") — instead
+> of the old recently-played feed (that route was removed). Top tracks **also need
+> `user-top-read`**: until the refresh token carries that scope both the genres chips and
+> the song list 403 and hide. `user-read-recently-played` is no longer required by the
+> About panel (the live now-playing widget still uses `user-read-currently-playing`).
+> Hardening (v5.2): all Web API GETs go through `spotifyFetch()` in `lib/spotify.ts`,
+> which on a `401` clears the cached access token and retries once with a fresh one —
+> killing the most common transient failure (a token that expired mid-request).
 
 ## Behavior
 
