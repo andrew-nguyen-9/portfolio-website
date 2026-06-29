@@ -689,12 +689,6 @@ body::after {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.project-row-year {
-  width: 3rem;
-  text-align: right;
-  font-size: 0.72rem;
-  color: var(--fg-subtle);
-}
 
 /* Inline detail region — expands in place beneath the row. */
 .project-row-detail { padding: 0 8px; }
@@ -800,6 +794,42 @@ body::after {
   to   { opacity: 1; transform: none; }
 }
 
+/* Logo + description card shown in the floating preview when a project has a logo
+   (falls back to the monogram CategoryPlate when it doesn't). */
+.project-preview-card {
+  width: 260px;
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+.project-preview-logo {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.project-preview-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.project-preview-name {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.project-preview-desc {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--fg-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Segmented monospace control (status filter + view toggle). */
 .project-seg { display: inline-flex; align-items: center; gap: 2px; }
 .project-seg-btn {
@@ -878,7 +908,6 @@ body::after {
     gap: 12px;
   }
   .project-row-status { width: auto; text-align: left; }
-  .project-row-year   { width: auto; text-align: left; }
 
   .project-list-row { grid-template-columns: 1fr; }
   .project-list-meta { grid-row: auto; grid-column: 1; justify-content: flex-start; }

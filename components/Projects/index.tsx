@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { projects, type Project, type ProjectStatus } from "@/content/projects";
 import { useReveal } from "@/hooks/useReveal";
@@ -114,7 +114,6 @@ function ProjectRow({
           <span className="project-row-status" style={{ color: statusColor(project.status) }}>
             {STATUS_LABELS[project.status]}
           </span>
-          <span className="project-row-year">{project.year}</span>
         </span>
       </button>
 
@@ -174,8 +173,6 @@ function ListRow({ project }: { project: Project }) {
         <span style={{ color: statusColor(project.status) }}>{STATUS_LABELS[project.status]}</span>
         <span aria-hidden="true">·</span>
         <span>{project.category}</span>
-        <span aria-hidden="true">·</span>
-        <span>{project.year}</span>
       </span>
       <span className="project-list-links">
         {project.status !== "planned" && (
@@ -230,11 +227,40 @@ function ProjectsContent() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [preview, setPreview] = useState<Project | null>(null);
-  const [pos, setPos] = useState<{ x: number; y: number; pinned: boolean }>({ x: 0, y: 0, pinned: false });
+  // Keyboard-focus anchor (pins the preview beside the row); null = follow the pointer.
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
+
+  // The floating preview is positioned by writing left/top directly on the node (via a
+  // rAF), never through React state — per-mousemove setState was the cause of the laggy,
+  // inconsistent follow. lastPt remembers the cursor so a freshly-opened preview lands
+  // next to it before the next move arrives.
+  const floatRef = useRef<HTMLDivElement | null>(null);
+  const lastPt = useRef({ x: 0, y: 0 });
+  const rafRef = useRef(0);
 
   useEffect(() => {
     setIsTouch(window.matchMedia("(hover: none)").matches);
   }, []);
+
+  const place = useCallback((x: number, y: number, pinned: boolean) => {
+    const el = floatRef.current;
+    if (!el) return;
+    const w = el.offsetWidth || PLATE_W;
+    const h = el.offsetHeight || PLATE_H;
+    // Pinned (keyboard): anchor at the point, top-aligned. Follow (pointer): offset to
+    // the lower-right of the cursor, vertically centred. Both clamped to the viewport.
+    const left = pinned ? x : x + 24;
+    const top = pinned ? y : y - h / 2;
+    el.style.left = `${Math.min(Math.max(left, 12), window.innerWidth - w - 12)}px`;
+    el.style.top = `${Math.min(Math.max(top, 12), window.innerHeight - h - 12)}px`;
+  }, []);
+
+  // Place once when the preview opens (or its anchor changes), before any move fires.
+  useEffect(() => {
+    if (isTouch || !preview) return;
+    if (anchor) place(anchor.x, anchor.y, true);
+    else place(lastPt.current.x, lastPt.current.y, false);
+  }, [preview, anchor, isTouch, place]);
 
   const visible = statusFilter === "all" ? projects : projects.filter((p) => p.status === statusFilter);
   const groups = groupByCategory(visible);
@@ -246,23 +272,17 @@ function ProjectsContent() {
 
   const showPreview = (p: Project, rect?: DOMRect) => {
     setPreview(p);
-    if (rect) {
-      // Keyboard focus: anchor beside the row and pin (stop cursor-following).
-      const x = Math.min(rect.right + 20, window.innerWidth - PLATE_W - 12);
-      const y = Math.min(Math.max(rect.top, 12), window.innerHeight - PLATE_H - 12);
-      setPos({ x, y, pinned: true });
-    } else {
-      // Pointer hover: release any pin so onMove resumes cursor-following.
-      setPos((prev) => (prev.pinned ? { ...prev, pinned: false } : prev));
-    }
+    // Keyboard focus passes a rect → pin beside the row. Pointer hover → follow.
+    setAnchor(rect ? { x: rect.right + 20, y: rect.top } : null);
   };
   const clearPreview = (p: Project) => setPreview((cur) => (cur === p ? null : cur));
 
   const onMove = (e: React.MouseEvent) => {
-    if (isTouch || pos.pinned) return;
-    const x = Math.min(e.clientX + 24, window.innerWidth - PLATE_W - 12);
-    const y = Math.min(Math.max(e.clientY - PLATE_H / 2, 12), window.innerHeight - PLATE_H - 12);
-    setPos({ x, y, pinned: false });
+    lastPt.current = { x: e.clientX, y: e.clientY };
+    if (isTouch || !preview || anchor) return;
+    cancelAnimationFrame(rafRef.current);
+    const { x, y } = lastPt.current;
+    rafRef.current = requestAnimationFrame(() => place(x, y, false));
   };
 
   let running = 0;
@@ -339,10 +359,23 @@ function ProjectsContent() {
         </ul>
       )}
 
-      {/* Floating preview — pointer (follows cursor) + keyboard (anchored). Never on touch. */}
+      {/* Floating preview — pointer (follows cursor) + keyboard (anchored). Never on touch.
+          Shows the project logo + description when a logo exists; otherwise the monogram
+          CategoryPlate. Positioned imperatively via floatRef (see place()). */}
       {view === "index" && !isTouch && preview && (
-        <div className="project-plate-floating" aria-hidden="true" style={{ left: pos.x, top: pos.y }}>
-          <CategoryPlate category={preview.category} />
+        <div ref={floatRef} className="project-plate-floating" aria-hidden="true" style={{ left: -9999, top: -9999 }}>
+          {preview.logo ? (
+            <div className="project-preview-card">
+              {/* eslint-disable-next-line @next/next/no-img-element -- local /public asset, no remote loader needed */}
+              <img src={preview.logo} alt="" width={56} height={56} className="project-preview-logo" />
+              <div className="project-preview-text">
+                <span className="project-preview-name">{preview.name}</span>
+                <span className="project-preview-desc">{preview.description}</span>
+              </div>
+            </div>
+          ) : (
+            <CategoryPlate category={preview.category} />
+          )}
         </div>
       )}
     </div>
