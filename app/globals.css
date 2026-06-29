@@ -43,25 +43,6 @@
   --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
-/* ─── Transit-map variant (v4.7.4) ──────────────────────────
-   Opt-in alt palette (A11y panel). Placed after .dark so it overrides both default
-   themes when html.theme-transit is set, but BEFORE the high-contrast blocks so the
-   A11y high-contrast option still wins. Values mirror lib/theme.ts.transitMap
-   (token-drift guard enforces it). */
-.theme-transit {
-  --bg:           #F7F5EF;
-  --surface:      #ECE8DD;
-  --primary:      #15607F;
-  --secondary:    #B0102A;
-  --highlight:    #7A5A12;
-  --fg:           #15191C;
-  --fg-muted:     #45504A;
-  --fg-subtle:    #59635D;
-  --border:       rgba(20, 24, 26, 0.14);
-  --border-strong:rgba(20, 24, 26, 0.24);
-  --card-border:  #D9D4C8;
-}
-
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
 /* The A11y "high contrast" option pushes *further* than the default themes:
    pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */

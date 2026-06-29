@@ -213,7 +213,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {/* Dark-mode flash prevention — beforeInteractive injects this into <head>
             and runs it before hydration. hCaptcha loads inside Contact via next/script. */}
         <Script id="theme-flash" strategy="beforeInteractive" nonce={nonce}>
-          {`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}var a=localStorage.getItem('a11y-panel');if(a){var v=JSON.parse(a);if(v&&v.themeVariant==='transit'){document.documentElement.classList.add('theme-transit')}}}catch(e){}})()`}
+          {`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`}
         </Script>
         {/* JSON-LD — valid in body; Google reads it either way. */}
         <script

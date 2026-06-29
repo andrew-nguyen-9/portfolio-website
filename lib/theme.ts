@@ -50,21 +50,6 @@ export const tokens = {
     borderStrong:  "rgba(0,0,0,0.75)",
     cardBorder:    "#000",
   },
-  // Transit-map variant (v4.7.4) — opt-in alt palette nodding to a subway map:
-  // map-paper base, CTA-style transit blue + red accents. AA-verified like light.
-  transitMap: {
-    bg:            "#F7F5EF",
-    surface:       "#ECE8DD",
-    primary:       "#15607F",
-    secondary:     "#B0102A",
-    highlight:     "#7A5A12",
-    fg:            "#15191C",
-    fgMuted:       "#45504A",
-    fgSubtle:      "#59635D",
-    border:        "rgba(20, 24, 26, 0.14)",
-    borderStrong:  "rgba(20, 24, 26, 0.24)",
-    cardBorder:    "#D9D4C8",
-  },
   // A11y high-contrast over dark (v2.1.2 — pushed further than default dark)
   darkHighContrast: {
     bg:            "#000",
