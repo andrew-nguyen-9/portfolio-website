@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-/* ─── Spotify expansions (v4.7.6) ───────────────────────────
-   Recently-played feed + top-genre chips, below the NowPlaying widget. Both fetch
+/* ─── Spotify expansions (v5.2) ───────────────────────────
+   Monthly top-tracks list + top-genre chips, below the NowPlaying widget. Both fetch
    the same-origin proxies (secrets stay server-side) and hide gracefully: if nothing
    comes back (unconfigured, or the token lacks user-top-read), the whole panel
-   renders nothing — never a broken or empty shell. */
+   renders nothing — never a broken or empty shell. The song list is now "most played
+   this month" (Spotify top tracks, short_term) rather than the old recently-played feed. */
 
-interface RecentItem {
+interface TrackItem {
   title: string;
   artist: string | null;
   albumImageUrl: string | null;
@@ -19,28 +20,28 @@ interface Genre {
   count: number;
 }
 
-type Recent = { configured: false } | { configured: true; items: RecentItem[] };
+type TopTracks = { configured: false } | { configured: true; items: TrackItem[] };
 type Top =
   | { configured: false }
   | { configured: true; artists: unknown[]; genres: Genre[] };
 
 export default function SpotifyPanel() {
-  const [recent, setRecent] = useState<RecentItem[]>([]);
+  const [tracks, setTracks] = useState<TrackItem[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
 
   useEffect(() => {
     const ctrl = new AbortController();
     (async () => {
       try {
-        const [r, t] = await Promise.all([
-          fetch("/api/spotify/recently-played", { signal: ctrl.signal })
-            .then((x) => x.json() as Promise<Recent>)
+        const [tt, t] = await Promise.all([
+          fetch("/api/spotify/top-tracks", { signal: ctrl.signal })
+            .then((x) => x.json() as Promise<TopTracks>)
             .catch(() => null),
           fetch("/api/spotify/top", { signal: ctrl.signal })
             .then((x) => x.json() as Promise<Top>)
             .catch(() => null),
         ]);
-        if (r && r.configured) setRecent(r.items);
+        if (tt && tt.configured) setTracks(tt.items);
         if (t && t.configured) setGenres(t.genres);
       } catch {
         // Silent degrade — leave both empty so the panel stays hidden.
@@ -49,7 +50,7 @@ export default function SpotifyPanel() {
     return () => ctrl.abort();
   }, []);
 
-  if (recent.length === 0 && genres.length === 0) return null;
+  if (tracks.length === 0 && genres.length === 0) return null;
 
   const maxCount = genres.reduce((m, g) => Math.max(m, g.count), 1);
 
@@ -77,16 +78,16 @@ export default function SpotifyPanel() {
         </div>
       )}
 
-      {recent.length > 0 && (
+      {tracks.length > 0 && (
         <div className={genres.length > 0 ? "mt-5" : ""}>
           <p
             className="text-[0.62rem] tracking-[0.18em] uppercase mb-2.5 eyebrow"
             style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
           >
-            On repeat lately
+            Most played this month
           </p>
           <ul className="recent-list">
-            {recent.map((item, i) => {
+            {tracks.map((item, i) => {
               const row = (
                 <>
                   {item.albumImageUrl ? (

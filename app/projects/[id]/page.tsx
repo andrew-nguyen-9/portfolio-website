@@ -95,7 +95,6 @@ export default async function ProjectPage({
         >
           <span>{STATUS_LABEL[p.status]}</span>
           <span>{p.category}</span>
-          <span>{p.year}</span>
         </p>
 
         <h1

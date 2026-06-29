@@ -17,7 +17,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const p = projects.find((proj) => proj.id === id);
   const name = p?.name ?? "an9.dev";
   const tagline = p?.tagline ?? "A family of data-driven passion projects.";
-  const meta = p ? `${STATUS_LABEL[p.status]} · ${p.category} · ${p.year}` : "an9.dev";
+  const meta = p ? `${STATUS_LABEL[p.status]} · ${p.category}` : "an9.dev";
 
   return new ImageResponse(
     (

@@ -48,3 +48,22 @@ export async function getAccessToken(c: SpotifyCreds): Promise<string | null> {
   cached = { token: data.access_token, expiresAt: Date.now() + (data.expires_in ?? 3600) * 1_000 };
   return data.access_token;
 }
+
+// Single entry point for Web API GETs. Hardens against the most common flake — an
+// access token that expired between cache check and request: a 401 clears the cache
+// and retries once with a freshly minted token. Returns null when unconfigured or the
+// token can't be obtained; callers degrade to an empty/hidden widget. A 403 (scope
+// missing, e.g. user-top-read) is returned as-is for the caller to handle.
+export async function spotifyFetch(url: string, c: SpotifyCreds): Promise<Response | null> {
+  let token = await getAccessToken(c);
+  if (!token) return null;
+
+  let res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) {
+    clearToken();
+    token = await getAccessToken(c);
+    if (!token) return null;
+    res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  }
+  return res;
+}

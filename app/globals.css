@@ -43,25 +43,6 @@
   --card-border:  #2A332E;  /* border-strong composited onto surface */
 }
 
-/* ─── Transit-map variant (v4.7.4) ──────────────────────────
-   Opt-in alt palette (A11y panel). Placed after .dark so it overrides both default
-   themes when html.theme-transit is set, but BEFORE the high-contrast blocks so the
-   A11y high-contrast option still wins. Values mirror lib/theme.ts.transitMap
-   (token-drift guard enforces it). */
-.theme-transit {
-  --bg:           #F7F5EF;
-  --surface:      #ECE8DD;
-  --primary:      #15607F;
-  --secondary:    #B0102A;
-  --highlight:    #7A5A12;
-  --fg:           #15191C;
-  --fg-muted:     #45504A;
-  --fg-subtle:    #59635D;
-  --border:       rgba(20, 24, 26, 0.14);
-  --border-strong:rgba(20, 24, 26, 0.24);
-  --card-border:  #D9D4C8;
-}
-
 /* ─── High-contrast mode (via A11y panel) ───────────────── */
 /* The A11y "high contrast" option pushes *further* than the default themes:
    pure #000/#fff, max-saturation brand accents, heavier borders (AAA). */
@@ -282,6 +263,10 @@ body::after {
 /* Dark: swap — "AndReW" is default fg, "nGuyen" is orange */
 .dark .hero-name-first { color: var(--fg); }
 .dark .hero-name-last  { color: var(--secondary); }
+
+/* "Chicago, IL" eyebrow sits over the photo — --fg-subtle is too dim in dark.
+   Force it to full --fg (white) so it reads against the image. */
+.dark #hero .eyebrow { color: var(--fg); }
 
 /* ─── Typing cursor ─────────────────────────────────────── */
 @keyframes cursor-blink {
@@ -685,12 +670,6 @@ body::after {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.project-row-year {
-  width: 3rem;
-  text-align: right;
-  font-size: 0.72rem;
-  color: var(--fg-subtle);
-}
 
 /* Inline detail region — expands in place beneath the row. */
 .project-row-detail { padding: 0 8px; }
@@ -796,6 +775,42 @@ body::after {
   to   { opacity: 1; transform: none; }
 }
 
+/* Logo + description card shown in the floating preview when a project has a logo
+   (falls back to the monogram CategoryPlate when it doesn't). */
+.project-preview-card {
+  width: 260px;
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+.project-preview-logo {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.project-preview-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.project-preview-name {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.project-preview-desc {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--fg-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Segmented monospace control (status filter + view toggle). */
 .project-seg { display: inline-flex; align-items: center; gap: 2px; }
 .project-seg-btn {
@@ -874,7 +889,6 @@ body::after {
     gap: 12px;
   }
   .project-row-status { width: auto; text-align: left; }
-  .project-row-year   { width: auto; text-align: left; }
 
   .project-list-row { grid-template-columns: 1fr; }
   .project-list-meta { grid-row: auto; grid-column: 1; justify-content: flex-start; }
@@ -951,6 +965,21 @@ body::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+.tooltip-wrapper:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 9999px; }
+
+/* Rich variant — sentence-length descriptions: wraps, normal case, wider, left-aligned. */
+.tooltip-rich {
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  font-size: 0.7rem;
+  text-align: left;
+  width: max-content;
+  max-width: min(240px, 70vw);
+  padding: 8px 11px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+}
 
 /* ─── Background image masks (fades on image only, never on text) ── */
 /* Hero: right-bottom anchored, strong fades toward top-left */
@@ -960,13 +989,15 @@ body::after {
   background-size: cover;
   background-position: right bottom;
   background-repeat: no-repeat;
+  /* Long, multi-stop ramps so the photo dissolves fully into --bg — no hard
+     mask edge (was visible in light mode at the top + bottom). Tuned by eye. */
   mask-image:
-    linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%),
-    linear-gradient(to right,  transparent 0%, black 26%, black 66%, transparent 100%);
+    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 7%, rgba(0,0,0,0.6) 17%, black 32%, black 60%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.12) 93%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, rgba(0,0,0,0.35) 13%, black 31%, black 70%, rgba(0,0,0,0.35) 90%, transparent 100%);
   mask-composite: intersect;
   -webkit-mask-image:
-    linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%),
-    linear-gradient(to right,  transparent 0%, black 26%, black 66%, transparent 100%);
+    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 7%, rgba(0,0,0,0.6) 17%, black 32%, black 60%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.12) 93%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, rgba(0,0,0,0.35) 13%, black 31%, black 70%, rgba(0,0,0,0.35) 90%, transparent 100%);
   -webkit-mask-composite: source-in;
 }
 /* Sections: centered image, softer edge fades */
@@ -993,59 +1024,6 @@ body::after {
    on both --bg and --surface (~5.5:1) and goes further in the high-contrast
    palettes, so these labels stay legible in every theme. */
 .eyebrow { color: var(--fg-subtle); opacity: 1; }
-
-/* ─── Skills filter slider (About) ──────────────────────────
-   A single range slider scrubs through categories: index 0 = All, 1..n select one
-   group. Tick labels below are click-to-jump shortcuts. Thumb fills with --primary
-   (AA-safe ring via --bg border); ticks sit at --fg-subtle, active at --primary. */
-.skill-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 4px;
-  border-radius: 9999px;
-  background: var(--border-strong);
-  cursor: pointer;
-  outline: none;
-}
-.skill-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-.skill-slider::-webkit-slider-thumb:hover { transform: scale(1.12); }
-.skill-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-}
-.skill-slider:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
-
-.skill-stops { display: flex; justify-content: space-between; margin-top: 0.6rem; }
-.skill-stop {
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--fg-subtle);
-  background: transparent;
-  border: none;
-  padding: 0.15rem 0.2rem;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-.skill-stop:hover { color: var(--fg); }
-.skill-stop[data-active="true"] { color: var(--primary); font-weight: 600; }
-.skill-stop:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
 
 /* ─── hCaptcha wrapper ──────────────────────────────────── */
 .hcaptcha-wrapper {
